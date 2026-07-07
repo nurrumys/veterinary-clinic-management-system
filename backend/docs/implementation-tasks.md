@@ -11,56 +11,56 @@ Verification commands referenced below:
 
 ## Week 1 — Foundations
 
-1. **Add missing dependencies**
+1. ~~**Add missing dependencies**~~ ✅ done
    - Add `springdoc-openapi-starter-webmvc-ui` and a JWT library (e.g. `io.jsonwebtoken:jjwt-api` + `jjwt-impl` + `jjwt-jackson`) to `pom.xml`.
    - Files: `pom.xml`.
    - Verify: `./mvnw compile`.
 
-2. **Swagger/OpenAPI setup**
+2. ~~**Swagger/OpenAPI setup**~~ ✅ done
    - Add minimal OpenAPI config (title, description, security scheme for Bearer JWT).
    - Files: `config/OpenApiConfig.java`.
    - Verify: `./mvnw spring-boot:run`, check `/swagger-ui.html`.
 
-3. **CORS configuration**
+3. ~~**CORS configuration**~~ ✅ done
    - Allow the frontend dev origin(s) for local development.
    - Files: `config/CorsConfig.java` (or within security config).
    - Verify: `./mvnw compile`.
 
-4. **Package structure**
+4. ~~**Package structure**~~ ✅ done
    - Create empty module packages: `auth`, `owner`, `pet`, `vet`, `visit`, `vaccination`, `invoice`, `dashboard`, `common`, `security`, `config`.
    - Verify: `./mvnw compile`.
 
-5. **Global error handling**
+5. ~~**Global error handling**~~ ✅ done
    - `GlobalExceptionHandler` producing the standard error shape from `docs/api-contract.md`.
    - Files: `common/exception/GlobalExceptionHandler.java`, `common/exception/*Exception.java`.
    - Verify: `./mvnw test`.
 
-6. **DTO / PageResponse standard**
+6. ~~**DTO / PageResponse standard**~~ ✅ done
    - Generic `PageResponse<T>` DTO used by all listing endpoints.
    - Files: `common/dto/PageResponse.java`.
    - Verify: `./mvnw compile`.
 
-7. **User/Role entity + JWT auth**
+7. ~~**User/Role entity + JWT auth**~~ ✅ done
    - `User` entity, `Role` enum, password hashing, JWT issuing/validation, Spring Security config.
    - Files: `security/*`, `auth/*`.
    - Verify: `./mvnw test`.
 
-8. **Auth endpoints**
+8. ~~**Auth endpoints**~~ ✅ done
    - `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`.
    - Files: `auth/AuthController.java`, `auth/AuthService.java`, `auth/dto/*`.
    - Verify: `./mvnw test`, manual login via Swagger.
 
-9. **Seed users**
+9. ~~**Seed users**~~ ✅ done (2026-07-07)
    - Data seeding for at least one ADMIN, one VET, one RECEPTIONIST for local/demo use.
    - Files: `config/DataSeeder.java` (or `CommandLineRunner`).
    - Verify: `./mvnw spring-boot:run`, confirm login works for seeded users.
 
-10. **Owner CRUD (start)**
+10. ~~**Owner CRUD (start)**~~ ✅ done (2026-07-07)
     - `Owner` entity, repository, basic create/list.
     - Files: `owner/*`.
     - Verify: `./mvnw test`.
 
-11. **Pet/Vet CRUD (start)**
+11. ~~**Pet/Vet CRUD (start)**~~ ✅ done (2026-07-07)
     - `Pet`, `Vet` entities, repositories, basic create/list.
     - Files: `pet/*`, `vet/*`.
     - Verify: `./mvnw test`.
@@ -69,27 +69,27 @@ Verification commands referenced below:
 
 ## Week 2 — Core CRUD + Visits
 
-12. **Complete Owner CRUD**
+12. ~~**Complete Owner CRUD**~~ ✅ done (2026-07-07)
     - Full CRUD + validation.
     - Files: `owner/*`.
     - Verify: `./mvnw test`.
 
-13. **Owner detail with pet list/count**
+13. ~~**Owner detail with pet list/count**~~ ✅ done (2026-07-07)
     - `GET /api/owners/{id}` includes pets and pet count.
     - Files: `owner/*`.
     - Verify: `./mvnw test`.
 
-14. **Complete Pet CRUD**
+14. ~~**Complete Pet CRUD**~~ ✅ done (2026-07-07)
     - Full CRUD + species/breed conditional validation rule.
     - Files: `pet/*`.
     - Verify: `./mvnw test`.
 
-15. **Pet archive/activate**
+15. ~~**Pet archive/activate**~~ ✅ done (2026-07-07)
     - `PATCH /api/pets/{id}/archive`, `PATCH /api/pets/{id}/activate`.
     - Files: `pet/*`.
     - Verify: `./mvnw test`.
 
-16. **Pet search/filter/sort/pagination**
+16. ~~**Pet search/filter/sort/pagination**~~ ✅ done (2026-07-07)
     - `GET /api/pets` with `search`, `species`, `ownerId`, `active`, sort, pagination.
     - Files: `pet/*`.
     - Verify: `./mvnw test`.

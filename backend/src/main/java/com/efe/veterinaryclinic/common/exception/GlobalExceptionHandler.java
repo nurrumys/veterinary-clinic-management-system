@@ -35,6 +35,12 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.CONFLICT, ex.getMessage(), request, List.of());
     }
 
+    @ExceptionHandler(BusinessRuleViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleBusinessRuleViolation(BusinessRuleViolationException ex, HttpServletRequest request) {
+        List<FieldErrorDetail> fieldErrors = List.of(new FieldErrorDetail(ex.getField(), ex.getMessage()));
+        return build(HttpStatus.BAD_REQUEST, "Validation failed", request, fieldErrors);
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiErrorResponse> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
         return build(HttpStatus.FORBIDDEN, "Access is denied", request, List.of());
