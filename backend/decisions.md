@@ -47,3 +47,8 @@ This file records architectural decisions made for this project, in the order th
 
 14. **Standardized HTTP status/response conventions across all endpoints for frontend UX patterns (loading, toast, empty state, confirmation modal).**
     Rationale: the frontend needs predictable status codes to drive generic UI behavior — `201` create, `200` update/action/archive-activate, `204` real delete, `409` on dependency conflicts (e.g. owner-with-pets delete), empty `PageResponse` (`content: []`) instead of `404` for empty listings, and `ApiErrorResponse` for all error cases including field-level validation errors. Documented in `docs/api-contract.md` (§3, §3.1).
+
+## 2026-07-08 — Test config hygiene
+
+15. **`src/test/resources/application.properties` is no longer committed; `application.properties.example` is the tracked template. Test classes read seed credentials via `@Value` injection instead of hardcoded string literals.**
+    Rationale: the file only ever held fake H2/demo-seed values (no real system was ever protected by them — confirmed no real secret was ever committed, even before `src/main/resources/application.properties` was gitignored), but keeping plaintext-looking credentials out of version control avoids false-positive secret-scanning noise and matches the same pattern already used for `src/main/resources/application.properties`. Each developer copies the `.example` file locally once; test behavior is unchanged.

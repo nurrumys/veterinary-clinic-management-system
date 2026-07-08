@@ -3,6 +3,7 @@ package com.efe.veterinaryclinic.auth;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -17,10 +18,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class AuthControllerTest {
 
-    private static final String SEED_ADMIN_EMAIL = "admin@clinic.com";
-    private static final String SEED_ADMIN_PASSWORD = "Admin123!";
-    private static final String SEED_RECEPTIONIST_EMAIL = "receptionist@clinic.com";
-    private static final String SEED_RECEPTIONIST_PASSWORD = "Reception123!";
+    @Value("${app.seed.admin.email}")
+    private String SEED_ADMIN_EMAIL;
+    @Value("${app.seed.admin.password}")
+    private String SEED_ADMIN_PASSWORD;
+    @Value("${app.seed.receptionist.email}")
+    private String SEED_RECEPTIONIST_EMAIL;
+    @Value("${app.seed.receptionist.password}")
+    private String SEED_RECEPTIONIST_PASSWORD;
 
     @Autowired
     private MockMvc mockMvc;
