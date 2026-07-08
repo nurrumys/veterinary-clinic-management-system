@@ -18,7 +18,9 @@ Seed accounts (ready out of the box in the `h2` profile):
 
 | Role | Email | Password |
 |---|---|---|
-| ADMIN | admin@clinic.com | Admin123! |
-| VET | vet1@clinic.com | Vet12345! |
-| VET | vet2@clinic.com | Vet22345! |
-| RECEPTIONIST | receptionist@clinic.com | Reception123! |
+| ADMIN | h2-admin@example.com | H2Demo-Admin-2026! |
+| VET | h2-vet1@example.com | H2Demo-Vet1-2026! |
+| VET | h2-vet2@example.com | H2Demo-Vet2-2026! |
+| RECEPTIONIST | h2-receptionist@example.com | H2Demo-Reception-2026! |
+
+These `h2` profile accounts are separate from (and unrelated to) the seed accounts used in the real PostgreSQL dev/test setup.
