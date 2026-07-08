@@ -7,14 +7,14 @@ spring.jpa.hibernate.ddl-auto=create-drop
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 
-app.jwt.secret=test-only-veterinary-clinic-jwt-secret-key-for-unit-tests
+app.jwt.secret=change-me-in-local-application-properties
 app.jwt.expiration-ms=3600000
 
 app.seed.admin.email=admin@clinic.com
-app.seed.admin.password=Admin123!
+app.seed.admin.password=change-me
 app.seed.vet1.email=vet1@clinic.com
-app.seed.vet1.password=Vet12345!
+app.seed.vet1.password=change-me
 app.seed.vet2.email=vet2@clinic.com
-app.seed.vet2.password=Vet22345!
+app.seed.vet2.password=change-me
 app.seed.receptionist.email=receptionist@clinic.com
-app.seed.receptionist.password=Reception123!
+app.seed.receptionist.password=change-me
