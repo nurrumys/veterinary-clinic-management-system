@@ -1,5 +1,10 @@
 spring.application.name=veterinary-clinic-backend
 
+# Frontend developers without PostgreSQL installed do not need to copy this
+# file at all: run with the h2 profile instead, which is self-contained.
+#   ./mvnw spring-boot:run -Dspring-boot.run.profiles=h2
+# See src/main/resources/application-h2.properties.
+
 spring.datasource.url=${DB_URL:jdbc:postgresql://localhost:5432/vet_clinic}
 spring.datasource.username=${DB_USERNAME:postgres}
 spring.datasource.password=${DB_PASSWORD:postgres}
