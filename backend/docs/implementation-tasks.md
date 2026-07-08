@@ -94,7 +94,7 @@ Verification commands referenced below:
     - Files: `pet/*`.
     - Verify: `./mvnw test`.
 
-17. **Complete Vet CRUD**
+17. ~~**Complete Vet CRUD**~~ ✅ done (2026-07-08)
     - Full CRUD.
     - Files: `vet/*`.
     - Verify: `./mvnw test`.

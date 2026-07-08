@@ -53,6 +53,13 @@ public class Vet {
         this.active = true;
     }
 
+    public void update(String name, String specialty, String licenseNo, String workHours) {
+        this.name = name;
+        this.specialty = specialty;
+        this.licenseNo = licenseNo;
+        this.workHours = workHours;
+    }
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
