@@ -1,0 +1,74 @@
+package com.efe.veterinaryclinic.visit;
+
+import com.efe.veterinaryclinic.common.dto.PageResponse;
+import com.efe.veterinaryclinic.visit.dto.VisitRequest;
+import com.efe.veterinaryclinic.visit.dto.VisitResponse;
+import com.efe.veterinaryclinic.visit.dto.VisitStatusUpdateRequest;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/visits")
+public class VisitController {
+
+    private final VisitService visitService;
+
+    public VisitController(VisitService visitService) {
+        this.visitService = visitService;
+    }
+
+    @PostMapping
+    public ResponseEntity<VisitResponse> create(@Valid @RequestBody VisitRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(visitService.create(request));
+    }
+
+    @GetMapping
+    public ResponseEntity<PageResponse<VisitResponse>> list(
+            @RequestParam(required = false) Long vetId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(required = false) VisitStatus status,
+            Pageable pageable) {
+        return ResponseEntity.ok(visitService.list(vetId, from, to, status, pageable));
+    }
+
+    @GetMapping("/calendar")
+    public ResponseEntity<List<VisitResponse>> calendar(
+            @RequestParam(required = false) Long vetId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(required = false) VisitStatus status) {
+        return ResponseEntity.ok(visitService.calendar(vetId, from, to, status));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<VisitResponse> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(visitService.getById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<VisitResponse> update(@PathVariable Long id, @Valid @RequestBody VisitRequest request) {
+        return ResponseEntity.ok(visitService.update(id, request));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<VisitResponse> updateStatus(@PathVariable Long id,
+                                                        @Valid @RequestBody VisitStatusUpdateRequest request) {
+        return ResponseEntity.ok(visitService.updateStatus(id, request));
+    }
+}

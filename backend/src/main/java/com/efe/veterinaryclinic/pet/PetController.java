@@ -3,6 +3,8 @@ package com.efe.veterinaryclinic.pet;
 import com.efe.veterinaryclinic.common.dto.PageResponse;
 import com.efe.veterinaryclinic.pet.dto.PetRequest;
 import com.efe.veterinaryclinic.pet.dto.PetResponse;
+import com.efe.veterinaryclinic.visit.VisitService;
+import com.efe.veterinaryclinic.visit.dto.VisitResponse;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,9 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class PetController {
 
     private final PetService petService;
+    private final VisitService visitService;
 
-    public PetController(PetService petService) {
+    public PetController(PetService petService, VisitService visitService) {
         this.petService = petService;
+        this.visitService = visitService;
     }
 
     @PostMapping
@@ -60,5 +64,10 @@ public class PetController {
     @PatchMapping("/{id}/activate")
     public ResponseEntity<PetResponse> activate(@PathVariable Long id) {
         return ResponseEntity.ok(petService.activate(id));
+    }
+
+    @GetMapping("/{id}/visits")
+    public ResponseEntity<PageResponse<VisitResponse>> visits(@PathVariable Long id, Pageable pageable) {
+        return ResponseEntity.ok(visitService.listByPet(id, pageable));
     }
 }

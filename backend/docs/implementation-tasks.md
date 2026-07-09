@@ -99,32 +99,32 @@ Verification commands referenced below:
     - Files: `vet/*`.
     - Verify: `./mvnw test`.
 
-18. **Visit entity + status enum**
+18. ~~**Visit entity + status enum**~~ ✅ done (2026-07-08)
     - `Visit` entity, `VisitStatus` enum, repository.
     - Files: `visit/*`.
     - Verify: `./mvnw test`.
 
-19. **Visit CRUD**
+19. ~~**Visit CRUD**~~ ✅ done (2026-07-08)
     - Create/read/update visits.
     - Files: `visit/*`.
     - Verify: `./mvnw test`.
 
-20. **Visit status update endpoint**
+20. ~~**Visit status update endpoint**~~ ✅ done (2026-07-08)
     - `PATCH /api/visits/{id}/status`.
     - Files: `visit/*`.
     - Verify: `./mvnw test`.
 
-21. **Visit filter + calendar endpoint**
+21. ~~**Visit filter + calendar endpoint**~~ ✅ done (2026-07-08)
     - `GET /api/visits` with vet/date-range/status filters; `GET /api/visits/calendar`.
     - Files: `visit/*`.
     - Verify: `./mvnw test`.
 
-22. **Appointment overlap rule**
+22. ~~**Appointment overlap rule**~~ ✅ done (2026-07-08)
     - ±15 minute same-vet overlap check (see `docs/business-rules.md` §1).
     - Files: `visit/VisitService.java`.
     - Verify: `./mvnw test` (add overlap test case).
 
-23. **Pet visit history endpoint**
+23. ~~**Pet visit history endpoint**~~ ✅ done (2026-07-09)
     - `GET /api/pets/{id}/visits`.
     - Files: `pet/*`, `visit/*`.
     - Verify: `./mvnw test`.
