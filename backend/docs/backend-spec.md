@@ -113,7 +113,7 @@ This document converts the original React frontend learning assignment into a co
 - One `Pet` has many `Visit`s, many `Vaccination`s, many `PetWeightRecord`s.
 - One `Vet` has many `Visit`s.
 - One `Visit` belongs to one `Pet` and one `Vet`.
-- One `Visit` can have one `Invoice`.
+- One `Visit` can have many `Invoice`s (`Invoice` → `Visit` is many-to-one; a visit is not limited to a single invoice, e.g. re-issue or split billing).
 - One `Invoice` has many `InvoiceItem`s.
 
 ## 8. Date/Time Rules

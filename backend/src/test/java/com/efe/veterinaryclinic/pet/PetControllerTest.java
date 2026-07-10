@@ -300,6 +300,92 @@ class PetControllerTest {
                 .andExpect(jsonPath("$.content[*].name", hasItem("Boncuk")));
     }
 
+    @Test
+    void receptionistAddsWeightRecordThenItAppearsInHistoryOrderedByRecordedAt() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long ownerId = createOwner(receptionistToken, "weight-owner@example.com");
+        long petId = createPet(receptionistToken, ownerId, "Boncuk", "DOG", "Golden Retriever", null);
+
+        String laterBody = objectMapper.writeValueAsString(
+                new WeightRecordPayload(25.0, "2026-06-01T09:00:00", "Check-in weigh-in"));
+        mockMvc.perform(post("/api/pets/" + petId + "/weight-records")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(laterBody))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.petId").value(petId))
+                .andExpect(jsonPath("$.weightKg").value(25.0))
+                .andExpect(jsonPath("$.note").value("Check-in weigh-in"));
+
+        String earlierBody = objectMapper.writeValueAsString(
+                new WeightRecordPayload(23.5, "2026-01-01T09:00:00", null));
+        mockMvc.perform(post("/api/pets/" + petId + "/weight-records")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(earlierBody))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/pets/" + petId + "/weight-records")
+                        .header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].weightKg").value(23.5))
+                .andExpect(jsonPath("$[1].weightKg").value(25.0));
+    }
+
+    @Test
+    void addWeightRecordWithUnknownPetReturnsNotFound() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String body = objectMapper.writeValueAsString(new WeightRecordPayload(25.0, "2026-06-01T09:00:00", null));
+
+        mockMvc.perform(post("/api/pets/999999/weight-records")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void addWeightRecordWithNonPositiveWeightReturnsValidationError() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long ownerId = createOwner(receptionistToken, "weight-validation-owner@example.com");
+        long petId = createPet(receptionistToken, ownerId, "Boncuk", "DOG", "Golden Retriever", null);
+
+        String body = objectMapper.writeValueAsString(new WeightRecordPayload(0.0, "2026-06-01T09:00:00", null));
+
+        mockMvc.perform(post("/api/pets/" + petId + "/weight-records")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("weightKg"));
+    }
+
+    @Test
+    void weightRecordHistoryForUnknownPetReturnsNotFound() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+
+        mockMvc.perform(get("/api/pets/999999/weight-records")
+                        .header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void vetAddsWeightRecordSucceeds() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String vetToken = loginAndGetToken(SEED_VET1_EMAIL, SEED_VET1_PASSWORD);
+        long ownerId = createOwner(receptionistToken, "weight-vet-owner@example.com");
+        long petId = createPet(receptionistToken, ownerId, "Boncuk", "DOG", "Golden Retriever", null);
+
+        String body = objectMapper.writeValueAsString(new WeightRecordPayload(25.0, "2026-06-01T09:00:00", null));
+
+        mockMvc.perform(post("/api/pets/" + petId + "/weight-records")
+                        .header("Authorization", "Bearer " + vetToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated());
+    }
+
     private long createPet(String token, long ownerId, String name, String species, String breed, String speciesNote)
             throws Exception {
         String createBody = objectMapper.writeValueAsString(
@@ -348,6 +434,9 @@ class PetControllerTest {
     }
 
     private record OwnerPayload(String firstName, String lastName, String phone, String email, String address) {
+    }
+
+    private record WeightRecordPayload(Double weightKg, String recordedAt, String note) {
     }
 
     private record LoginPayload(String email, String password) {

@@ -133,32 +133,32 @@ Verification commands referenced below:
 
 ## Week 3 — Vaccinations, Weight, Invoices, Treatment Notes
 
-24. **Vaccination entity + CRUD**
+24. ~~**Vaccination entity + CRUD**~~ ✅ done (2026-07-10)
     - `Vaccination` entity, full CRUD.
     - Files: `vaccination/*`.
     - Verify: `./mvnw test`.
 
-25. **Vaccination nextDueDate rule**
+25. ~~**Vaccination nextDueDate rule**~~ ✅ done (2026-07-10)
     - Server-side calculation (see `docs/business-rules.md` §3).
     - Files: `vaccination/VaccinationService.java`.
     - Verify: `./mvnw test`.
 
-26. **Pet vaccination history + age-based warnings**
+26. ~~**Pet vaccination history + age-based warnings**~~ ✅ done (2026-07-10)
     - `GET /api/pets/{id}/vaccinations`; document/support age-based vaccine warning data (§10 in business rules).
     - Files: `pet/*`, `vaccination/*`.
     - Verify: `./mvnw test`.
 
-27. **PetWeightRecord entity + endpoints**
+27. ~~**PetWeightRecord entity + endpoints**~~ ✅ done (2026-07-10)
     - `GET/POST /api/pets/{id}/weight-records`.
     - Files: `pet/*` (or a `weight` sub-package).
     - Verify: `./mvnw test`.
 
-28. **Invoice + InvoiceItem entities**
+28. ~~**Invoice + InvoiceItem entities**~~ ✅ done (2026-07-10)
     - Entities, `InvoiceStatus` and `InvoiceItemCategory` enums.
     - Files: `invoice/*`.
     - Verify: `./mvnw test`.
 
-29. **Invoice create + subtotal/VAT/total calculation**
+29. ~~**Invoice create + subtotal/VAT/total calculation**~~ ✅ done (2026-07-10)
     - `POST /api/invoices` with server-side calculation (see `docs/business-rules.md` §4).
     - Files: `invoice/InvoiceService.java`.
     - Verify: `./mvnw test` (add calculation test cases).

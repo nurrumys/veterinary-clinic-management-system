@@ -268,7 +268,7 @@ Note: soft-deletable resources (e.g. `Pet`) have no "real delete" endpoint at al
 ```json
 {
   "petId": 45,
-  "vaccineType": "Rabies",
+  "vaccineType": "ONE_YEAR",
   "administeredAt": "2026-07-04T09:00:00",
   "lotNumber": "LOT-2026-778",
   "administeredBy": "Dr. Ahmet Kaya"
@@ -280,7 +280,7 @@ Note: soft-deletable resources (e.g. `Pet`) have no "real delete" endpoint at al
 {
   "id": 88,
   "petId": 45,
-  "vaccineType": "Rabies",
+  "vaccineType": "ONE_YEAR",
   "administeredAt": "2026-07-04T09:00:00",
   "lotNumber": "LOT-2026-778",
   "nextDueDate": "2027-07-04",
@@ -290,7 +290,7 @@ Note: soft-deletable resources (e.g. `Pet`) have no "real delete" endpoint at al
 }
 ```
 
-> `nextDueDate` is calculated by the backend, never accepted from the client.
+> `nextDueDate` is calculated by the backend, never accepted from the client: `+3 years` for a three-year type, `+1 year` (default) otherwise. `ONE_YEAR`/`THREE_YEAR` above are generic demo type identifiers (see `docs/business-rules.md` §3 and `decisions.md`) — the source spec does not name real vaccines.
 
 > `RECEPTIONIST` cannot create/update/delete vaccinations — read-only access only (see `docs/business-rules.md`).
 

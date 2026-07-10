@@ -10,6 +10,7 @@ This document details every backend business rule. Each rule states what must ha
 - Cancelled visits (`status = CANCELLED`) are excluded from the overlap check.
 - On conflict, the backend rejects the request with a `409 Conflict` (or `400 Bad Request` with a clear message), not a silent adjustment.
 - Enforced in `VisitService`, not in the controller or repository.
+- Suggesting alternative free slots after a conflict is a frontend-only concern (computed client-side from the existing calendar/visit-list endpoints) — the backend does not expose a dedicated "suggest alternative slots" endpoint.
 
 ## 2. Soft Delete for Pets
 
@@ -26,8 +27,9 @@ This document details every backend business rule. Each rule states what must ha
 
 **Rule**: `Vaccination.nextDueDate` is always calculated by the backend, never accepted from the client.
 
-- Calculated at creation time based on `vaccineType` and `administeredAt` (e.g. annual boosters → `administeredAt` + 1 year). The exact per-vaccine interval table can be refined during implementation but must live in the service layer, not hardcoded in the controller.
-- If the request body includes a `nextDueDate`, it is ignored.
+- Calculated at creation/update time based on `vaccineType` and `administeredAt`: `+3 years` for a three-year type, `+1 year` (default) otherwise. This is the only interval rule the source spec defines — it does not name real vaccines. Enforced in `VaccinationService`, not the controller.
+- The current implementation uses generic demo/example type identifiers (`ONE_YEAR`, `THREE_YEAR`) to exercise this rule, since the spec gives no real vaccine catalog. Mapping real clinic vaccine names to `+1 year` / `+3 years` is a later product decision — see `decisions.md`.
+- If the request body includes a `nextDueDate`, it is ignored (the field is not even present on `VaccinationRequest`).
 
 ## 4. Invoice Calculation Rule
 
@@ -85,6 +87,7 @@ This document details every backend business rule. Each rule states what must ha
 - Pet older than 1 year: annual rabies vaccine is visible/expected; the dashboard/vaccination views should be able to flag when it is missing or overdue.
 - Pet younger than 1 year: puppy/kitten vaccination series warning expected around 6, 8, and 12 weeks of age.
 - These expectations inform the `pendingVaccinations` dashboard KPI and the `upcomingVaccinationAlerts` list — implementation detail (exact scheduling logic) is refined during the vaccination module task in `docs/implementation-tasks.md`.
+- Scope note: `GET /api/pets/{id}/vaccinations` (pet vaccination history, task 26) exposes the raw records the frontend needs to derive these warnings (pet's `birthDate` from the pet endpoint + vaccination list). The actual "missing/overdue" flag computation is server-side work that lands in the Dashboard module (`pendingVaccinations` KPI — task 34; `upcomingVaccinationAlerts` — task 38), not on the pet vaccination history endpoint itself.
 
 ## 11. General Enforcement Principles
 

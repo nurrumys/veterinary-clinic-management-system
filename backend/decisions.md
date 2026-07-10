@@ -52,3 +52,18 @@ This file records architectural decisions made for this project, in the order th
 
 15. **`src/test/resources/application.properties` is no longer committed; `application.properties.example` is the tracked template. Test classes read seed credentials via `@Value` injection instead of hardcoded string literals.**
     Rationale: the file only ever held fake H2/demo-seed values (no real system was ever protected by them — confirmed no real secret was ever committed, even before `src/main/resources/application.properties` was gitignored), but keeping plaintext-looking credentials out of version control avoids false-positive secret-scanning noise and matches the same pattern already used for `src/main/resources/application.properties`. Each developer copies the `.example` file locally once; test behavior is unchanged.
+
+## 2026-07-10 — Corrected vaccination interval rule (project assumption)
+
+16. **[PROJECT ASSUMPTION] `Vaccination.nextDueDate` interval logic uses only `+1 year` (default) / `+3 years`, keyed off generic demo type identifiers (`ONE_YEAR`, `THREE_YEAR`), not real vaccine names.**
+    Rationale: an earlier implementation pass invented a hardcoded interval table (`RABIES`, `LEPTOSPIROSIS` → 1 year, `BORDETELLA` → 6 months) that is not supported by the source assignment spec — the spec only defines a `+1 year` / `+3 years` rule by vaccine type and does not name real vaccines. That invented table has been removed from `VaccinationService` and from the test suite. The real clinic vaccine catalog (which type maps to 1 year vs. 3 years) is an explicit open product decision, deferred until confirmed. Documented in `docs/business-rules.md` (Rule 3).
+    **Process note going forward**: any domain rule not explicitly stated in the source spec must be recorded here as a `[PROJECT ASSUMPTION]` entry and confirmed with the project owner before implementation — not invented ad hoc in code.
+    **Update (2026-07-10)**: confirmed against the actual source document (`intern-react-js-assignment.pdf`, §2.6 rule 4: "When vaccine type is selected, fill +1 year / +3 years based on type") — the fix matches the spec verbatim.
+
+## 2026-07-10 — Source PDF cross-check
+
+17. **[PROJECT ASSUMPTION, confirmed] `Invoice` is many-to-one to `Visit` (a visit can have more than one invoice), not one-to-one.**
+    Rationale: the source PDF's entity table lists `Invoice: N → 1 Visit`. An earlier pass in `docs/backend-spec.md` had assumed strict 1:1 ("one Visit can have one Invoice") without checking the source document. Corrected in `docs/backend-spec.md` §7 to allow multiple invoices per visit (e.g. re-issue, split billing). No code was affected — the `invoice` module is not yet implemented (task 28+).
+
+18. **[PROJECT ASSUMPTION, confirmed] The backend does not implement a "suggest alternative slots" endpoint for the appointment-overlap rule.**
+    Rationale: the source PDF says a conflicting save should "reject the save and propose alternative slots" (§2.6 rule 2). The backend's responsibility is limited to rejecting the conflicting write (`409 Conflict`, already implemented in `VisitService`); computing/proposing alternative free slots is a frontend-only concern derived from existing calendar/visit-list endpoints. Confirmed with project owner; documented in `docs/business-rules.md` (Rule 1).
