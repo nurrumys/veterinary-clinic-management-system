@@ -1,10 +1,12 @@
 package com.efe.veterinaryclinic.visit.dto;
 
+import com.efe.veterinaryclinic.visit.AllergyWarningChecker;
 import com.efe.veterinaryclinic.visit.Visit;
 import com.efe.veterinaryclinic.visit.VisitStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record VisitResponse(
         Long id,
@@ -16,6 +18,7 @@ public record VisitResponse(
         String diagnosis,
         String treatmentNotes,
         LocalDate followUpDate,
+        List<String> warnings,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
@@ -31,6 +34,7 @@ public record VisitResponse(
                 visit.getDiagnosis(),
                 visit.getTreatmentNotes(),
                 visit.getFollowUpDate(),
+                AllergyWarningChecker.check(visit.getTreatmentNotes(), visit.getPet().getAllergies()),
                 visit.getCreatedAt(),
                 visit.getUpdatedAt()
         );

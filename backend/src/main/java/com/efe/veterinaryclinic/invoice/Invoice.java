@@ -86,6 +86,10 @@ public class Invoice {
         this.items.add(item);
     }
 
+    public void updateStatus(InvoiceStatus status) {
+        this.status = status;
+    }
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

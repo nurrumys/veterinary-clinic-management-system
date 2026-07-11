@@ -1,15 +1,20 @@
 package com.efe.veterinaryclinic.invoice;
 
+import com.efe.veterinaryclinic.common.dto.PageResponse;
 import com.efe.veterinaryclinic.common.exception.ResourceNotFoundException;
+import com.efe.veterinaryclinic.invoice.dto.BulkMarkPaidRequest;
 import com.efe.veterinaryclinic.invoice.dto.InvoiceItemRequest;
 import com.efe.veterinaryclinic.invoice.dto.InvoiceRequest;
 import com.efe.veterinaryclinic.invoice.dto.InvoiceResponse;
 import com.efe.veterinaryclinic.visit.Visit;
 import com.efe.veterinaryclinic.visit.VisitRepository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -47,6 +52,48 @@ public class InvoiceService {
 
     public InvoiceResponse getById(Long id) {
         return InvoiceResponse.from(findInvoiceOrThrow(id));
+    }
+
+    public PageResponse<InvoiceResponse> list(InvoiceStatus status, LocalDate from, LocalDate to, Pageable pageable) {
+        Specification<Invoice> spec = (root, query, cb) -> cb.conjunction();
+
+        if (status != null) {
+            spec = spec.and(InvoiceSpecifications.hasStatus(status));
+        }
+        if (from != null) {
+            spec = spec.and(InvoiceSpecifications.issuedAtFrom(from.atStartOfDay()));
+        }
+        if (to != null) {
+            spec = spec.and(InvoiceSpecifications.issuedAtBefore(to.plusDays(1).atStartOfDay()));
+        }
+
+        return PageResponse.from(invoiceRepository.findAll(spec, pageable).map(InvoiceResponse::from));
+    }
+
+    public InvoiceResponse markSent(Long id) {
+        Invoice invoice = findInvoiceOrThrow(id);
+        invoice.updateStatus(InvoiceStatus.SENT);
+
+        return InvoiceResponse.from(invoiceRepository.save(invoice));
+    }
+
+    public InvoiceResponse markPaid(Long id) {
+        Invoice invoice = findInvoiceOrThrow(id);
+        invoice.updateStatus(InvoiceStatus.PAID);
+
+        return InvoiceResponse.from(invoiceRepository.save(invoice));
+    }
+
+    public List<InvoiceResponse> bulkMarkPaid(BulkMarkPaidRequest request) {
+        List<Invoice> invoices = request.invoiceIds().stream()
+                .map(this::findInvoiceOrThrow)
+                .toList();
+
+        invoices.forEach(invoice -> invoice.updateStatus(InvoiceStatus.PAID));
+
+        return invoiceRepository.saveAll(invoices).stream()
+                .map(InvoiceResponse::from)
+                .toList();
     }
 
     private InvoiceItem toInvoiceItem(InvoiceItemRequest itemRequest) {

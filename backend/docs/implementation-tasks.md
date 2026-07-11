@@ -163,22 +163,22 @@ Verification commands referenced below:
     - Files: `invoice/InvoiceService.java`.
     - Verify: `./mvnw test` (add calculation test cases).
 
-30. **Invoice listing/filtering**
+30. ~~**Invoice listing/filtering**~~ ✅ done (2026-07-11)
     - `GET /api/invoices` with status/date-range filters.
     - Files: `invoice/*`.
     - Verify: `./mvnw test`.
 
-31. **Invoice send/mark-paid/bulk-paid**
+31. ~~**Invoice send/mark-paid/bulk-paid**~~ ✅ done (2026-07-11)
     - `PATCH /api/invoices/{id}/send`, `PATCH /api/invoices/{id}/mark-paid`, `PATCH /api/invoices/bulk-mark-paid`.
     - Files: `invoice/*`.
     - Verify: `./mvnw test`.
 
-32. **Treatment notes update + role rule**
+32. ~~**Treatment notes update + role rule**~~ ✅ done (2026-07-11)
     - `PATCH /api/visits/{id}/medical-notes`, RECEPTIONIST forbidden (see `docs/business-rules.md` §5).
     - Files: `visit/*`, `security/*`.
     - Verify: `./mvnw test` (add a test asserting RECEPTIONIST gets 403).
 
-33. **Allergy warning infrastructure**
+33. ~~**Allergy warning infrastructure**~~ ✅ done (2026-07-11)
     - Non-blocking warning when treatment references a drug conflicting with `Pet.allergies` (see `docs/business-rules.md` §7).
     - Files: `visit/*` or a new `common`/`treatment` helper.
     - Verify: `./mvnw test`.

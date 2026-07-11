@@ -5,14 +5,17 @@ import com.efe.veterinaryclinic.common.exception.ConflictException;
 import com.efe.veterinaryclinic.common.exception.ResourceNotFoundException;
 import com.efe.veterinaryclinic.pet.Pet;
 import com.efe.veterinaryclinic.pet.PetRepository;
+import com.efe.veterinaryclinic.security.Role;
 import com.efe.veterinaryclinic.vet.Vet;
 import com.efe.veterinaryclinic.vet.VetRepository;
+import com.efe.veterinaryclinic.visit.dto.MedicalNotesUpdateRequest;
 import com.efe.veterinaryclinic.visit.dto.VisitRequest;
 import com.efe.veterinaryclinic.visit.dto.VisitResponse;
 import com.efe.veterinaryclinic.visit.dto.VisitStatusUpdateRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -102,6 +105,17 @@ public class VisitService {
     public VisitResponse updateStatus(Long id, VisitStatusUpdateRequest request) {
         Visit visit = findVisitOrThrow(id);
         visit.updateStatus(request.status());
+
+        return VisitResponse.from(visitRepository.save(visit));
+    }
+
+    public VisitResponse updateMedicalNotes(Long id, MedicalNotesUpdateRequest request, Role requesterRole) {
+        if (requesterRole == Role.RECEPTIONIST) {
+            throw new AccessDeniedException("RECEPTIONIST cannot edit treatment notes");
+        }
+
+        Visit visit = findVisitOrThrow(id);
+        visit.updateMedicalNotes(request.diagnosis(), request.treatmentNotes(), request.followUpDate());
 
         return VisitResponse.from(visitRepository.save(visit));
     }

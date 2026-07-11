@@ -1,6 +1,8 @@
 package com.efe.veterinaryclinic.visit;
 
 import com.efe.veterinaryclinic.common.dto.PageResponse;
+import com.efe.veterinaryclinic.security.CustomUserDetails;
+import com.efe.veterinaryclinic.visit.dto.MedicalNotesUpdateRequest;
 import com.efe.veterinaryclinic.visit.dto.VisitRequest;
 import com.efe.veterinaryclinic.visit.dto.VisitResponse;
 import com.efe.veterinaryclinic.visit.dto.VisitStatusUpdateRequest;
@@ -9,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -70,5 +73,12 @@ public class VisitController {
     public ResponseEntity<VisitResponse> updateStatus(@PathVariable Long id,
                                                         @Valid @RequestBody VisitStatusUpdateRequest request) {
         return ResponseEntity.ok(visitService.updateStatus(id, request));
+    }
+
+    @PatchMapping("/{id}/medical-notes")
+    public ResponseEntity<VisitResponse> updateMedicalNotes(@PathVariable Long id,
+                                                             @RequestBody MedicalNotesUpdateRequest request,
+                                                             @AuthenticationPrincipal CustomUserDetails principal) {
+        return ResponseEntity.ok(visitService.updateMedicalNotes(id, request, principal.getUser().getRole()));
     }
 }

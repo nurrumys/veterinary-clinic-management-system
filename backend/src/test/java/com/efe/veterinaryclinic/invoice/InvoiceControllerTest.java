@@ -10,9 +10,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -137,11 +139,177 @@ class InvoiceControllerTest {
     }
 
     @Test
+    void listInvoicesFilteredByStatusReturnsOnlyMatchingInvoices() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long visitId = createVisit(receptionistToken, "invoice-list-status@example.com", "Duman", "VET-LIC-INV-005");
+        String createBody = objectMapper.writeValueAsString(new InvoicePayload(visitId, List.of(
+                new InvoiceItemPayload("Consultation", "CONSULTATION", 1, new BigDecimal("500.00")))));
+
+        mockMvc.perform(post("/api/invoices")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/invoices")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .param("status", "DRAFT"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[?(@.visitId == " + visitId + ")]").exists());
+
+        mockMvc.perform(get("/api/invoices")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .param("status", "SENT"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[?(@.visitId == " + visitId + ")]").doesNotExist());
+    }
+
+    @Test
+    void listInvoicesFilteredByDateRangeExcludesInvoicesOutsideRange() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long visitId = createVisit(receptionistToken, "invoice-list-range@example.com", "Coco", "VET-LIC-INV-006");
+        String createBody = objectMapper.writeValueAsString(new InvoicePayload(visitId, List.of(
+                new InvoiceItemPayload("Consultation", "CONSULTATION", 1, new BigDecimal("500.00")))));
+
+        mockMvc.perform(post("/api/invoices")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/invoices")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .param("from", LocalDate.now().minusDays(1).toString())
+                        .param("to", LocalDate.now().plusDays(1).toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[?(@.visitId == " + visitId + ")]").exists());
+
+        mockMvc.perform(get("/api/invoices")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .param("from", "2000-01-01")
+                        .param("to", "2000-01-02"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[?(@.visitId == " + visitId + ")]").doesNotExist());
+    }
+
+    @Test
     void getUnknownInvoiceReturnsNotFound() throws Exception {
         String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
 
         mockMvc.perform(get("/api/invoices/999999").header("Authorization", "Bearer " + receptionistToken))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void receptionistMarksInvoiceAsSent() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long invoiceId = createInvoice(receptionistToken, "invoice-send@example.com", "Zorro", "VET-LIC-INV-007");
+
+        mockMvc.perform(patch("/api/invoices/" + invoiceId + "/send")
+                        .header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("SENT"));
+    }
+
+    @Test
+    void sendUnknownInvoiceReturnsNotFound() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+
+        mockMvc.perform(patch("/api/invoices/999999/send")
+                        .header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void receptionistMarksInvoiceAsPaid() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long invoiceId = createInvoice(receptionistToken, "invoice-paid@example.com", "Şans", "VET-LIC-INV-008");
+
+        mockMvc.perform(patch("/api/invoices/" + invoiceId + "/mark-paid")
+                        .header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("PAID"));
+    }
+
+    @Test
+    void markPaidByVetIsForbidden() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String vetToken = loginAndGetToken(SEED_VET1_EMAIL, SEED_VET1_PASSWORD);
+        long invoiceId = createInvoice(receptionistToken, "invoice-paid-forbidden@example.com", "Maya", "VET-LIC-INV-009");
+
+        mockMvc.perform(patch("/api/invoices/" + invoiceId + "/mark-paid")
+                        .header("Authorization", "Bearer " + vetToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void markPaidForUnknownInvoiceReturnsNotFound() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+
+        mockMvc.perform(patch("/api/invoices/999999/mark-paid")
+                        .header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void bulkMarkPaidUpdatesAllRequestedInvoices() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long invoiceIdA = createInvoice(receptionistToken, "invoice-bulk-a@example.com", "Pati", "VET-LIC-INV-010");
+        long invoiceIdB = createInvoice(receptionistToken, "invoice-bulk-b@example.com", "Toprak", "VET-LIC-INV-011");
+
+        String bulkBody = objectMapper.writeValueAsString(new BulkMarkPaidPayload(List.of(invoiceIdA, invoiceIdB)));
+
+        mockMvc.perform(patch("/api/invoices/bulk-mark-paid")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(bulkBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[?(@.id == " + invoiceIdA + ")].status").value("PAID"))
+                .andExpect(jsonPath("$[?(@.id == " + invoiceIdB + ")].status").value("PAID"));
+    }
+
+    @Test
+    void bulkMarkPaidWithEmptyListReturnsValidationError() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String bulkBody = objectMapper.writeValueAsString(new BulkMarkPaidPayload(List.of()));
+
+        mockMvc.perform(patch("/api/invoices/bulk-mark-paid")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(bulkBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("invoiceIds"));
+    }
+
+    @Test
+    void bulkMarkPaidWithUnknownInvoiceIdReturnsNotFound() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long invoiceId = createInvoice(receptionistToken, "invoice-bulk-unknown@example.com", "Çomar", "VET-LIC-INV-012");
+
+        String bulkBody = objectMapper.writeValueAsString(new BulkMarkPaidPayload(List.of(invoiceId, 999999L)));
+
+        mockMvc.perform(patch("/api/invoices/bulk-mark-paid")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(bulkBody))
+                .andExpect(status().isNotFound());
+    }
+
+    private long createInvoice(String token, String ownerEmail, String petName, String licenseNo) throws Exception {
+        long visitId = createVisit(token, ownerEmail, petName, licenseNo);
+
+        String createBody = objectMapper.writeValueAsString(new InvoicePayload(visitId, List.of(
+                new InvoiceItemPayload("Consultation", "CONSULTATION", 1, new BigDecimal("500.00")))));
+
+        String response = mockMvc.perform(post("/api/invoices")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        return objectMapper.readTree(response).get("id").asLong();
     }
 
     private long createVisit(String token, String ownerEmail, String petName, String licenseNo) throws Exception {
@@ -223,6 +391,9 @@ class InvoiceControllerTest {
     }
 
     private record InvoiceItemPayload(String description, String category, Integer quantity, BigDecimal unitPrice) {
+    }
+
+    private record BulkMarkPaidPayload(List<Long> invoiceIds) {
     }
 
     private record VisitPayload(Long petId, Long vetId, String scheduledAt, String chiefComplaint) {

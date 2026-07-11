@@ -81,6 +81,12 @@ public class Visit {
         this.status = status;
     }
 
+    public void updateMedicalNotes(String diagnosis, String treatmentNotes, LocalDate followUpDate) {
+        this.diagnosis = diagnosis;
+        this.treatmentNotes = treatmentNotes;
+        this.followUpDate = followUpDate;
+    }
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

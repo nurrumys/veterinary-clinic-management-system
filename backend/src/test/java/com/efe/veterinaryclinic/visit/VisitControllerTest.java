@@ -247,6 +247,100 @@ class VisitControllerTest {
     }
 
     @Test
+    void vetUpdatesMedicalNotes() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String vetToken = loginAndGetToken(SEED_VET1_EMAIL, SEED_VET1_PASSWORD);
+        long petId = createPet(receptionistToken, "visit-medical-notes@example.com", "Şeker");
+        long vetId = createVet(receptionistToken, "VET-LIC-VISIT-021");
+        long visitId = createVisit(receptionistToken, petId, vetId, "2026-12-01T10:00:00", "Limping");
+
+        String notesBody = objectMapper.writeValueAsString(
+                new MedicalNotesPayload("Mild sprain", "Rest for 1 week, anti-inflammatory prescribed", "2026-12-08"));
+
+        mockMvc.perform(patch("/api/visits/" + visitId + "/medical-notes")
+                        .header("Authorization", "Bearer " + vetToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(notesBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.diagnosis").value("Mild sprain"))
+                .andExpect(jsonPath("$.treatmentNotes").value("Rest for 1 week, anti-inflammatory prescribed"))
+                .andExpect(jsonPath("$.followUpDate").value("2026-12-08"));
+
+        mockMvc.perform(get("/api/visits/" + visitId).header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.diagnosis").value("Mild sprain"));
+    }
+
+    @Test
+    void updateMedicalNotesByReceptionistIsForbidden() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long petId = createPet(receptionistToken, "visit-medical-notes-forbidden@example.com", "Duman");
+        long vetId = createVet(receptionistToken, "VET-LIC-VISIT-022");
+        long visitId = createVisit(receptionistToken, petId, vetId, "2026-12-02T10:00:00", "Limping");
+
+        String notesBody = objectMapper.writeValueAsString(
+                new MedicalNotesPayload("Mild sprain", "Rest", "2026-12-09"));
+
+        mockMvc.perform(patch("/api/visits/" + visitId + "/medical-notes")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(notesBody))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void medicalNotesReferencingPetAllergyReturnsWarning() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String vetToken = loginAndGetToken(SEED_VET1_EMAIL, SEED_VET1_PASSWORD);
+        long petId = createPetWithAllergies(receptionistToken, "visit-allergy-warning@example.com", "Fıstık", "Penicillin");
+        long vetId = createVet(receptionistToken, "VET-LIC-VISIT-023");
+        long visitId = createVisit(receptionistToken, petId, vetId, "2026-12-03T10:00:00", "Ear infection");
+
+        String notesBody = objectMapper.writeValueAsString(
+                new MedicalNotesPayload("Ear infection", "Prescribed Penicillin for 7 days", "2026-12-10"));
+
+        mockMvc.perform(patch("/api/visits/" + visitId + "/medical-notes")
+                        .header("Authorization", "Bearer " + vetToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(notesBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.warnings[0]").value("Pet is recorded as allergic to Penicillin"));
+    }
+
+    @Test
+    void medicalNotesNotReferencingPetAllergyReturnsNoWarning() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String vetToken = loginAndGetToken(SEED_VET1_EMAIL, SEED_VET1_PASSWORD);
+        long petId = createPetWithAllergies(receptionistToken, "visit-no-allergy-warning@example.com", "Boncuk", "Penicillin");
+        long vetId = createVet(receptionistToken, "VET-LIC-VISIT-024");
+        long visitId = createVisit(receptionistToken, petId, vetId, "2026-12-04T10:00:00", "Annual checkup");
+
+        String notesBody = objectMapper.writeValueAsString(
+                new MedicalNotesPayload("Healthy", "Prescribed Amoxicillin", "2026-12-11"));
+
+        mockMvc.perform(patch("/api/visits/" + visitId + "/medical-notes")
+                        .header("Authorization", "Bearer " + vetToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(notesBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.warnings.length()").value(0));
+    }
+
+    @Test
+    void updateMedicalNotesForUnknownVisitReturnsNotFound() throws Exception {
+        String vetToken = loginAndGetToken(SEED_VET1_EMAIL, SEED_VET1_PASSWORD);
+
+        String notesBody = objectMapper.writeValueAsString(
+                new MedicalNotesPayload("Mild sprain", "Rest", "2026-12-09"));
+
+        mockMvc.perform(patch("/api/visits/999999/medical-notes")
+                        .header("Authorization", "Bearer " + vetToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(notesBody))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void listVisitsFilteredByVetIdReturnsOnlyThatVetsVisits() throws Exception {
         String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
         long petId = createPet(receptionistToken, "visit-list-vet@example.com", "Leo");
@@ -454,6 +548,23 @@ class VisitControllerTest {
         return objectMapper.readTree(response).get("id").asLong();
     }
 
+    private long createPetWithAllergies(String token, String ownerEmail, String petName, String allergies) throws Exception {
+        long ownerId = createOwner(token, ownerEmail);
+
+        String petBody = objectMapper.writeValueAsString(
+                new PetPayload(ownerId, petName, "DOG", "Golden Retriever", null,
+                        "2022-03-15", "FEMALE", 24.5, allergies, null));
+
+        String response = mockMvc.perform(post("/api/pets")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(petBody))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        return objectMapper.readTree(response).get("id").asLong();
+    }
+
     private long createPet(String token, String ownerEmail, String petName) throws Exception {
         long ownerId = createOwner(token, ownerEmail);
 
@@ -516,6 +627,9 @@ class VisitControllerTest {
     }
 
     private record VisitStatusPayload(String status) {
+    }
+
+    private record MedicalNotesPayload(String diagnosis, String treatmentNotes, String followUpDate) {
     }
 
     private record PetPayload(Long ownerId, String name, String species, String breed, String speciesNote,

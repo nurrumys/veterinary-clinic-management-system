@@ -254,6 +254,26 @@ Note: soft-deletable resources (e.g. `Pet`) have no "real delete" endpoint at al
 }
 ```
 
+**PATCH /api/visits/{id}/medical-notes — response**
+```json
+{
+  "id": 201,
+  "petId": 45,
+  "vetId": 3,
+  "scheduledAt": "2026-07-04T14:30:00",
+  "status": "COMPLETED",
+  "chiefComplaint": "Limping on front left leg",
+  "diagnosis": "Ear infection",
+  "treatmentNotes": "Prescribed Penicillin for 7 days",
+  "followUpDate": "2026-07-11",
+  "warnings": ["Pet is recorded as allergic to Penicillin"],
+  "createdAt": "2026-07-04T14:30:00",
+  "updatedAt": "2026-07-04T15:10:00"
+}
+```
+
+> `warnings` is a derived, non-blocking field (see `docs/business-rules.md` §7): the backend does a case-insensitive substring match of each comma/semicolon-separated token in `Pet.allergies` against `treatmentNotes`. It is present on every `VisitResponse` (create/update/get/list/calendar), not only the medical-notes endpoint, and is empty when there is no match or no `allergies`/`treatmentNotes` text to compare. There is no structured `Drug` catalog in this phase — see `decisions.md` for the confirmed assumption.
+
 ### 5.6 Vaccinations
 
 | Method | Path | Roles | Description |
