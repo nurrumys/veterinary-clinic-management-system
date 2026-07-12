@@ -187,76 +187,86 @@ Verification commands referenced below:
 
 ## Week 4 — Dashboard, Polish, Demo Readiness
 
-34. **Dashboard summary DTO + KPI queries**
+34. **Admin-driven password reset (no self-service forgot-password, no remember-me)**
+    - `PATCH /api/auth/users/{id}/reset-password`, ADMIN-only — admin sets/generates a new password for a user; no email, no token, no expiry logic. Replaces self-service "forgot password" and "remember me" for this phase (see `decisions.md` entry 20).
+    - Files: `auth/AuthController.java`, `auth/AuthService.java`, `auth/dto/*`, `security/User.java` (add password-update capability).
+    - Verify: `./mvnw test` (assert non-ADMIN gets 403).
+
+35. ~~**Password strength policy**~~ ✅ done (2026-07-12)
+    - Beyond the existing min-8-characters rule, require at least one uppercase letter, one lowercase letter, one digit, and one punctuation character in `RegisterRequest.password` and `ResetPasswordRequest.newPassword` (see `decisions.md` entry 21).
+    - Files: `auth/dto/RegisterRequest.java`, `auth/dto/ResetPasswordRequest.java`.
+    - Verify: `./mvnw test` (assert weak passwords get 400).
+
+36. ~~**Dashboard summary DTO + KPI queries**~~ ✅ done (2026-07-12)
     - `todayAppointments`, `activePatients`, `pendingVaccinations`, `unpaidInvoices`.
     - Files: `dashboard/*`.
     - Verify: `./mvnw test`.
 
-35. **Monthly revenue + revenue category chart data**
+37. ~~**Monthly revenue + revenue category chart data**~~ ✅ done (2026-07-12)
     - Files: `dashboard/*`.
     - Verify: `./mvnw test`.
 
-36. **30-day appointment trend + cumulative appointments YTD**
+38. ~~**30-day appointment trend + cumulative appointments YTD**~~ ✅ done (2026-07-12)
     - Files: `dashboard/*`.
     - Verify: `./mvnw test`.
 
-37. **Vet-by-vet appointment count**
+39. **Vet-by-vet appointment count**
     - Files: `dashboard/*`.
     - Verify: `./mvnw test`.
 
-38. **Today schedule + alerts (vaccination, overdue follow-up)**
+40. **Today schedule + alerts (vaccination, overdue follow-up)**
     - Files: `dashboard/*`.
     - Verify: `./mvnw test`.
 
-39. **Dashboard endpoint assembly**
+41. **Dashboard endpoint assembly**
     - `GET /api/dashboard/summary` wiring all of the above.
     - Files: `dashboard/DashboardController.java`.
     - Verify: `./mvnw test`, manual check via Swagger.
 
-40. **Vet performance endpoint**
+42. **Vet performance endpoint**
     - `GET /api/vets/{id}/performance`.
     - Files: `vet/*`.
     - Verify: `./mvnw test`.
 
-41. **Follow-up endpoint**
+43. **Follow-up endpoint**
     - `POST /api/visits/{id}/follow-up` (see `docs/business-rules.md` §9).
     - Files: `visit/*`.
     - Verify: `./mvnw test`.
 
-42. **Inactive pet logic**
+44. **Inactive pet logic**
     - Computed `inactive` flag (>2 years without a visit) (see `docs/business-rules.md` §6).
     - Files: `pet/*`.
     - Verify: `./mvnw test`.
 
-43. **Final search/filter cleanup**
+45. **Final search/filter cleanup**
     - Review all listing endpoints for consistent query params and `PageResponse` usage.
     - Files: across modules.
     - Verify: `./mvnw test`.
 
-44. **Swagger cleanup**
+46. **Swagger cleanup**
     - Ensure all endpoints have descriptions, examples, and correct security annotations.
     - Files: across modules, `config/OpenApiConfig.java`.
     - Verify: manual check via `/swagger-ui.html`.
 
-45. **Seed demo data**
+47. **Seed demo data**
     - Realistic demo dataset covering the full acceptance flow (owners, pets, vets, visits, vaccinations, invoices).
     - Files: `config/DataSeeder.java`.
     - Verify: `./mvnw spring-boot:run`, manually walk the demo flow.
 
-46. **Tests pass**
+48. **Tests pass**
     - Full suite green.
     - Verify: `./mvnw test`.
 
-47. **README**
+49. **README**
     - Setup instructions, env vars, how to run, how to seed data.
     - Files: `README.md`.
     - Verify: manual read-through.
 
-48. **Frontend integration fixes**
+50. **Frontend integration fixes**
     - Address any contract mismatches found while wiring up the real frontend.
     - Files: as needed, cross-referencing `docs/api-contract.md`.
     - Verify: `./mvnw test`, manual frontend smoke test.
 
-49. **Final demo flow validation**
+51. **Final demo flow validation**
     - Walk through the full acceptance flow in `docs/backend-spec.md` §15 end-to-end.
     - Verify: manual run through Swagger or the real frontend, no build errors.

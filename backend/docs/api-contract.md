@@ -77,6 +77,7 @@ Note: soft-deletable resources (e.g. `Pet`) have no "real delete" endpoint at al
 | POST | `/api/auth/register` | public | Register a new user |
 | POST | `/api/auth/login` | public | Login, returns JWT |
 | GET | `/api/auth/me` | authenticated | Current user info |
+| PATCH | `/api/auth/users/{id}/reset-password` | ADMIN | Admin sets a new password for a user (no email/token flow — see `decisions.md` entry 20) |
 
 **POST /api/auth/login — request**
 ```json
@@ -98,6 +99,27 @@ Note: soft-deletable resources (e.g. `Pet`) have no "real delete" endpoint at al
   }
 }
 ```
+
+**PATCH /api/auth/users/{id}/reset-password — request**
+```json
+{
+  "newPassword": "Temp-Password-123!"
+}
+```
+
+**PATCH /api/auth/users/{id}/reset-password — response**
+```json
+{
+  "id": 3,
+  "fullName": "Ali Kaya",
+  "email": "ali.kaya@clinic.com",
+  "role": "VET"
+}
+```
+
+> No email is sent and no reset token/link is generated — the admin communicates the new password to the user out-of-band (verbally, in person, etc.). Response never echoes the password back.
+
+> **Password policy** (applies to both `POST /api/auth/register`'s `password` and this endpoint's `newPassword`): at least 8 characters, with at least one uppercase letter, one lowercase letter, one digit, and one punctuation character. Violations return `400` with a `fieldErrors` entry (see `decisions.md` entry 21).
 
 ### 5.2 Owners
 

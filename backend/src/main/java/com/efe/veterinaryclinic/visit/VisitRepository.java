@@ -14,4 +14,10 @@ public interface VisitRepository extends JpaRepository<Visit, Long>, JpaSpecific
             Long vetId, VisitStatus excludedStatus, LocalDateTime windowStart, LocalDateTime windowEnd);
 
     Page<Visit> findByPet_Id(Long petId, Pageable pageable);
+
+    long countByStatusNotAndScheduledAtBetween(
+            VisitStatus excludedStatus, LocalDateTime windowStart, LocalDateTime windowEnd);
+
+    List<Visit> findByStatusNotAndScheduledAtBetween(
+            VisitStatus excludedStatus, LocalDateTime windowStart, LocalDateTime windowEnd);
 }

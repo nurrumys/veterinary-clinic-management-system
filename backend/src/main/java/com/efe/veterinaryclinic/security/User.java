@@ -56,6 +56,10 @@ public class User {
         this.enabled = true;
     }
 
+    public void changePassword(String newPasswordHash) {
+        this.passwordHash = newPasswordHash;
+    }
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

@@ -3,8 +3,10 @@ package com.efe.veterinaryclinic.auth;
 import com.efe.veterinaryclinic.auth.dto.AuthResponse;
 import com.efe.veterinaryclinic.auth.dto.LoginRequest;
 import com.efe.veterinaryclinic.auth.dto.RegisterRequest;
+import com.efe.veterinaryclinic.auth.dto.ResetPasswordRequest;
 import com.efe.veterinaryclinic.auth.dto.UserSummaryResponse;
 import com.efe.veterinaryclinic.common.exception.ConflictException;
+import com.efe.veterinaryclinic.common.exception.ResourceNotFoundException;
 import com.efe.veterinaryclinic.security.JwtService;
 import com.efe.veterinaryclinic.security.User;
 import com.efe.veterinaryclinic.security.UserRepository;
@@ -49,6 +51,16 @@ public class AuthService {
                 .orElseThrow(() -> new IllegalStateException("Authenticated user not found: " + request.email()));
 
         return new AuthResponse(jwtService.generateToken(user.getEmail(), user.getRole().name()), toSummary(user));
+    }
+
+    public UserSummaryResponse resetPassword(Long userId, ResetPasswordRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
+
+        user.changePassword(passwordEncoder.encode(request.newPassword()));
+        User saved = userRepository.save(user);
+
+        return toSummary(saved);
     }
 
     public UserSummaryResponse toSummary(User user) {

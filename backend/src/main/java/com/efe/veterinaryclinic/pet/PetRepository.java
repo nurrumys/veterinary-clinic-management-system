@@ -9,5 +9,7 @@ public interface PetRepository extends JpaRepository<Pet, Long>, JpaSpecificatio
 
     long countByOwnerId(Long ownerId);
 
+    long countByArchivedFalse();
+
     List<Pet> findByOwnerId(Long ownerId);
 }

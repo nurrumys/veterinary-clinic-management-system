@@ -3,6 +3,7 @@ package com.efe.veterinaryclinic.auth;
 import com.efe.veterinaryclinic.auth.dto.AuthResponse;
 import com.efe.veterinaryclinic.auth.dto.LoginRequest;
 import com.efe.veterinaryclinic.auth.dto.RegisterRequest;
+import com.efe.veterinaryclinic.auth.dto.ResetPasswordRequest;
 import com.efe.veterinaryclinic.auth.dto.UserSummaryResponse;
 import com.efe.veterinaryclinic.security.CustomUserDetails;
 import jakarta.validation.Valid;
@@ -10,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,5 +41,11 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<UserSummaryResponse> me(@AuthenticationPrincipal CustomUserDetails principal) {
         return ResponseEntity.ok(authService.toSummary(principal.getUser()));
+    }
+
+    @PatchMapping("/users/{id}/reset-password")
+    public ResponseEntity<UserSummaryResponse> resetPassword(@PathVariable Long id,
+                                                               @Valid @RequestBody ResetPasswordRequest request) {
+        return ResponseEntity.ok(authService.resetPassword(id, request));
     }
 }

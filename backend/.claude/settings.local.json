@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(./mvnw -q test)"
+      "Bash(./mvnw -q test)",
+      "Bash(./mvnw test *)"
     ]
   }
 }

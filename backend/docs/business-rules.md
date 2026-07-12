@@ -87,7 +87,7 @@ This document details every backend business rule. Each rule states what must ha
 - Pet older than 1 year: annual rabies vaccine is visible/expected; the dashboard/vaccination views should be able to flag when it is missing or overdue.
 - Pet younger than 1 year: puppy/kitten vaccination series warning expected around 6, 8, and 12 weeks of age.
 - These expectations inform the `pendingVaccinations` dashboard KPI and the `upcomingVaccinationAlerts` list — implementation detail (exact scheduling logic) is refined during the vaccination module task in `docs/implementation-tasks.md`.
-- Scope note: `GET /api/pets/{id}/vaccinations` (pet vaccination history, task 26) exposes the raw records the frontend needs to derive these warnings (pet's `birthDate` from the pet endpoint + vaccination list). The actual "missing/overdue" flag computation is server-side work that lands in the Dashboard module (`pendingVaccinations` KPI — task 34; `upcomingVaccinationAlerts` — task 38), not on the pet vaccination history endpoint itself.
+- Scope note: `GET /api/pets/{id}/vaccinations` (pet vaccination history, task 26) exposes the raw records the frontend needs to derive these warnings (pet's `birthDate` from the pet endpoint + vaccination list). The actual "missing/overdue" flag computation is server-side work that lands in the Dashboard module (`pendingVaccinations` KPI — task 36; `upcomingVaccinationAlerts` — task 40), not on the pet vaccination history endpoint itself.
 
 ## 11. General Enforcement Principles
 
