@@ -1,6 +1,7 @@
 package com.efe.veterinaryclinic.vet;
 
 import com.efe.veterinaryclinic.common.dto.PageResponse;
+import com.efe.veterinaryclinic.vet.dto.VetPerformanceResponse;
 import com.efe.veterinaryclinic.vet.dto.VetRequest;
 import com.efe.veterinaryclinic.vet.dto.VetResponse;
 import jakarta.validation.Valid;
@@ -43,5 +44,10 @@ public class VetController {
     @PutMapping("/{id}")
     public ResponseEntity<VetResponse> update(@PathVariable Long id, @Valid @RequestBody VetRequest request) {
         return ResponseEntity.ok(vetService.update(id, request));
+    }
+
+    @GetMapping("/{id}/performance")
+    public ResponseEntity<VetPerformanceResponse> performance(@PathVariable Long id) {
+        return ResponseEntity.ok(vetService.getPerformance(id));
     }
 }

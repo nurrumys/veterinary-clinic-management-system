@@ -341,6 +341,128 @@ class VisitControllerTest {
     }
 
     @Test
+    void vetCreatesFollowUpVisitForCompletedVisitWithFollowUpDate() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String vetToken = loginAndGetToken(SEED_VET1_EMAIL, SEED_VET1_PASSWORD);
+        long petId = createPet(receptionistToken, "visit-followup@example.com", "Mira");
+        long vetId = createVet(receptionistToken, "VET-LIC-VISIT-025");
+        long visitId = createVisit(receptionistToken, petId, vetId, "2026-12-05T10:00:00", "Limping");
+
+        mockMvc.perform(patch("/api/visits/" + visitId + "/status")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new VisitStatusPayload("COMPLETED"))))
+                .andExpect(status().isOk());
+        mockMvc.perform(patch("/api/visits/" + visitId + "/medical-notes")
+                        .header("Authorization", "Bearer " + vetToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                new MedicalNotesPayload("Mild sprain", "Rest", "2026-12-20"))))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/visits/" + visitId + "/follow-up")
+                        .header("Authorization", "Bearer " + vetToken))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.petId").value(petId))
+                .andExpect(jsonPath("$.vetId").value(vetId))
+                .andExpect(jsonPath("$.scheduledAt").value("2026-12-20T09:00:00"))
+                .andExpect(jsonPath("$.status").value("SCHEDULED"))
+                .andExpect(jsonPath("$.chiefComplaint").value("Follow-up visit"));
+    }
+
+    @Test
+    void followUpByReceptionistIsForbidden() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String vetToken = loginAndGetToken(SEED_VET1_EMAIL, SEED_VET1_PASSWORD);
+        long petId = createPet(receptionistToken, "visit-followup-forbidden@example.com", "Roman");
+        long vetId = createVet(receptionistToken, "VET-LIC-VISIT-026");
+        long visitId = createVisit(receptionistToken, petId, vetId, "2026-12-06T10:00:00", "Limping");
+
+        mockMvc.perform(patch("/api/visits/" + visitId + "/status")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new VisitStatusPayload("COMPLETED"))))
+                .andExpect(status().isOk());
+        mockMvc.perform(patch("/api/visits/" + visitId + "/medical-notes")
+                        .header("Authorization", "Bearer " + vetToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                new MedicalNotesPayload("Mild sprain", "Rest", "2026-12-21"))))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/visits/" + visitId + "/follow-up")
+                        .header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void followUpForNonCompletedVisitReturnsConflict() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String vetToken = loginAndGetToken(SEED_VET1_EMAIL, SEED_VET1_PASSWORD);
+        long petId = createPet(receptionistToken, "visit-followup-notcompleted@example.com", "Toprak");
+        long vetId = createVet(receptionistToken, "VET-LIC-VISIT-027");
+        long visitId = createVisit(receptionistToken, petId, vetId, "2026-12-07T10:00:00", "Limping");
+
+        mockMvc.perform(post("/api/visits/" + visitId + "/follow-up")
+                        .header("Authorization", "Bearer " + vetToken))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void followUpForVisitWithoutFollowUpDateReturnsConflict() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String vetToken = loginAndGetToken(SEED_VET1_EMAIL, SEED_VET1_PASSWORD);
+        long petId = createPet(receptionistToken, "visit-followup-nodate@example.com", "Ceviz");
+        long vetId = createVet(receptionistToken, "VET-LIC-VISIT-028");
+        long visitId = createVisit(receptionistToken, petId, vetId, "2026-12-08T10:00:00", "Limping");
+
+        mockMvc.perform(patch("/api/visits/" + visitId + "/status")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new VisitStatusPayload("COMPLETED"))))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/visits/" + visitId + "/follow-up")
+                        .header("Authorization", "Bearer " + vetToken))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void followUpConflictingWithExistingAppointmentReturnsConflict() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String vetToken = loginAndGetToken(SEED_VET1_EMAIL, SEED_VET1_PASSWORD);
+        long petId = createPet(receptionistToken, "visit-followup-overlap@example.com", "Ada");
+        long vetId = createVet(receptionistToken, "VET-LIC-VISIT-029");
+        long visitId = createVisit(receptionistToken, petId, vetId, "2026-12-09T10:00:00", "Limping");
+
+        mockMvc.perform(patch("/api/visits/" + visitId + "/status")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new VisitStatusPayload("COMPLETED"))))
+                .andExpect(status().isOk());
+        mockMvc.perform(patch("/api/visits/" + visitId + "/medical-notes")
+                        .header("Authorization", "Bearer " + vetToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                new MedicalNotesPayload("Mild sprain", "Rest", "2026-12-22"))))
+                .andExpect(status().isOk());
+        createVisit(receptionistToken, petId, vetId, "2026-12-22T09:00:00", "Already booked at follow-up time");
+
+        mockMvc.perform(post("/api/visits/" + visitId + "/follow-up")
+                        .header("Authorization", "Bearer " + vetToken))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void followUpForUnknownVisitReturnsNotFound() throws Exception {
+        String vetToken = loginAndGetToken(SEED_VET1_EMAIL, SEED_VET1_PASSWORD);
+
+        mockMvc.perform(post("/api/visits/999999/follow-up")
+                        .header("Authorization", "Bearer " + vetToken))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void listVisitsFilteredByVetIdReturnsOnlyThatVetsVisits() throws Exception {
         String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
         long petId = createPet(receptionistToken, "visit-list-vet@example.com", "Leo");

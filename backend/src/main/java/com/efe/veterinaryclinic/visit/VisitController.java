@@ -81,4 +81,11 @@ public class VisitController {
                                                              @AuthenticationPrincipal CustomUserDetails principal) {
         return ResponseEntity.ok(visitService.updateMedicalNotes(id, request, principal.getUser().getRole()));
     }
+
+    @PostMapping("/{id}/follow-up")
+    public ResponseEntity<VisitResponse> createFollowUp(@PathVariable Long id,
+                                                         @AuthenticationPrincipal CustomUserDetails principal) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(visitService.createFollowUp(id, principal.getUser().getRole()));
+    }
 }

@@ -11,4 +11,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     long countByStatusNot(InvoiceStatus status);
 
     List<Invoice> findByIssuedAtGreaterThanEqual(LocalDateTime from);
+
+    List<Invoice> findByStatusAndVisit_Vet_IdAndIssuedAtGreaterThanEqual(
+            InvoiceStatus status, Long vetId, LocalDateTime from);
 }

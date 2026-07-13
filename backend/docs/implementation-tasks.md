@@ -218,22 +218,22 @@ Verification commands referenced below:
     - Files: `dashboard/*`.
     - Verify: `./mvnw test`.
 
-41. **Dashboard endpoint assembly**
+41. ~~**Dashboard endpoint assembly**~~ ✅ done (2026-07-13)
     - `GET /api/dashboard/summary` wiring all of the above.
     - Files: `dashboard/DashboardController.java`.
     - Verify: `./mvnw test`, manual check via Swagger.
 
-42. **Vet performance endpoint**
+42. ~~**Vet performance endpoint**~~ ✅ done (2026-07-13)
     - `GET /api/vets/{id}/performance`.
     - Files: `vet/*`.
     - Verify: `./mvnw test`.
 
-43. **Follow-up endpoint**
+43. ~~**Follow-up endpoint**~~ ✅ done (2026-07-13)
     - `POST /api/visits/{id}/follow-up` (see `docs/business-rules.md` §9).
     - Files: `visit/*`.
     - Verify: `./mvnw test`.
 
-44. **Inactive pet logic**
+44. ~~**Inactive pet logic**~~ ✅ done (2026-07-13)
     - Computed `inactive` flag (>2 years without a visit) (see `docs/business-rules.md` §6).
     - Files: `pet/*`.
     - Verify: `./mvnw test`.

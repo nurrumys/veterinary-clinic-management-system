@@ -219,12 +219,15 @@ Note: soft-deletable resources (e.g. `Pet`) have no "real delete" endpoint at al
   "allergies": "Penicillin",
   "chronicConditions": null,
   "archived": false,
+  "inactive": false,
   "createdAt": "2026-07-04T10:05:00",
   "updatedAt": "2026-07-04T10:05:00"
 }
 ```
 
 > Note: if `species` is not `CAT` or `DOG`, `breed` is not required and `speciesNote` should be provided instead (see `docs/business-rules.md`).
+
+> `inactive` is a derived, read-only field (see `docs/business-rules.md` §6): `true` when the pet's most recent non-`CANCELLED` visit (or `createdAt` if it has none) is more than 2 years ago. It is present on every `PetResponse` (create/update/get/list/archive/activate) and is independent of `archived`, which is the explicit soft-delete flag.
 
 ### 5.4 Vets
 
@@ -295,6 +298,30 @@ Note: soft-deletable resources (e.g. `Pet`) have no "real delete" endpoint at al
 ```
 
 > `warnings` is a derived, non-blocking field (see `docs/business-rules.md` §7): the backend does a case-insensitive substring match of each comma/semicolon-separated token in `Pet.allergies` against `treatmentNotes`. It is present on every `VisitResponse` (create/update/get/list/calendar), not only the medical-notes endpoint, and is empty when there is no match or no `allergies`/`treatmentNotes` text to compare. There is no structured `Drug` catalog in this phase — see `decisions.md` for the confirmed assumption.
+
+**POST /api/visits/{id}/follow-up — request**
+
+No request body. `{id}` must reference a `COMPLETED` visit with a non-null `followUpDate`, otherwise `409 Conflict`.
+
+**POST /api/visits/{id}/follow-up — response** (`201 Created`)
+```json
+{
+  "id": 260,
+  "petId": 45,
+  "vetId": 3,
+  "scheduledAt": "2026-07-11T09:00:00",
+  "status": "SCHEDULED",
+  "chiefComplaint": "Follow-up visit",
+  "diagnosis": null,
+  "treatmentNotes": null,
+  "followUpDate": null,
+  "warnings": [],
+  "createdAt": "2026-07-04T15:10:00",
+  "updatedAt": "2026-07-04T15:10:00"
+}
+```
+
+> Creates a new `SCHEDULED` visit for the same pet/vet at `followUpDate` 09:00 (fixed default time — the request carries no `scheduledAt`, see `decisions.md`). Subject to the same ±15-minute vet overlap rule as any other visit (`409 Conflict` if the slot is taken); the frontend should fall back to the regular "New Visit" flow to pick a different time in that case.
 
 ### 5.6 Vaccinations
 

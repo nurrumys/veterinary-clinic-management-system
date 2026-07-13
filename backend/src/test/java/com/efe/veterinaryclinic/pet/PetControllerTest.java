@@ -9,6 +9,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
@@ -24,6 +27,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class PetControllerTest {
 
+    private static final DateTimeFormatter ISO = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+    @Value("${app.seed.admin.email}")
+    private String SEED_ADMIN_EMAIL;
+    @Value("${app.seed.admin.password}")
+    private String SEED_ADMIN_PASSWORD;
     @Value("${app.seed.receptionist.email}")
     private String SEED_RECEPTIONIST_EMAIL;
     @Value("${app.seed.receptionist.password}")
@@ -386,6 +395,92 @@ class PetControllerTest {
                 .andExpect(status().isCreated());
     }
 
+    @Test
+    void newlyCreatedPetWithNoVisitsIsNotInactive() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long ownerId = createOwner(receptionistToken, "inactive-fresh-owner@example.com");
+        long petId = createPet(receptionistToken, ownerId, "Boncuk", "DOG", "Golden Retriever", null);
+
+        mockMvc.perform(get("/api/pets/" + petId).header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.inactive").value(false));
+    }
+
+    @Test
+    void petWithOnlyAVisitOverTwoYearsAgoIsInactive() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long ownerId = createOwner(receptionistToken, "inactive-old-visit-owner@example.com");
+        long petId = createPet(receptionistToken, ownerId, "Minnos", "CAT", "Tabby", null);
+        long vetId = createVet(receptionistToken, "VET-LIC-PET-INACTIVE-001");
+        createVisit(receptionistToken, petId, vetId, LocalDateTime.now().minusYears(3));
+
+        mockMvc.perform(get("/api/pets/" + petId).header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.inactive").value(true));
+    }
+
+    @Test
+    void petWithRecentVisitIsNotInactive() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long ownerId = createOwner(receptionistToken, "inactive-recent-visit-owner@example.com");
+        long petId = createPet(receptionistToken, ownerId, "Duman", "DOG", "Golden Retriever", null);
+        long vetId = createVet(receptionistToken, "VET-LIC-PET-INACTIVE-002");
+        createVisit(receptionistToken, petId, vetId, LocalDateTime.now().minusDays(1));
+
+        mockMvc.perform(get("/api/pets/" + petId).header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.inactive").value(false));
+    }
+
+    @Test
+    void cancelledOldVisitDoesNotCountAsLastSeenSoPetStaysActive() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long ownerId = createOwner(receptionistToken, "inactive-cancelled-owner@example.com");
+        long petId = createPet(receptionistToken, ownerId, "Findik", "CAT", "Tabby", null);
+        long vetId = createVet(receptionistToken, "VET-LIC-PET-INACTIVE-003");
+        long visitId = createVisit(receptionistToken, petId, vetId, LocalDateTime.now().minusYears(3));
+
+        mockMvc.perform(patch("/api/visits/" + visitId + "/status")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new VisitStatusPayload("CANCELLED"))))
+                .andExpect(status().isOk());
+
+        // The only visit is CANCELLED, so it's disregarded and the pet's recent createdAt is used instead
+        mockMvc.perform(get("/api/pets/" + petId).header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.inactive").value(false));
+    }
+
+    private long createVisit(String token, long petId, long vetId, LocalDateTime scheduledAt) throws Exception {
+        String createBody = objectMapper.writeValueAsString(
+                new VisitPayload(petId, vetId, scheduledAt.format(ISO), "Checkup"));
+
+        String response = mockMvc.perform(post("/api/visits")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        return objectMapper.readTree(response).get("id").asLong();
+    }
+
+    private long createVet(String token, String licenseNo) throws Exception {
+        String adminToken = loginAndGetToken(SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD);
+        String vetBody = objectMapper.writeValueAsString(
+                new VetPayload("Dr. Pet Inactive Test", "Surgery", licenseNo, "Mon-Fri 09:00-17:00"));
+
+        String response = mockMvc.perform(post("/api/vets")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(vetBody))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        return objectMapper.readTree(response).get("id").asLong();
+    }
+
     private long createPet(String token, long ownerId, String name, String species, String breed, String speciesNote)
             throws Exception {
         String createBody = objectMapper.writeValueAsString(
@@ -437,6 +532,15 @@ class PetControllerTest {
     }
 
     private record WeightRecordPayload(Double weightKg, String recordedAt, String note) {
+    }
+
+    private record VisitPayload(Long petId, Long vetId, String scheduledAt, String chiefComplaint) {
+    }
+
+    private record VisitStatusPayload(String status) {
+    }
+
+    private record VetPayload(String name, String specialty, String licenseNo, String workHours) {
     }
 
     private record LoginPayload(String email, String password) {

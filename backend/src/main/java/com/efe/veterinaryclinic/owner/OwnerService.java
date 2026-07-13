@@ -7,6 +7,7 @@ import com.efe.veterinaryclinic.owner.dto.OwnerDetailResponse;
 import com.efe.veterinaryclinic.owner.dto.OwnerRequest;
 import com.efe.veterinaryclinic.owner.dto.OwnerResponse;
 import com.efe.veterinaryclinic.pet.PetRepository;
+import com.efe.veterinaryclinic.pet.PetService;
 import com.efe.veterinaryclinic.pet.dto.PetResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,10 +19,12 @@ public class OwnerService {
 
     private final OwnerRepository ownerRepository;
     private final PetRepository petRepository;
+    private final PetService petService;
 
-    public OwnerService(OwnerRepository ownerRepository, PetRepository petRepository) {
+    public OwnerService(OwnerRepository ownerRepository, PetRepository petRepository, PetService petService) {
         this.ownerRepository = ownerRepository;
         this.petRepository = petRepository;
+        this.petService = petService;
     }
 
     public OwnerResponse create(OwnerRequest request) {
@@ -39,7 +42,7 @@ public class OwnerService {
     public OwnerDetailResponse getById(Long id) {
         Owner owner = findOrThrow(id);
         List<PetResponse> pets = petRepository.findByOwnerId(id).stream()
-                .map(PetResponse::from)
+                .map(pet -> PetResponse.from(pet, petService.isInactive(pet)))
                 .toList();
 
         return OwnerDetailResponse.from(owner, pets);
