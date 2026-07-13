@@ -210,11 +210,11 @@ Verification commands referenced below:
     - Files: `dashboard/*`.
     - Verify: `./mvnw test`.
 
-39. **Vet-by-vet appointment count**
+39. ~~**Vet-by-vet appointment count**~~ ✅ done (2026-07-13)
     - Files: `dashboard/*`.
     - Verify: `./mvnw test`.
 
-40. **Today schedule + alerts (vaccination, overdue follow-up)**
+40. ~~**Today schedule + alerts (vaccination, overdue follow-up)**~~ ✅ done (2026-07-13)
     - Files: `dashboard/*`.
     - Verify: `./mvnw test`.
 
