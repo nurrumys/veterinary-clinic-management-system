@@ -253,7 +253,7 @@ Verification commands referenced below:
     - Files: `config/DataSeeder.java`, `config/DemoDataSeeder.java`.
     - Verify: `./mvnw spring-boot:run`, manually walk the demo flow.
 
-48. **Tests pass**
+48. ~~**Tests pass**~~ ✅ done (2026-07-14)
     - Full suite green.
     - Verify: `./mvnw test`.
 
