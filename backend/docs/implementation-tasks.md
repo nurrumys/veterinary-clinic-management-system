@@ -238,7 +238,7 @@ Verification commands referenced below:
     - Files: `pet/*`.
     - Verify: `./mvnw test`.
 
-45. **Final search/filter cleanup**
+45. ~~**Final search/filter cleanup**~~ ✅ done (2026-07-14)
     - Review all listing endpoints for consistent query params and `PageResponse` usage.
     - Files: across modules.
     - Verify: `./mvnw test`.

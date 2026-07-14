@@ -188,6 +188,8 @@ Note: soft-deletable resources (e.g. `Pet`) have no "real delete" endpoint at al
 | GET | `/api/pets/{id}/weight-records` | ADMIN, VET, RECEPTIONIST | Pet's weight history |
 | POST | `/api/pets/{id}/weight-records` | ADMIN, VET, RECEPTIONIST | Add a weight record (weighing can happen at check-in) |
 
+> `GET /api/pets/{id}/weight-records` intentionally returns a plain array, not `PageResponse` — a single pet's weight history is a small, bounded list, so pagination metadata would add no value. Sort is fixed ascending by `recordedAt`.
+
 **POST /api/pets — request**
 ```json
 {
@@ -252,6 +254,8 @@ Note: soft-deletable resources (e.g. `Pet`) have no "real delete" endpoint at al
 | PATCH | `/api/visits/{id}/medical-notes` | ADMIN, VET | Update diagnosis/treatment notes |
 | GET | `/api/visits/calendar` | ADMIN, VET, RECEPTIONIST | Calendar view data |
 | POST | `/api/visits/{id}/follow-up` | ADMIN, VET | Create/suggest follow-up visit |
+
+> `GET /api/visits/calendar` intentionally returns a plain array, not `PageResponse` — it's meant to be called with a bounded `from`/`to` range for a calendar view, not browsed page by page. Sort is fixed ascending by `scheduledAt`.
 
 **POST /api/visits — request**
 ```json

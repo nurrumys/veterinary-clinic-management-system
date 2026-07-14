@@ -62,6 +62,28 @@ class OwnerControllerTest {
     }
 
     @Test
+    void searchOwnersByLastNameFiltersToMatchingOwners() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String uniqueLastName = "Ozkanli" + System.nanoTime();
+        String createBody = objectMapper.writeValueAsString(
+                new OwnerPayload("Elif", uniqueLastName, "+90 555 222 3344",
+                        "elif." + System.nanoTime() + "@example.com", "Izmir, Turkey"));
+
+        mockMvc.perform(post("/api/owners")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/owners")
+                        .param("search", uniqueLastName.toLowerCase())
+                        .header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.content[0].lastName").value(uniqueLastName));
+    }
+
+    @Test
     void createOwnerByVetIsForbidden() throws Exception {
         String vetToken = loginAndGetToken(SEED_VET1_EMAIL, SEED_VET1_PASSWORD);
         String createBody = objectMapper.writeValueAsString(

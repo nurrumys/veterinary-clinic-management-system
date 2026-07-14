@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -33,8 +34,9 @@ public class OwnerController {
     }
 
     @GetMapping
-    public ResponseEntity<PageResponse<OwnerResponse>> list(Pageable pageable) {
-        return ResponseEntity.ok(ownerService.list(pageable));
+    public ResponseEntity<PageResponse<OwnerResponse>> list(
+            @RequestParam(required = false) String search, Pageable pageable) {
+        return ResponseEntity.ok(ownerService.list(search, pageable));
     }
 
     @GetMapping("/{id}")
