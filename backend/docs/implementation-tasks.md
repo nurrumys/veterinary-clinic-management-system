@@ -243,7 +243,7 @@ Verification commands referenced below:
     - Files: across modules.
     - Verify: `./mvnw test`.
 
-46. **Swagger cleanup**
+46. ~~**Swagger cleanup**~~ ✅ done (2026-07-14)
     - Ensure all endpoints have descriptions, examples, and correct security annotations.
     - Files: across modules, `config/OpenApiConfig.java`.
     - Verify: manual check via `/swagger-ui.html`.
