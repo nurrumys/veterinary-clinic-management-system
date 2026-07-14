@@ -248,9 +248,9 @@ Verification commands referenced below:
     - Files: across modules, `config/OpenApiConfig.java`.
     - Verify: manual check via `/swagger-ui.html`.
 
-47. **Seed demo data**
+47. ~~**Seed demo data**~~ ✅ done (2026-07-14)
     - Realistic demo dataset covering the full acceptance flow (owners, pets, vets, visits, vaccinations, invoices).
-    - Files: `config/DataSeeder.java`.
+    - Files: `config/DataSeeder.java`, `config/DemoDataSeeder.java`.
     - Verify: `./mvnw spring-boot:run`, manually walk the demo flow.
 
 48. **Tests pass**
