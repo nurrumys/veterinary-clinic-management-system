@@ -17,7 +17,9 @@ type PetToolbarProps = {
   onSortChange: (value: string) => void;
 
   onAddPet: () => void;
+  onExport: () => void;
 };
+
 
 
 function PetToolbar({
@@ -30,6 +32,7 @@ function PetToolbar({
   onOwnerChange,
   onSortChange,
   onAddPet,
+  onExport,
 }: PetToolbarProps) {
 
 
@@ -46,15 +49,7 @@ function PetToolbar({
     >
 
 
-      {/* Search */}
-
-      <div
-        className="
-          relative
-          flex-1
-          min-w-0
-        "
-      >
+      <div className="relative flex-1 min-w-0">
 
         <Search
           size={20}
@@ -96,9 +91,6 @@ function PetToolbar({
 
 
 
-
-      {/* Species */}
-
       <select
         value={species}
         onChange={(e) =>
@@ -107,15 +99,11 @@ function PetToolbar({
         className="
           h-12
           w-[160px]
-          shrink-0
           rounded-xl
           border
           border-slate-200
           bg-white
           px-4
-          text-sm
-          text-slate-700
-          outline-none
         "
       >
 
@@ -141,8 +129,6 @@ function PetToolbar({
 
 
 
-      {/* Owner */}
-
       <select
         value={owner}
         onChange={(e) =>
@@ -151,15 +137,11 @@ function PetToolbar({
         className="
           h-12
           w-[160px]
-          shrink-0
           rounded-xl
           border
           border-slate-200
           bg-white
           px-4
-          text-sm
-          text-slate-700
-          outline-none
         "
       >
 
@@ -185,8 +167,6 @@ function PetToolbar({
 
 
 
-      {/* Sort */}
-
       <select
         value={sort}
         onChange={(e) =>
@@ -195,15 +175,11 @@ function PetToolbar({
         className="
           h-12
           w-[150px]
-          shrink-0
           rounded-xl
           border
           border-slate-200
           bg-white
           px-4
-          text-sm
-          text-slate-700
-          outline-none
         "
       >
 
@@ -233,11 +209,11 @@ function PetToolbar({
 
       <button
         type="button"
+        onClick={onExport}
         className="
           flex
           h-12
           w-[120px]
-          shrink-0
           items-center
           justify-center
           gap-2
@@ -272,7 +248,6 @@ function PetToolbar({
           flex
           h-12
           w-[140px]
-          shrink-0
           items-center
           justify-center
           gap-2
@@ -291,7 +266,6 @@ function PetToolbar({
         Add Pet
 
       </button>
-
 
 
     </div>

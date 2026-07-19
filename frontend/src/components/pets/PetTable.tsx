@@ -1,44 +1,56 @@
 import Card from "../ui/Card";
 import PetRow from "./PetRow";
 
-import { owners } from "../../mocks/owners";
-
 import type { Pet } from "../../types/pet";
+import type { Owner } from "../../types/owner";
 
 
 type PetTableProps = {
+
   pets: Pet[];
+
+  owners?: Owner[];
 
   onEdit: (pet: Pet) => void;
 
   onDelete: (pet: Pet) => void;
+
 };
 
 
 
 function PetTable({
   pets,
+  owners = [],
   onEdit,
   onDelete,
 }: PetTableProps) {
 
 
 
-  const getOwnerName = (ownerId: number) => {
+  const getOwnerName = (
+    ownerId: number
+  ) => {
 
-    const owner = owners.find(
+
+    const owner = owners?.find(
       (item) => item.id === ownerId
     );
 
 
+
     if (!owner) {
+
       return "-";
+
     }
+
 
 
     return `${owner.firstName} ${owner.lastName}`;
 
   };
+
 
 
 
@@ -53,6 +65,7 @@ function PetTable({
       "
     >
 
+
       <div className="overflow-x-auto">
 
 
@@ -60,6 +73,7 @@ function PetTable({
 
 
           <thead>
+
 
             <tr
               className="
@@ -97,7 +111,9 @@ function PetTable({
 
             </tr>
 
+
           </thead>
+
 
 
 
@@ -107,7 +123,9 @@ function PetTable({
 
             {pets.length === 0 ? (
 
+
               <tr>
+
 
                 <td
                   colSpan={5}
@@ -118,8 +136,11 @@ function PetTable({
                     text-slate-500
                   "
                 >
+
                   No pets found.
+
                 </td>
+
 
               </tr>
 
@@ -132,9 +153,12 @@ function PetTable({
 
                 <PetRow
 
+
                   key={pet.id}
 
+
                   pet={pet}
+
 
                   ownerName={
                     getOwnerName(
@@ -176,6 +200,7 @@ function PetTable({
   );
 
 }
+
 
 
 export default PetTable;

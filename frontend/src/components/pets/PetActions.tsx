@@ -1,6 +1,7 @@
 import {
   Pencil,
-  Trash2,
+  Archive,
+  RotateCcw,
 } from "lucide-react";
 
 import type { Pet } from "../../types/pet";
@@ -19,7 +20,9 @@ function PetActions({
   onDelete,
 }: PetActionsProps) {
 
+
   return (
+
     <div
       className="
         flex
@@ -27,6 +30,9 @@ function PetActions({
         gap-5
       "
     >
+
+
+      {/* Edit */}
 
       <button
         type="button"
@@ -41,36 +47,72 @@ function PetActions({
         "
         title="Edit"
       >
+
         <Pencil
           size={20}
           strokeWidth={2}
         />
+
       </button>
 
 
 
-      <button
-        type="button"
-        onClick={() => onDelete(pet)}
-        className="
-          flex
-          items-center
-          justify-center
-          text-red-600
-          transition
-          hover:text-red-800
-        "
-        title="Delete"
-      >
-        <Trash2
-          size={20}
-          strokeWidth={2}
-        />
-      </button>
+      {/* Archive / Restore */}
+
+      {!pet.archived ? (
+
+        <button
+          type="button"
+          onClick={() => onDelete(pet)}
+          className="
+            flex
+            items-center
+            justify-center
+            text-orange-600
+            transition
+            hover:text-orange-800
+          "
+          title="Archive"
+        >
+
+          <Archive
+            size={20}
+            strokeWidth={2}
+          />
+
+        </button>
+
+
+      ) : (
+
+        <button
+          type="button"
+          onClick={() => onDelete(pet)}
+          className="
+            flex
+            items-center
+            justify-center
+            text-green-600
+            transition
+            hover:text-green-800
+          "
+          title="Restore"
+        >
+
+          <RotateCcw
+            size={20}
+            strokeWidth={2}
+          />
+
+        </button>
+
+      )}
 
 
     </div>
+
   );
+
 }
 
 

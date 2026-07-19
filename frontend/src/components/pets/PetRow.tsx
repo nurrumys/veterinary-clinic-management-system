@@ -11,6 +11,7 @@ type PetRowProps = {
 };
 
 
+
 function PetRow({
   pet,
   ownerName,
@@ -18,7 +19,9 @@ function PetRow({
   onDelete,
 }: PetRowProps) {
 
+
   return (
+
     <tr
       className="
         border-b
@@ -28,6 +31,7 @@ function PetRow({
       "
     >
 
+
       <td className="px-6 py-5">
 
         <div className="flex flex-col">
@@ -36,28 +40,61 @@ function PetRow({
             {pet.name}
           </span>
 
-          <span className="mt-1 text-sm text-slate-400">
+
+          <span
+            className="
+              mt-1
+              text-sm
+              text-slate-400
+            "
+          >
             ID #{pet.id}
           </span>
+
 
         </div>
 
       </td>
 
 
-      <td className="px-6 py-5 text-slate-600">
+
+      <td
+        className="
+          px-6
+          py-5
+          text-slate-600
+        "
+      >
         {pet.species}
       </td>
 
 
-      <td className="px-6 py-5 text-slate-600">
+
+
+      <td
+        className="
+          px-6
+          py-5
+          text-slate-600
+        "
+      >
         {pet.breed}
       </td>
 
 
-      <td className="px-6 py-5 text-slate-600">
+
+
+      <td
+        className="
+          px-6
+          py-5
+          text-slate-600
+        "
+      >
         {ownerName}
       </td>
+
+
 
 
       <td className="px-6 py-5">
@@ -72,7 +109,9 @@ function PetRow({
 
 
     </tr>
+
   );
+
 }
 
 
