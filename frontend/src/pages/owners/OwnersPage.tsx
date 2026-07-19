@@ -481,24 +481,18 @@ setTotalPages(data.totalPages);
 
 
 
-        <OwnerToolbar
-
-          onAdd={handleAdd}
-
-
-          onSearch={(value) =>
-            setSearchTerm(value)
-          }
-
-
-          onSort={(value) =>
-            setSortOption(value)
-          }
-
-
-          onExport={handleExportOwners}
-
-        />
+       <OwnerToolbar
+  onAdd={handleAdd}
+  onSearch={(value) => {
+    setSearchTerm(value);
+    setPage(0);
+  }}
+  onSort={(value) => {
+    setSortOption(value);
+    setPage(0);
+  }}
+  onExport={handleExportOwners}
+/>
 
 
 

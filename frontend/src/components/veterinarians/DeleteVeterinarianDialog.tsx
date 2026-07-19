@@ -1,8 +1,6 @@
 import Modal from "../ui/Modal";
 
-
 type DeleteVeterinarianDialogProps = {
-
   open: boolean;
 
   veterinarianName: string;
@@ -10,38 +8,21 @@ type DeleteVeterinarianDialogProps = {
   onClose: () => void;
 
   onConfirm: () => void;
-
 };
 
-
-
 function DeleteVeterinarianDialog({
-
   open,
-
   veterinarianName,
-
   onClose,
-
   onConfirm,
-
 }: DeleteVeterinarianDialogProps) {
-
-
   return (
-
     <Modal
-
       open={open}
-
       title="Delete Veterinarian"
-
       onClose={onClose}
-
       footer={
-
         <>
-
           <button
             type="button"
             onClick={onClose}
@@ -59,8 +40,6 @@ function DeleteVeterinarianDialog({
             Cancel
           </button>
 
-
-
           <button
             type="button"
             onClick={onConfirm}
@@ -76,43 +55,22 @@ function DeleteVeterinarianDialog({
           >
             Delete
           </button>
-
-
         </>
-
       }
-
     >
-
-
       <p className="text-slate-600">
-
         Are you sure you want to delete{" "}
-
         <span className="font-semibold text-slate-900">
-
           {veterinarianName}
-
         </span>
-
         ?
-
       </p>
-
 
       <p className="mt-3 text-sm text-slate-500">
-
         This action cannot be undone.
-
       </p>
-
-
-
     </Modal>
-
   );
-
 }
-
 
 export default DeleteVeterinarianDialog;

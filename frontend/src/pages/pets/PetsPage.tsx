@@ -37,6 +37,11 @@ function PetsPage() {
 
   const [pets, setPets] =
     useState<Pet[]>([]);
+    const [page, setPage] = useState(0);
+
+const [size] = useState(20);
+
+const [totalPages, setTotalPages] = useState(0);
     const [owners, setOwners] =
   useState<Owner[]>([]);
 
@@ -105,8 +110,38 @@ function PetsPage() {
 
 
 
-      const data =
-        await getPets(showArchived);
+      let sortOption;
+
+switch (sort) {
+  case "name-asc":
+    sortOption = "name,asc";
+    break;
+
+  case "name-desc":
+    sortOption = "name,desc";
+    break;
+
+  case "newest":
+    sortOption = "createdAt,desc";
+    break;
+
+  case "oldest":
+    sortOption = "createdAt,asc";
+    break;
+}
+
+const data = await getPets({
+  page,
+  size,
+  search: search || undefined,
+  species: species || undefined,
+  ownerId: owner ? Number(owner) : undefined,
+  active: !showArchived,
+  sort: sortOption,
+});
+
+setPets(data.content);
+setTotalPages(data.totalPages);
 
 
 
@@ -174,11 +209,21 @@ function PetsPage() {
 
 
   useEffect(() => {
+  fetchPets();
+}, [
+  page,
+  size,
+  search,
+  species,
+  owner,
+  sort,
+  showArchived,
+]);
 
-    fetchPets();
-    fetchOwners();
+useEffect(() => {
+  fetchOwners();
+}, []);
 
-  }, [showArchived]);
   const handleExportPets = () => {
 
   const headers = [
@@ -190,7 +235,7 @@ function PetsPage() {
   ];
 
 
-  const rows = filteredPets.map((pet) => [
+  const rows = pets.map((pet) => [
 
     pet.id,
     pet.name,
@@ -256,99 +301,7 @@ function PetsPage() {
 
 };
 
-  const filteredPets = [...pets]
-
-    .filter((pet) => {
-
-
-      const searchValue =
-        search.toLowerCase();
-
-
-
-      const matchesSearch =
-        pet.name
-          .toLowerCase()
-          .includes(searchValue)
-
-        ||
-
-        pet.species
-          .toLowerCase()
-          .includes(searchValue)
-
-        ||
-
-        pet.breed
-          .toLowerCase()
-          .includes(searchValue);
-
-
-
-      const matchesSpecies =
-        species === "" ||
-        pet.species === species;
-
-
-
-      const matchesOwner =
-        owner === "" ||
-        String(pet.ownerId) === owner;
-
-
-
-      return (
-        matchesSearch &&
-        matchesSpecies &&
-        matchesOwner
-      );
-
-
-    })
-
-    .sort((a, b) => {
-
-
-      switch(sort) {
-
-
-        case "name-desc":
-
-          return b.name.localeCompare(
-            a.name
-          );
-
-
-
-        case "newest":
-
-          return (
-            new Date(b.createdAt).getTime()
-            -
-            new Date(a.createdAt).getTime()
-          );
-
-
-
-        case "oldest":
-
-          return (
-            new Date(a.createdAt).getTime()
-            -
-            new Date(b.createdAt).getTime()
-          );
-
-
-
-        default:
-
-          return a.name.localeCompare(
-            b.name
-          );
-
-      }
-
-    });
+ 
 
 
 
@@ -638,10 +591,11 @@ function PetsPage() {
 >
 
   <button
-    type="button"
-    onClick={() =>
-      setShowArchived(false)
-    }
+  type="button"
+  onClick={() => {
+    setShowArchived(false);
+    setPage(0);
+  }}
     className={`
       rounded-xl
       px-6
@@ -661,11 +615,12 @@ function PetsPage() {
 
 
 
-  <button
-    type="button"
-    onClick={() =>
-      setShowArchived(true)
-    }
+ <button
+  type="button"
+  onClick={() => {
+    setShowArchived(true);
+    setPage(0);
+  }}
     className={`
       rounded-xl
       px-6
@@ -695,29 +650,29 @@ function PetsPage() {
 
 
           <PetToolbar
-
   search={search}
-
   species={species}
-
   owner={owner}
-
   sort={sort}
-
-
-  onSearchChange={setSearch}
-
-  onSpeciesChange={setSpecies}
-
-  onOwnerChange={setOwner}
-
-  onSortChange={setSort}
-
-
+  owners={owners}
+  onSearchChange={(value) => {
+    setSearch(value);
+    setPage(0);
+  }}
+  onSpeciesChange={(value) => {
+    setSpecies(value);
+    setPage(0);
+  }}
+  onOwnerChange={(value) => {
+    setOwner(value);
+    setPage(0);
+  }}
+  onSortChange={(value) => {
+    setSort(value);
+    setPage(0);
+  }}
   onAddPet={handleAddPet}
-
   onExport={handleExportPets}
-
 />
 
 
@@ -731,20 +686,41 @@ function PetsPage() {
 
 
           {!loading && !error && (
+  <>
+    <PetTable
+      pets={pets}
+      owners={owners}
+      onEdit={handleEditPet}
+      onDelete={handleArchivePet}
+    />
 
-            <PetTable
+    {totalPages > 1 && (
+      <div className="mt-6 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => setPage((prev) => prev - 1)}
+          disabled={page === 0}
+          className="rounded-lg border px-4 py-2 disabled:opacity-50"
+        >
+          Previous
+        </button>
 
-  pets={filteredPets}
+        <span className="text-sm text-slate-600">
+          Page {page + 1} of {totalPages}
+        </span>
 
-  owners={owners}
-
-  onEdit={handleEditPet}
-
-  onDelete={handleArchivePet}
-
-/>
-
-          )}
+        <button
+          type="button"
+          onClick={() => setPage((prev) => prev + 1)}
+          disabled={page + 1 >= totalPages}
+          className="rounded-lg border px-4 py-2 disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+    )}
+  </>
+)}
 
 
 

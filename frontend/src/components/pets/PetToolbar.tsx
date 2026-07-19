@@ -4,12 +4,15 @@ import {
   Search,
 } from "lucide-react";
 
+import type { Owner } from "../../types/owner";
 
 type PetToolbarProps = {
   search: string;
   species: string;
   owner: string;
   sort: string;
+
+  owners: Owner[];
 
   onSearchChange: (value: string) => void;
   onSpeciesChange: (value: string) => void;
@@ -20,13 +23,12 @@ type PetToolbarProps = {
   onExport: () => void;
 };
 
-
-
 function PetToolbar({
   search,
   species,
   owner,
   sort,
+  owners,
   onSearchChange,
   onSpeciesChange,
   onOwnerChange,
@@ -34,7 +36,6 @@ function PetToolbar({
   onAddPet,
   onExport,
 }: PetToolbarProps) {
-
 
   return (
 
@@ -48,7 +49,6 @@ function PetToolbar({
       "
     >
 
-
       <div className="relative flex-1 min-w-0">
 
         <Search
@@ -61,7 +61,6 @@ function PetToolbar({
             text-slate-400
           "
         />
-
 
         <input
           type="text"
@@ -87,9 +86,6 @@ function PetToolbar({
         />
 
       </div>
-
-
-
 
       <select
         value={species}
@@ -125,10 +121,6 @@ function PetToolbar({
 
       </select>
 
-
-
-
-
       <select
         value={owner}
         onChange={(e) =>
@@ -136,7 +128,7 @@ function PetToolbar({
         }
         className="
           h-12
-          w-[160px]
+          w-[180px]
           rounded-xl
           border
           border-slate-200
@@ -149,23 +141,18 @@ function PetToolbar({
           All Owners
         </option>
 
-        <option value="1">
-          John Smith
-        </option>
+        {owners.map((owner) => (
 
-        <option value="2">
-          Emma Johnson
-        </option>
+          <option
+            key={owner.id}
+            value={owner.id}
+          >
+            {owner.firstName} {owner.lastName}
+          </option>
 
-        <option value="3">
-          Michael Brown
-        </option>
+        ))}
 
       </select>
-
-
-
-
 
       <select
         value={sort}
@@ -201,12 +188,6 @@ function PetToolbar({
 
       </select>
 
-
-
-
-
-      {/* Export */}
-
       <button
         type="button"
         onClick={onExport}
@@ -229,17 +210,11 @@ function PetToolbar({
         "
       >
 
-        <Download size={18}/>
+        <Download size={18} />
 
         Export
 
       </button>
-
-
-
-
-
-      {/* Add Pet */}
 
       <button
         type="button"
@@ -261,18 +236,16 @@ function PetToolbar({
         "
       >
 
-        <Plus size={18}/>
+        <Plus size={18} />
 
         Add Pet
 
       </button>
-
 
     </div>
 
   );
 
 }
-
 
 export default PetToolbar;

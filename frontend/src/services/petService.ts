@@ -6,7 +6,6 @@ import type {
   UpdatePetRequest,
 } from "../types/pet";
 
-
 export type PetPageResponse = {
   content: Pet[];
   page: number;
@@ -15,21 +14,30 @@ export type PetPageResponse = {
   totalPages: number;
 };
 
-
+export type GetPetsParams = {
+  page?: number;
+  size?: number;
+  search?: string;
+  species?: string;
+  ownerId?: number;
+  active?: boolean;
+  sort?: string;
+};
 
 export const getPets = async (
-  archived = false
+  params?: GetPetsParams
 ) => {
 
   const response = await api.get<PetPageResponse>(
-    `/pets?active=${!archived}`
+    "/pets",
+    {
+      params,
+    }
   );
 
   return response.data;
 
 };
-
-
 
 export const getPetById = async (
   id: number
@@ -43,8 +51,6 @@ export const getPetById = async (
 
 };
 
-
-
 export const createPet = async (
   data: CreatePetRequest
 ) => {
@@ -57,8 +63,6 @@ export const createPet = async (
   return response.data;
 
 };
-
-
 
 export const updatePet = async (
   id: number,
@@ -74,10 +78,8 @@ export const updatePet = async (
 
 };
 
-
-
 export const archivePet = async (
-  id:number
+  id: number
 ) => {
 
   const response = await api.patch<Pet>(
@@ -88,10 +90,8 @@ export const archivePet = async (
 
 };
 
-
-
 export const activatePet = async (
-  id:number
+  id: number
 ) => {
 
   const response = await api.patch<Pet>(
