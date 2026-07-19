@@ -1,0 +1,52 @@
+export const ownerStats = {
+  totalOwners: 248,
+  totalPets: 421,
+  newOwnersThisMonth: 18,
+};
+
+export const owners = [
+  {
+    id: 1,
+    firstName: "John",
+    lastName: "Smith",
+    email: "john.smith@example.com",
+    phone: "+1 (555) 123-4567",
+    address: "New York, USA",
+    petCount: 2,
+    createdAt: "2026-07-01",
+    updatedAt: "2026-07-10",
+  },
+  {
+    id: 2,
+    firstName: "Emma",
+    lastName: "Johnson",
+    email: "emma.johnson@example.com",
+    phone: "+1 (555) 987-6543",
+    address: "Chicago, USA",
+    petCount: 1,
+    createdAt: "2026-06-22",
+    updatedAt: "2026-07-08",
+  },
+  {
+    id: 3,
+    firstName: "Michael",
+    lastName: "Brown",
+    email: "michael.brown@example.com",
+    phone: "+1 (555) 456-7890",
+    address: "Los Angeles, USA",
+    petCount: 3,
+    createdAt: "2026-06-15",
+    updatedAt: "2026-07-09",
+  },
+  {
+    id: 4,
+    firstName: "Sophia",
+    lastName: "Wilson",
+    email: "sophia.wilson@example.com",
+    phone: "+1 (555) 654-3210",
+    address: "Boston, USA",
+    petCount: 1,
+    createdAt: "2026-07-03",
+    updatedAt: "2026-07-11",
+  },
+];
