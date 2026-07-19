@@ -26,6 +26,8 @@ import java.util.List;
 public class VisitService {
 
     private static final long OVERLAP_WINDOW_MINUTES = 15;
+    private static final int FOLLOW_UP_DEFAULT_HOUR = 9;
+    private static final String FOLLOW_UP_CHIEF_COMPLAINT = "Follow-up visit";
 
     private final VisitRepository visitRepository;
     private final PetRepository petRepository;
@@ -118,6 +120,27 @@ public class VisitService {
         visit.updateMedicalNotes(request.diagnosis(), request.treatmentNotes(), request.followUpDate());
 
         return VisitResponse.from(visitRepository.save(visit));
+    }
+
+    public VisitResponse createFollowUp(Long id, Role requesterRole) {
+        if (requesterRole == Role.RECEPTIONIST) {
+            throw new AccessDeniedException("RECEPTIONIST cannot create follow-up visits");
+        }
+
+        Visit visit = findVisitOrThrow(id);
+        if (visit.getStatus() != VisitStatus.COMPLETED) {
+            throw new ConflictException("Follow-up can only be created for a completed visit");
+        }
+        if (visit.getFollowUpDate() == null) {
+            throw new ConflictException("Visit has no follow-up date set");
+        }
+
+        LocalDateTime scheduledAt = visit.getFollowUpDate().atTime(FOLLOW_UP_DEFAULT_HOUR, 0);
+        checkNoOverlap(visit.getVet().getId(), scheduledAt, null);
+
+        Visit followUpVisit = new Visit(visit.getPet(), visit.getVet(), scheduledAt, FOLLOW_UP_CHIEF_COMPLAINT);
+
+        return VisitResponse.from(visitRepository.save(followUpVisit));
     }
 
     private void checkNoOverlap(Long vetId, LocalDateTime scheduledAt, Long excludeVisitId) {

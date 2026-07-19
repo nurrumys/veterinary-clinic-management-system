@@ -9,6 +9,8 @@ import com.efe.veterinaryclinic.vaccination.VaccinationService;
 import com.efe.veterinaryclinic.vaccination.dto.VaccinationResponse;
 import com.efe.veterinaryclinic.visit.VisitService;
 import com.efe.veterinaryclinic.visit.dto.VisitResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -27,6 +29,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/pets")
+@Tag(name = "Pets", description = "Pet records and their visit/vaccination/weight history")
 public class PetController {
 
 
@@ -44,11 +47,13 @@ public class PetController {
     }
 
     @PostMapping
+    @Operation(summary = "Create a pet", description = "ADMIN, RECEPTIONIST. Breed is optional (speciesNote required instead) unless species is CAT or DOG.")
     public ResponseEntity<PetResponse> create(@Valid @RequestBody PetRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(petService.create(request));
     }
 
     @GetMapping
+    @Operation(summary = "List pets", description = "ADMIN, VET, RECEPTIONIST. Supports search, species/owner/active filters, sort, and pagination.")
     public ResponseEntity<PageResponse<PetResponse>> list(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String species,
@@ -59,42 +64,50 @@ public class PetController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get pet detail", description = "ADMIN, VET, RECEPTIONIST.")
     public ResponseEntity<PetResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(petService.getById(id));
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a pet", description = "ADMIN, RECEPTIONIST.")
     public ResponseEntity<PetResponse> update(@PathVariable Long id, @Valid @RequestBody PetRequest request) {
         return ResponseEntity.ok(petService.update(id, request));
     }
 
     @PatchMapping("/{id}/archive")
+    @Operation(summary = "Archive a pet", description = "ADMIN, RECEPTIONIST. Soft delete — pets are never hard-deleted.")
     public ResponseEntity<PetResponse> archive(@PathVariable Long id) {
         return ResponseEntity.ok(petService.archive(id));
     }
 
     @PatchMapping("/{id}/activate")
+    @Operation(summary = "Reactivate an archived pet", description = "ADMIN, RECEPTIONIST.")
     public ResponseEntity<PetResponse> activate(@PathVariable Long id) {
         return ResponseEntity.ok(petService.activate(id));
     }
 
     @GetMapping("/{id}/visits")
+    @Operation(summary = "Get a pet's visit history", description = "ADMIN, VET, RECEPTIONIST.")
     public ResponseEntity<PageResponse<VisitResponse>> visits(@PathVariable Long id, Pageable pageable) {
         return ResponseEntity.ok(visitService.listByPet(id, pageable));
     }
 
     @GetMapping("/{id}/vaccinations")
+    @Operation(summary = "Get a pet's vaccination history", description = "ADMIN, VET, RECEPTIONIST.")
     public ResponseEntity<PageResponse<VaccinationResponse>> vaccinations(@PathVariable Long id, Pageable pageable) {
         return ResponseEntity.ok(vaccinationService.listByPet(id, pageable));
     }
 
     @PostMapping("/{id}/weight-records")
+    @Operation(summary = "Add a weight record", description = "ADMIN, VET, RECEPTIONIST. Weighing can happen at check-in.")
     public ResponseEntity<PetWeightRecordResponse> addWeightRecord(@PathVariable Long id,
                                                                      @Valid @RequestBody PetWeightRecordRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(petWeightRecordService.create(id, request));
     }
 
     @GetMapping("/{id}/weight-records")
+    @Operation(summary = "Get a pet's weight history", description = "ADMIN, VET, RECEPTIONIST. Returns a plain array (not paginated) ordered by recordedAt ascending.")
     public ResponseEntity<List<PetWeightRecordResponse>> weightRecords(@PathVariable Long id) {
         return ResponseEntity.ok(petWeightRecordService.listByPet(id));
     }

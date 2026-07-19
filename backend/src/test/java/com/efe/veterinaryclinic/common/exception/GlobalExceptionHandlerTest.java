@@ -1,10 +1,15 @@
 package com.efe.veterinaryclinic.common.exception;
 
 import com.efe.veterinaryclinic.common.dto.ApiErrorResponse;
+import com.efe.veterinaryclinic.owner.Owner;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.mapping.PropertyReferenceException;
+import org.springframework.data.util.TypeInformation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -42,5 +47,19 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode().value()).isEqualTo(409);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().message()).isEqualTo("Owner has 2 pet(s) and cannot be deleted");
+    }
+
+    @Test
+    void propertyReferenceExceptionMapsTo400() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn("/api/owners");
+
+        ResponseEntity<ApiErrorResponse> response = handler.handlePropertyReference(
+                new PropertyReferenceException("string", TypeInformation.of(Owner.class), List.of()), request);
+
+        assertThat(response.getStatusCode().value()).isEqualTo(400);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().message()).isEqualTo("Invalid sort field: string");
+        assertThat(response.getBody().path()).isEqualTo("/api/owners");
     }
 }

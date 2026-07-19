@@ -25,3 +25,5 @@ app.seed.vet2.email=${SEED_VET2_EMAIL:vet2@clinic.com}
 app.seed.vet2.password=${SEED_VET2_PASSWORD:change-me}
 app.seed.receptionist.email=${SEED_RECEPTIONIST_EMAIL:receptionist@clinic.com}
 app.seed.receptionist.password=${SEED_RECEPTIONIST_PASSWORD:change-me}
+
+app.seed.demo-data.enabled=${SEED_DEMO_DATA_ENABLED:true}

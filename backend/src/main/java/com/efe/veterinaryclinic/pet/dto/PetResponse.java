@@ -18,11 +18,12 @@ public record PetResponse(
         String allergies,
         String chronicConditions,
         boolean archived,
+        boolean inactive,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
 
-    public static PetResponse from(Pet pet) {
+    public static PetResponse from(Pet pet, boolean inactive) {
         return new PetResponse(
                 pet.getId(),
                 pet.getOwner().getId(),
@@ -36,6 +37,7 @@ public record PetResponse(
                 pet.getAllergies(),
                 pet.getChronicConditions(),
                 pet.isArchived(),
+                inactive,
                 pet.getCreatedAt(),
                 pet.getUpdatedAt()
         );

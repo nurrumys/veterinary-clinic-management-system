@@ -1,6 +1,8 @@
 package com.efe.veterinaryclinic.dashboard;
 
 import com.efe.veterinaryclinic.dashboard.dto.DashboardSummaryResponse;
+import com.efe.veterinaryclinic.dashboard.dto.VaccinationAlertEntry;
+import com.efe.veterinaryclinic.visit.VisitStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -262,6 +264,116 @@ class DashboardServiceTest {
         assertThat(after.cumulativeAppointmentsYtd()).hasSize(YearMonth.now().getMonthValue());
     }
 
+    @Test
+    void appointmentsByVetCountsOnlyNonCancelledVisitsForThatVetYtd() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long petId = createPet(receptionistToken, "dashboard-by-vet@example.com", "Fistik");
+        long vetId = createVet(receptionistToken, "VET-LIC-DASH-008");
+        long baseline = vetAppointmentCount(dashboardService.getSummary(), vetId);
+
+        long visitId = createVisit(receptionistToken, petId, vetId, LocalDateTime.now().withHour(9).withMinute(0));
+
+        DashboardSummaryResponse summary = dashboardService.getSummary();
+        assertThat(summary.appointmentsByVet()).anyMatch(entry -> entry.vetId().equals(vetId));
+        assertThat(vetAppointmentCount(summary, vetId)).isEqualTo(baseline + 1);
+
+        mockMvc.perform(patch("/api/visits/" + visitId + "/status")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new StatusPayload("CANCELLED"))))
+                .andExpect(status().isOk());
+
+        assertThat(vetAppointmentCount(dashboardService.getSummary(), vetId)).isEqualTo(baseline);
+    }
+
+    @Test
+    void todayScheduleIncludesTodaysVisitsAndExcludesCancelledOnes() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long petId = createPet(receptionistToken, "dashboard-schedule@example.com", "Sultan");
+        long vetId = createVet(receptionistToken, "VET-LIC-DASH-009");
+        LocalDateTime scheduledAt = LocalDateTime.now().withHour(10).withMinute(0);
+        long visitId = createVisit(receptionistToken, petId, vetId, scheduledAt);
+
+        DashboardSummaryResponse summary = dashboardService.getSummary();
+        assertThat(summary.todaySchedule()).anyMatch(entry -> entry.visitId().equals(visitId)
+                && entry.petName().equals("Sultan") && entry.status() == VisitStatus.SCHEDULED);
+
+        mockMvc.perform(patch("/api/visits/" + visitId + "/status")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new StatusPayload("CANCELLED"))))
+                .andExpect(status().isOk());
+
+        assertThat(dashboardService.getSummary().todaySchedule()).noneMatch(entry -> entry.visitId().equals(visitId));
+    }
+
+    @Test
+    void upcomingVaccinationAlertsIncludesOnlyVaccinationsDueWithin30Days() throws Exception {
+        String vetToken = loginAndGetToken(SEED_VET1_EMAIL, SEED_VET1_PASSWORD);
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long petId = createPet(receptionistToken, "dashboard-vaccination-alert@example.com", "Leyla");
+
+        // ONE_YEAR administered 340 days ago -> nextDueDate ~25 days away, inside the 30-day window
+        String withinWindowBody = objectMapper.writeValueAsString(new VaccinationPayload(
+                petId, "ONE_YEAR", LocalDateTime.now().minusDays(340).format(ISO), "LOT-A", "Dr. Vet"));
+        mockMvc.perform(post("/api/vaccinations")
+                        .header("Authorization", "Bearer " + vetToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(withinWindowBody))
+                .andExpect(status().isCreated());
+
+        // ONE_YEAR administered today -> nextDueDate a year away, outside the 30-day window
+        String outsideWindowBody = objectMapper.writeValueAsString(new VaccinationPayload(
+                petId, "ONE_YEAR", LocalDateTime.now().format(ISO), "LOT-B", "Dr. Vet"));
+        mockMvc.perform(post("/api/vaccinations")
+                        .header("Authorization", "Bearer " + vetToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(outsideWindowBody))
+                .andExpect(status().isCreated());
+
+        List<VaccinationAlertEntry> alerts = dashboardService.getSummary().upcomingVaccinationAlerts();
+        assertThat(alerts).anyMatch(entry -> entry.petId().equals(petId)
+                && !entry.nextDueDate().isAfter(LocalDate.now().plusDays(30)));
+        assertThat(alerts).noneMatch(entry -> entry.petId().equals(petId)
+                && entry.nextDueDate().isAfter(LocalDate.now().plusDays(30)));
+    }
+
+    @Test
+    void overdueFollowUpAlertsIncludesOnlyCompletedVisitsWithPastFollowUpDate() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String vetToken = loginAndGetToken(SEED_VET1_EMAIL, SEED_VET1_PASSWORD);
+        long petId = createPet(receptionistToken, "dashboard-followup@example.com", "Baris");
+        long vetId = createVet(receptionistToken, "VET-LIC-DASH-010");
+        long visitId = createVisit(receptionistToken, petId, vetId, LocalDateTime.now().minusDays(10).withHour(9).withMinute(0));
+
+        mockMvc.perform(patch("/api/visits/" + visitId + "/status")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new StatusPayload("COMPLETED"))))
+                .andExpect(status().isOk());
+
+        assertThat(dashboardService.getSummary().overdueFollowUpAlerts()).noneMatch(entry -> entry.visitId().equals(visitId));
+
+        mockMvc.perform(patch("/api/visits/" + visitId + "/medical-notes")
+                        .header("Authorization", "Bearer " + vetToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                new MedicalNotesPayload("Diagnosis", "Notes", LocalDate.now().minusDays(1).toString()))))
+                .andExpect(status().isOk());
+
+        DashboardSummaryResponse summary = dashboardService.getSummary();
+        assertThat(summary.overdueFollowUpAlerts()).anyMatch(entry -> entry.visitId().equals(visitId)
+                && entry.petName().equals("Baris"));
+    }
+
+    private long vetAppointmentCount(DashboardSummaryResponse summary, long vetId) {
+        return summary.appointmentsByVet().stream()
+                .filter(entry -> entry.vetId().equals(vetId))
+                .findFirst()
+                .orElseThrow()
+                .count();
+    }
+
     private long trendCountForDay(DashboardSummaryResponse summary, LocalDate day) {
         return summary.appointmentTrend30Days().stream()
                 .filter(entry -> entry.date().equals(day))
@@ -356,6 +468,9 @@ class DashboardServiceTest {
     }
 
     private record InvoiceItemPayload(String description, String category, Integer quantity, BigDecimal unitPrice) {
+    }
+
+    private record MedicalNotesPayload(String diagnosis, String treatmentNotes, String followUpDate) {
     }
 
     private record PetPayload(Long ownerId, String name, String species, String breed, String speciesNote,

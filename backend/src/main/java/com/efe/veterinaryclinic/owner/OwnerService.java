@@ -7,8 +7,10 @@ import com.efe.veterinaryclinic.owner.dto.OwnerDetailResponse;
 import com.efe.veterinaryclinic.owner.dto.OwnerRequest;
 import com.efe.veterinaryclinic.owner.dto.OwnerResponse;
 import com.efe.veterinaryclinic.pet.PetRepository;
+import com.efe.veterinaryclinic.pet.PetService;
 import com.efe.veterinaryclinic.pet.dto.PetResponse;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,10 +20,12 @@ public class OwnerService {
 
     private final OwnerRepository ownerRepository;
     private final PetRepository petRepository;
+    private final PetService petService;
 
-    public OwnerService(OwnerRepository ownerRepository, PetRepository petRepository) {
+    public OwnerService(OwnerRepository ownerRepository, PetRepository petRepository, PetService petService) {
         this.ownerRepository = ownerRepository;
         this.petRepository = petRepository;
+        this.petService = petService;
     }
 
     public OwnerResponse create(OwnerRequest request) {
@@ -32,14 +36,20 @@ public class OwnerService {
         return toResponse(saved);
     }
 
-    public PageResponse<OwnerResponse> list(Pageable pageable) {
-        return PageResponse.from(ownerRepository.findAll(pageable).map(this::toResponse));
+    public PageResponse<OwnerResponse> list(String search, Pageable pageable) {
+        Specification<Owner> spec = (root, query, cb) -> cb.conjunction();
+
+        if (search != null && !search.isBlank()) {
+            spec = spec.and(OwnerSpecifications.nameContains(search));
+        }
+
+        return PageResponse.from(ownerRepository.findAll(spec, pageable).map(this::toResponse));
     }
 
     public OwnerDetailResponse getById(Long id) {
         Owner owner = findOrThrow(id);
         List<PetResponse> pets = petRepository.findByOwnerId(id).stream()
-                .map(PetResponse::from)
+                .map(pet -> PetResponse.from(pet, petService.isInactive(pet)))
                 .toList();
 
         return OwnerDetailResponse.from(owner, pets);

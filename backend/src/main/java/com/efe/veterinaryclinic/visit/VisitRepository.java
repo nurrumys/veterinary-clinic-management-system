@@ -5,8 +5,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface VisitRepository extends JpaRepository<Visit, Long>, JpaSpecificationExecutor<Visit> {
 
@@ -20,4 +22,21 @@ public interface VisitRepository extends JpaRepository<Visit, Long>, JpaSpecific
 
     List<Visit> findByStatusNotAndScheduledAtBetween(
             VisitStatus excludedStatus, LocalDateTime windowStart, LocalDateTime windowEnd);
+
+    List<Visit> findByStatusNotAndScheduledAtBetweenOrderByScheduledAtAsc(
+            VisitStatus excludedStatus, LocalDateTime windowStart, LocalDateTime windowEnd);
+
+    List<Visit> findByStatusAndFollowUpDateBeforeOrderByFollowUpDateAsc(
+            VisitStatus status, LocalDate date);
+
+    long countByVet_IdAndScheduledAtBetween(
+            Long vetId, LocalDateTime windowStart, LocalDateTime windowEnd);
+
+    long countByVet_IdAndStatusAndScheduledAtBetween(
+            Long vetId, VisitStatus status, LocalDateTime windowStart, LocalDateTime windowEnd);
+
+    long countByVet_IdAndStatusNotAndScheduledAtGreaterThanEqual(
+            Long vetId, VisitStatus excludedStatus, LocalDateTime from);
+
+    Optional<Visit> findTopByPet_IdAndStatusNotOrderByScheduledAtDesc(Long petId, VisitStatus excludedStatus);
 }

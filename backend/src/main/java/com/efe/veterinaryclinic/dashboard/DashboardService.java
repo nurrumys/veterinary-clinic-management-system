@@ -3,8 +3,12 @@ package com.efe.veterinaryclinic.dashboard;
 import com.efe.veterinaryclinic.dashboard.dto.AppointmentTrendEntry;
 import com.efe.veterinaryclinic.dashboard.dto.CumulativeAppointmentEntry;
 import com.efe.veterinaryclinic.dashboard.dto.DashboardSummaryResponse;
+import com.efe.veterinaryclinic.dashboard.dto.FollowUpAlertEntry;
 import com.efe.veterinaryclinic.dashboard.dto.MonthlyRevenueEntry;
 import com.efe.veterinaryclinic.dashboard.dto.RevenueCategoryEntry;
+import com.efe.veterinaryclinic.dashboard.dto.TodayScheduleEntry;
+import com.efe.veterinaryclinic.dashboard.dto.VaccinationAlertEntry;
+import com.efe.veterinaryclinic.dashboard.dto.VetAppointmentCountEntry;
 import com.efe.veterinaryclinic.invoice.Invoice;
 import com.efe.veterinaryclinic.invoice.InvoiceItem;
 import com.efe.veterinaryclinic.invoice.InvoiceItemCategory;
@@ -13,10 +17,12 @@ import com.efe.veterinaryclinic.invoice.InvoiceRepository;
 import com.efe.veterinaryclinic.invoice.InvoiceStatus;
 import com.efe.veterinaryclinic.pet.PetRepository;
 import com.efe.veterinaryclinic.vaccination.VaccinationRepository;
+import com.efe.veterinaryclinic.vet.VetRepository;
 import com.efe.veterinaryclinic.visit.Visit;
 import com.efe.veterinaryclinic.visit.VisitRepository;
 import com.efe.veterinaryclinic.visit.VisitStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -35,6 +41,7 @@ public class DashboardService {
 
     private static final int REVENUE_MONTHS_WINDOW = 12;
     private static final int TREND_DAYS_WINDOW = 30;
+    private static final int VACCINATION_ALERT_WINDOW_DAYS = 30;
     private static final int CURRENCY_SCALE = 2;
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
 
@@ -43,17 +50,20 @@ public class DashboardService {
     private final VaccinationRepository vaccinationRepository;
     private final InvoiceRepository invoiceRepository;
     private final InvoiceItemRepository invoiceItemRepository;
+    private final VetRepository vetRepository;
 
     public DashboardService(VisitRepository visitRepository, PetRepository petRepository,
                              VaccinationRepository vaccinationRepository, InvoiceRepository invoiceRepository,
-                             InvoiceItemRepository invoiceItemRepository) {
+                             InvoiceItemRepository invoiceItemRepository, VetRepository vetRepository) {
         this.visitRepository = visitRepository;
         this.petRepository = petRepository;
         this.vaccinationRepository = vaccinationRepository;
         this.invoiceRepository = invoiceRepository;
         this.invoiceItemRepository = invoiceItemRepository;
+        this.vetRepository = vetRepository;
     }
 
+    @Transactional(readOnly = true)
     public DashboardSummaryResponse getSummary() {
         LocalDate today = LocalDate.now();
         YearMonth currentMonth = YearMonth.from(today);
@@ -67,10 +77,17 @@ public class DashboardService {
         List<MonthlyRevenueEntry> monthlyRevenue = buildMonthlyRevenue(currentMonth, revenueWindowStart);
         List<RevenueCategoryEntry> revenueByCategory = buildRevenueByCategory(revenueWindowStart);
         List<AppointmentTrendEntry> appointmentTrend30Days = buildAppointmentTrend30Days(today);
-        List<CumulativeAppointmentEntry> cumulativeAppointmentsYtd = buildCumulativeAppointmentsYtd(today);
+        List<Visit> visitsYtd = visitRepository.findByStatusNotAndScheduledAtBetween(
+                VisitStatus.CANCELLED, today.withDayOfYear(1).atStartOfDay(), today.plusDays(1).atStartOfDay());
+        List<CumulativeAppointmentEntry> cumulativeAppointmentsYtd = buildCumulativeAppointmentsYtd(visitsYtd, today);
+        List<VetAppointmentCountEntry> appointmentsByVet = buildAppointmentsByVet(visitsYtd);
+        List<TodayScheduleEntry> todaySchedule = buildTodaySchedule(today);
+        List<VaccinationAlertEntry> upcomingVaccinationAlerts = buildUpcomingVaccinationAlerts(today);
+        List<FollowUpAlertEntry> overdueFollowUpAlerts = buildOverdueFollowUpAlerts(today);
 
         return new DashboardSummaryResponse(todayAppointments, activePatients, pendingVaccinations, unpaidInvoices,
-                monthlyRevenue, revenueByCategory, appointmentTrend30Days, cumulativeAppointmentsYtd);
+                monthlyRevenue, revenueByCategory, appointmentTrend30Days, cumulativeAppointmentsYtd, appointmentsByVet,
+                todaySchedule, upcomingVaccinationAlerts, overdueFollowUpAlerts);
     }
 
     private List<MonthlyRevenueEntry> buildMonthlyRevenue(YearMonth currentMonth, LocalDateTime windowStart) {
@@ -116,12 +133,9 @@ public class DashboardService {
         return result;
     }
 
-    private List<CumulativeAppointmentEntry> buildCumulativeAppointmentsYtd(LocalDate today) {
+    private List<CumulativeAppointmentEntry> buildCumulativeAppointmentsYtd(List<Visit> visitsYtd, LocalDate today) {
         LocalDate yearStart = today.withDayOfYear(1);
-        List<Visit> visits = visitRepository.findByStatusNotAndScheduledAtBetween(
-                VisitStatus.CANCELLED, yearStart.atStartOfDay(), today.plusDays(1).atStartOfDay());
-
-        Map<YearMonth, Long> countsByMonth = visits.stream()
+        Map<YearMonth, Long> countsByMonth = visitsYtd.stream()
                 .collect(Collectors.groupingBy(visit -> YearMonth.from(visit.getScheduledAt()), Collectors.counting()));
 
         List<CumulativeAppointmentEntry> result = new ArrayList<>();
@@ -133,5 +147,37 @@ public class DashboardService {
             result.add(new CumulativeAppointmentEntry(snapshotDate, running));
         }
         return result;
+    }
+
+    private List<VetAppointmentCountEntry> buildAppointmentsByVet(List<Visit> visitsYtd) {
+        Map<Long, Long> countsByVetId = visitsYtd.stream()
+                .collect(Collectors.groupingBy(visit -> visit.getVet().getId(), Collectors.counting()));
+
+        return vetRepository.findByActiveTrue().stream()
+                .map(vet -> new VetAppointmentCountEntry(vet.getId(), vet.getName(),
+                        countsByVetId.getOrDefault(vet.getId(), 0L)))
+                .toList();
+    }
+
+    private List<TodayScheduleEntry> buildTodaySchedule(LocalDate today) {
+        return visitRepository.findByStatusNotAndScheduledAtBetweenOrderByScheduledAtAsc(
+                        VisitStatus.CANCELLED, today.atStartOfDay(), today.plusDays(1).atStartOfDay()).stream()
+                .map(visit -> new TodayScheduleEntry(visit.getId(), visit.getPet().getName(), visit.getVet().getName(),
+                        visit.getScheduledAt(), visit.getStatus()))
+                .toList();
+    }
+
+    private List<VaccinationAlertEntry> buildUpcomingVaccinationAlerts(LocalDate today) {
+        LocalDate windowEnd = today.plusDays(VACCINATION_ALERT_WINDOW_DAYS);
+        return vaccinationRepository.findByNextDueDateLessThanEqualOrderByNextDueDateAsc(windowEnd).stream()
+                .map(vaccination -> new VaccinationAlertEntry(vaccination.getPet().getId(), vaccination.getPet().getName(),
+                        vaccination.getVaccineType(), vaccination.getNextDueDate()))
+                .toList();
+    }
+
+    private List<FollowUpAlertEntry> buildOverdueFollowUpAlerts(LocalDate today) {
+        return visitRepository.findByStatusAndFollowUpDateBeforeOrderByFollowUpDateAsc(VisitStatus.COMPLETED, today).stream()
+                .map(visit -> new FollowUpAlertEntry(visit.getId(), visit.getPet().getName(), visit.getFollowUpDate()))
+                .toList();
     }
 }

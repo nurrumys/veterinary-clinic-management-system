@@ -210,50 +210,50 @@ Verification commands referenced below:
     - Files: `dashboard/*`.
     - Verify: `./mvnw test`.
 
-39. **Vet-by-vet appointment count**
+39. ~~**Vet-by-vet appointment count**~~ ✅ done (2026-07-13)
     - Files: `dashboard/*`.
     - Verify: `./mvnw test`.
 
-40. **Today schedule + alerts (vaccination, overdue follow-up)**
+40. ~~**Today schedule + alerts (vaccination, overdue follow-up)**~~ ✅ done (2026-07-13)
     - Files: `dashboard/*`.
     - Verify: `./mvnw test`.
 
-41. **Dashboard endpoint assembly**
+41. ~~**Dashboard endpoint assembly**~~ ✅ done (2026-07-13)
     - `GET /api/dashboard/summary` wiring all of the above.
     - Files: `dashboard/DashboardController.java`.
     - Verify: `./mvnw test`, manual check via Swagger.
 
-42. **Vet performance endpoint**
+42. ~~**Vet performance endpoint**~~ ✅ done (2026-07-13)
     - `GET /api/vets/{id}/performance`.
     - Files: `vet/*`.
     - Verify: `./mvnw test`.
 
-43. **Follow-up endpoint**
+43. ~~**Follow-up endpoint**~~ ✅ done (2026-07-13)
     - `POST /api/visits/{id}/follow-up` (see `docs/business-rules.md` §9).
     - Files: `visit/*`.
     - Verify: `./mvnw test`.
 
-44. **Inactive pet logic**
+44. ~~**Inactive pet logic**~~ ✅ done (2026-07-13)
     - Computed `inactive` flag (>2 years without a visit) (see `docs/business-rules.md` §6).
     - Files: `pet/*`.
     - Verify: `./mvnw test`.
 
-45. **Final search/filter cleanup**
+45. ~~**Final search/filter cleanup**~~ ✅ done (2026-07-14)
     - Review all listing endpoints for consistent query params and `PageResponse` usage.
     - Files: across modules.
     - Verify: `./mvnw test`.
 
-46. **Swagger cleanup**
+46. ~~**Swagger cleanup**~~ ✅ done (2026-07-14)
     - Ensure all endpoints have descriptions, examples, and correct security annotations.
     - Files: across modules, `config/OpenApiConfig.java`.
     - Verify: manual check via `/swagger-ui.html`.
 
-47. **Seed demo data**
+47. ~~**Seed demo data**~~ ✅ done (2026-07-14)
     - Realistic demo dataset covering the full acceptance flow (owners, pets, vets, visits, vaccinations, invoices).
-    - Files: `config/DataSeeder.java`.
+    - Files: `config/DataSeeder.java`, `config/DemoDataSeeder.java`.
     - Verify: `./mvnw spring-boot:run`, manually walk the demo flow.
 
-48. **Tests pass**
+48. ~~**Tests pass**~~ ✅ done (2026-07-14)
     - Full suite green.
     - Verify: `./mvnw test`.
 

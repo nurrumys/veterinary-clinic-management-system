@@ -7,23 +7,30 @@ import com.efe.veterinaryclinic.owner.Owner;
 import com.efe.veterinaryclinic.owner.OwnerRepository;
 import com.efe.veterinaryclinic.pet.dto.PetRequest;
 import com.efe.veterinaryclinic.pet.dto.PetResponse;
+import com.efe.veterinaryclinic.visit.Visit;
+import com.efe.veterinaryclinic.visit.VisitRepository;
+import com.efe.veterinaryclinic.visit.VisitStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Service
 public class PetService {
 
     private static final Set<String> SPECIES_WITH_BREED = Set.of("CAT", "DOG");
+    private static final int INACTIVE_YEARS_THRESHOLD = 2;
 
     private final PetRepository petRepository;
     private final OwnerRepository ownerRepository;
+    private final VisitRepository visitRepository;
 
-    public PetService(PetRepository petRepository, OwnerRepository ownerRepository) {
+    public PetService(PetRepository petRepository, OwnerRepository ownerRepository, VisitRepository visitRepository) {
         this.petRepository = petRepository;
         this.ownerRepository = ownerRepository;
+        this.visitRepository = visitRepository;
     }
 
     public PetResponse create(PetRequest request) {
@@ -34,7 +41,7 @@ public class PetService {
                 request.birthDate(), request.sex(), request.weightKg(), request.allergies(), request.chronicConditions());
         Pet saved = petRepository.save(pet);
 
-        return PetResponse.from(saved);
+        return PetResponse.from(saved, isInactive(saved));
     }
 
     public PageResponse<PetResponse> list(String search, String species, Long ownerId, Boolean active, Pageable pageable) {
@@ -53,11 +60,12 @@ public class PetService {
             spec = spec.and(PetSpecifications.isArchived(!active));
         }
 
-        return PageResponse.from(petRepository.findAll(spec, pageable).map(PetResponse::from));
+        return PageResponse.from(petRepository.findAll(spec, pageable).map(pet -> PetResponse.from(pet, isInactive(pet))));
     }
 
     public PetResponse getById(Long id) {
-        return PetResponse.from(findPetOrThrow(id));
+        Pet pet = findPetOrThrow(id);
+        return PetResponse.from(pet, isInactive(pet));
     }
 
     public PetResponse update(Long id, PetRequest request) {
@@ -67,22 +75,34 @@ public class PetService {
 
         pet.update(owner, request.name(), request.species(), request.breed(), request.speciesNote(),
                 request.birthDate(), request.sex(), request.weightKg(), request.allergies(), request.chronicConditions());
+        Pet saved = petRepository.save(pet);
 
-        return PetResponse.from(petRepository.save(pet));
+        return PetResponse.from(saved, isInactive(saved));
     }
 
     public PetResponse archive(Long id) {
         Pet pet = findPetOrThrow(id);
         pet.archive();
+        Pet saved = petRepository.save(pet);
 
-        return PetResponse.from(petRepository.save(pet));
+        return PetResponse.from(saved, isInactive(saved));
     }
 
     public PetResponse activate(Long id) {
         Pet pet = findPetOrThrow(id);
         pet.activate();
+        Pet saved = petRepository.save(pet);
 
-        return PetResponse.from(petRepository.save(pet));
+        return PetResponse.from(saved, isInactive(saved));
+    }
+
+    public boolean isInactive(Pet pet) {
+        LocalDateTime lastSeenAt = visitRepository
+                .findTopByPet_IdAndStatusNotOrderByScheduledAtDesc(pet.getId(), VisitStatus.CANCELLED)
+                .map(Visit::getScheduledAt)
+                .orElse(pet.getCreatedAt());
+
+        return lastSeenAt.isBefore(LocalDateTime.now().minusYears(INACTIVE_YEARS_THRESHOLD));
     }
 
     private void validateSpeciesBreedRule(String species, String speciesNote) {

@@ -4,6 +4,8 @@ import com.efe.veterinaryclinic.common.dto.PageResponse;
 import com.efe.veterinaryclinic.invoice.dto.BulkMarkPaidRequest;
 import com.efe.veterinaryclinic.invoice.dto.InvoiceRequest;
 import com.efe.veterinaryclinic.invoice.dto.InvoiceResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -23,6 +25,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/invoices")
+@Tag(name = "Invoices", description = "Billing: invoice creation, totals, and payment status")
 public class InvoiceController {
 
     private final InvoiceService invoiceService;
@@ -32,11 +35,13 @@ public class InvoiceController {
     }
 
     @PostMapping
+    @Operation(summary = "Create an invoice", description = "ADMIN, RECEPTIONIST. subtotal/vatAmount/total are calculated by the backend; client-submitted totals are never trusted.")
     public ResponseEntity<InvoiceResponse> create(@Valid @RequestBody InvoiceRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(invoiceService.create(request));
     }
 
     @GetMapping
+    @Operation(summary = "List invoices", description = "ADMIN, VET, RECEPTIONIST. Supports status/date-range filters and pagination.")
     public ResponseEntity<PageResponse<InvoiceResponse>> list(
             @RequestParam(required = false) InvoiceStatus status,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -46,21 +51,25 @@ public class InvoiceController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get invoice detail", description = "ADMIN, VET, RECEPTIONIST.")
     public ResponseEntity<InvoiceResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(invoiceService.getById(id));
     }
 
     @PatchMapping("/{id}/send")
+    @Operation(summary = "Mark an invoice as sent", description = "ADMIN, RECEPTIONIST.")
     public ResponseEntity<InvoiceResponse> markSent(@PathVariable Long id) {
         return ResponseEntity.ok(invoiceService.markSent(id));
     }
 
     @PatchMapping("/{id}/mark-paid")
+    @Operation(summary = "Mark an invoice as paid", description = "ADMIN, RECEPTIONIST.")
     public ResponseEntity<InvoiceResponse> markPaid(@PathVariable Long id) {
         return ResponseEntity.ok(invoiceService.markPaid(id));
     }
 
     @PatchMapping("/bulk-mark-paid")
+    @Operation(summary = "Mark multiple invoices as paid", description = "ADMIN, RECEPTIONIST.")
     public ResponseEntity<List<InvoiceResponse>> bulkMarkPaid(@Valid @RequestBody BulkMarkPaidRequest request) {
         return ResponseEntity.ok(invoiceService.bulkMarkPaid(request));
     }
