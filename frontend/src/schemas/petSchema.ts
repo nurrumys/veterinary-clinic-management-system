@@ -1,21 +1,28 @@
 import { z } from "zod";
 
-export const veterinarianSchema = z.object({
+export const petSchema = z.object({
   name: z
     .string()
+    .trim()
     .min(2, "Name must be at least 2 characters."),
 
-  specialty: z
+  species: z
     .string()
-    .min(2, "Specialty is required."),
+    .trim()
+    .min(2, "Species is required."),
 
-  licenseNo: z
+  breed: z
     .string()
-    .min(2, "License number is required."),
+    .trim()
+    .min(2, "Breed is required."),
 
-  workHours: z
+  birthDate: z
     .string()
-    .min(1, "Work hours are required."),
+    .min(1, "Birth date is required."),
+
+  ownerId: z
+    .number()
+    .positive("Owner is required."),
 });
 
-export type VeterinarianFormValues = z.infer<typeof veterinarianSchema>;
+export type PetFormValues = z.infer<typeof petSchema>;

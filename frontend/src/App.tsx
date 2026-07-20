@@ -5,6 +5,7 @@ import DashboardPage from "./pages/dashboard/DashboardPage";
 import OwnersPage from "./pages/owners/OwnersPage";
 import PetsPage from "./pages/pets/PetsPage";
 import VeterinariansPage from "./pages/veterinarians/VeterinariansPage";
+import AppointmentsPage from "./pages/appointments/AppointmentsPage";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 
@@ -54,6 +55,14 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+  path="/appointments"
+  element={
+    <ProtectedRoute>
+      <AppointmentsPage />
+    </ProtectedRoute>
+  }
+/>
 
     </Routes>
   );
