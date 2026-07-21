@@ -6,16 +6,22 @@ import OwnersPage from "./pages/owners/OwnersPage";
 import PetsPage from "./pages/pets/PetsPage";
 import VeterinariansPage from "./pages/veterinarians/VeterinariansPage";
 import AppointmentsPage from "./pages/appointments/AppointmentsPage";
+import VaccinationsPage from "./pages/vaccinations/VaccinationsPage";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route
+        path="/"
+        element={<Navigate to="/login" replace />}
+      />
 
-      <Route path="/login" element={<LoginPage />} />
-
+      <Route
+        path="/login"
+        element={<LoginPage />}
+      />
 
       <Route
         path="/dashboard"
@@ -26,7 +32,6 @@ function App() {
         }
       />
 
-
       <Route
         path="/owners"
         element={
@@ -35,7 +40,6 @@ function App() {
           </ProtectedRoute>
         }
       />
-
 
       <Route
         path="/pets"
@@ -46,7 +50,6 @@ function App() {
         }
       />
 
-
       <Route
         path="/veterinarians"
         element={
@@ -55,15 +58,24 @@ function App() {
           </ProtectedRoute>
         }
       />
-      <Route
-  path="/appointments"
-  element={
-    <ProtectedRoute>
-      <AppointmentsPage />
-    </ProtectedRoute>
-  }
-/>
 
+      <Route
+        path="/appointments"
+        element={
+          <ProtectedRoute>
+            <AppointmentsPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/vaccinations"
+        element={
+          <ProtectedRoute>
+            <VaccinationsPage />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

@@ -96,20 +96,7 @@ function AppointmentsPage() {
 
       let visits = data.content;
 
-      if (searchTerm.trim()) {
-        const keyword =
-          searchTerm.toLowerCase();
-
-        visits = visits.filter(
-          (visit) =>
-            visit.chiefComplaint
-              ?.toLowerCase()
-              .includes(keyword) ||
-            visit.status
-              .toLowerCase()
-              .includes(keyword)
-        );
-      }
+      
 
       setAppointments(visits);
       setTotalPages(data.totalPages);
@@ -281,6 +268,31 @@ function AppointmentsPage() {
 
     URL.revokeObjectURL(url);
   };
+  const filteredAppointments = appointments.filter(
+  (appointment) => {
+    const petName =
+      pets.find(
+        (pet) => pet.id === appointment.petId
+      )?.name ?? "";
+
+    const veterinarianName =
+      veterinarians.find(
+        (vet) => vet.id === appointment.vetId
+      )?.name ?? "";
+
+    return (
+      petName
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      veterinarianName
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      appointment.chiefComplaint
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    );
+  }
+);
     return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -305,7 +317,7 @@ function AppointmentsPage() {
         />
 
         <AppointmentTable
-  appointments={appointments}
+  appointments={filteredAppointments}
   pets={pets}
   veterinarians={veterinarians}
   onEdit={handleEdit}

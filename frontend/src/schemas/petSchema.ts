@@ -1,6 +1,10 @@
 import { z } from "zod";
 
 export const petSchema = z.object({
+  ownerId: z
+    .number()
+    .positive("Owner is required."),
+
   name: z
     .string()
     .trim()
@@ -9,20 +13,30 @@ export const petSchema = z.object({
   species: z
     .string()
     .trim()
-    .min(2, "Species is required."),
+    .min(1, "Species is required."),
 
   breed: z
     .string()
-    .trim()
-    .min(2, "Breed is required."),
+    .trim(),
+
+  speciesNote: z.string().nullable(),
 
   birthDate: z
     .string()
     .min(1, "Birth date is required."),
 
-  ownerId: z
+  sex: z
+    .string()
+    .trim()
+    .min(1, "Sex is required."),
+
+  weightKg: z
     .number()
-    .positive("Owner is required."),
+    .positive("Weight must be greater than 0."),
+
+  allergies: z.string().nullable(),
+
+  chronicConditions: z.string().nullable(),
 });
 
 export type PetFormValues = z.infer<typeof petSchema>;
