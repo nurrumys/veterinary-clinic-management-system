@@ -9,6 +9,8 @@ type InvoiceToolbarProps = {
   to: string;
   sort: string;
 
+  selectedCount: number;
+
   onSearchChange: (value: string) => void;
   onStatusChange: (value: InvoiceStatus | "") => void;
   onFromChange: (value: string) => void;
@@ -17,6 +19,7 @@ type InvoiceToolbarProps = {
 
   onExport: () => void;
   onCreate: () => void;
+  onBulkMarkPaid: () => void;
 };
 
 function InvoiceToolbar({
@@ -25,6 +28,7 @@ function InvoiceToolbar({
   from,
   to,
   sort,
+  selectedCount,
   onSearchChange,
   onStatusChange,
   onFromChange,
@@ -32,6 +36,7 @@ function InvoiceToolbar({
   onSortChange,
   onExport,
   onCreate,
+  onBulkMarkPaid,
 }: InvoiceToolbarProps) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -69,7 +74,7 @@ function InvoiceToolbar({
         </div>
 
         {/* Bottom Row */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-3">
             <select
               value={status}
@@ -96,7 +101,17 @@ function InvoiceToolbar({
             </select>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {selectedCount > 0 && (
+              <button
+                type="button"
+                onClick={onBulkMarkPaid}
+                className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 font-medium text-white transition hover:bg-emerald-700"
+              >
+                Mark Paid ({selectedCount})
+              </button>
+            )}
+
             <button
               type="button"
               onClick={onExport}

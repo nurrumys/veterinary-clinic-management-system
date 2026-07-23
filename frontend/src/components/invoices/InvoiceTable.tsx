@@ -7,6 +7,17 @@ import type { Invoice } from "../../types/invoice";
 type InvoiceTableProps = {
   invoices: Invoice[];
 
+  selectedInvoices: number[];
+
+  onSelect: (
+    invoiceId: number,
+    checked: boolean
+  ) => void;
+
+  onSelectAll: (
+    checked: boolean
+  ) => void;
+
   onView: (invoice: Invoice) => void;
   onSend: (invoice: Invoice) => void;
   onMarkPaid: (invoice: Invoice) => void;
@@ -14,10 +25,19 @@ type InvoiceTableProps = {
 
 function InvoiceTable({
   invoices,
+  selectedInvoices,
+  onSelect,
+  onSelectAll,
   onView,
   onSend,
   onMarkPaid,
 }: InvoiceTableProps) {
+  const allSelected =
+    invoices.length > 0 &&
+    invoices.every((invoice) =>
+      selectedInvoices.includes(invoice.id)
+    );
+
   return (
     <Card
       className="
@@ -36,6 +56,16 @@ function InvoiceTable({
                 bg-slate-50
               "
             >
+              <th className="px-4 py-5">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={(e) =>
+                    onSelectAll(e.target.checked)
+                  }
+                />
+              </th>
+
               <th className="px-8 py-5 text-left text-sm font-semibold text-slate-700">
                 Invoice
               </th>
@@ -66,7 +96,7 @@ function InvoiceTable({
             {invoices.length === 0 ? (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={7}
                   className="
                     px-8
                     py-12
@@ -82,6 +112,10 @@ function InvoiceTable({
                 <InvoiceRow
                   key={invoice.id}
                   invoice={invoice}
+                  selected={selectedInvoices.includes(
+                    invoice.id
+                  )}
+                  onSelect={onSelect}
                   onView={onView}
                   onSend={onSend}
                   onMarkPaid={onMarkPaid}

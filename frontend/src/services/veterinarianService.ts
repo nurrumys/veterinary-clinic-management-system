@@ -66,11 +66,7 @@ export const updateVet = async (
   return response.data;
 };
 
-/*
-  Backend'de ileride kullanılabilecek endpoint.
-  VetPerformanceResponse DTO'sunu gördükten sonra
-  TypeScript type'ını oluşturacağız.
-*/
+
 export const getVetPerformance = async (
   id: number
 ) => {

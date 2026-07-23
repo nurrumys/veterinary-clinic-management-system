@@ -38,7 +38,7 @@ function VaccinationsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const [sort, setSort] = useState("administeredAt,desc");
+  const [sort, setSort] = useState("administeredDesc");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -81,10 +81,7 @@ function VaccinationsPage() {
       sort: sortOption,
     });
 
-    console.log(
-      "VACCINATIONS API DATA:",
-      data
-    );
+    
 
     setVaccinations(data.content ?? []);
     setTotalPages(data.totalPages);

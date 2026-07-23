@@ -10,7 +10,7 @@ import VeterinarianStats from "../../components/veterinarians/VeterinarianStats"
 import VeterinarianToolbar from "../../components/veterinarians/VeterinarianToolbar";
 import VeterinarianTable from "../../components/veterinarians/VeterinarianTable";
 import VeterinarianForm from "../../components/veterinarians/VeterinarianForm";
-import DeleteVeterinarianDialog from "../../components/veterinarians/DeleteVeterinarianDialog";
+
 
 import {
   getVets,
@@ -48,10 +48,7 @@ function VeterinariansPage() {
     setSelectedVeterinarian,
   ] = useState<Veterinarian | null>(null);
 
-  const [
-    deleteVeterinarian,
-    setDeleteVeterinarian,
-  ] = useState<Veterinarian | null>(null);
+  
 
   const fetchVeterinarians = async () => {
     try {
@@ -153,10 +150,7 @@ const handleExportVeterinarians = () => {
   URL.revokeObjectURL(url);
 };
 
-const handleConfirmDelete = () => {
-  
-  setDeleteVeterinarian(null);
-};
+
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -306,14 +300,7 @@ const handleConfirmDelete = () => {
           />
         </Modal>
 
-        <DeleteVeterinarianDialog
-          open={!!deleteVeterinarian}
-          veterinarianName={
-            deleteVeterinarian?.name ?? ""
-          }
-          onClose={() => setDeleteVeterinarian(null)}
-          onConfirm={handleConfirmDelete}
-        />
+       
       </PageContainer>
     </DashboardLayout>
   );

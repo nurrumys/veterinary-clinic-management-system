@@ -15,6 +15,7 @@ import {
   createInvoice,
   sendInvoice,
   markInvoicePaid,
+  bulkMarkInvoicePaid,
 } from "../../services/invoiceService";
 
 import type {
@@ -62,6 +63,7 @@ function InvoicesPage() {
     selectedInvoice,
     setSelectedInvoice,
   ] = useState<Invoice | null>(null);
+  const [selectedInvoices, setSelectedInvoices] = useState<number[]>([]);
 
   const fetchInvoices = async () => {
     try {
@@ -79,6 +81,7 @@ function InvoicesPage() {
 
       setInvoices(response.content);
       setTotalPages(response.totalPages);
+      setSelectedInvoices([]);
     } catch (error) {
       console.error(error);
       setError("Failed to load invoices.");
@@ -166,6 +169,54 @@ function InvoicesPage() {
       console.error("Failed to mark invoice as paid:", error);
     }
   };
+  const handleSelectInvoice = (
+  invoiceId: number,
+  checked: boolean
+) => {
+  if (checked) {
+    setSelectedInvoices((previous) => [
+      ...previous,
+      invoiceId,
+    ]);
+  } else {
+    setSelectedInvoices((previous) =>
+      previous.filter((id) => id !== invoiceId)
+    );
+  }
+};
+
+const handleSelectAll = (
+  checked: boolean
+) => {
+  if (checked) {
+    setSelectedInvoices(
+      filteredInvoices.map((invoice) => invoice.id)
+    );
+  } else {
+    setSelectedInvoices([]);
+  }
+};
+
+const handleBulkMarkPaid = async () => {
+  if (selectedInvoices.length === 0) {
+    return;
+  }
+
+  try {
+    await bulkMarkInvoicePaid({
+      invoiceIds: selectedInvoices,
+    });
+
+    setSelectedInvoices([]);
+
+    await fetchInvoices();
+  } catch (error) {
+    console.error(
+      "Failed to mark invoices as paid:",
+      error
+    );
+  }
+};
 
   const handleExportInvoices = () => {
     const headers = [
@@ -228,19 +279,21 @@ function InvoicesPage() {
 
         <div className="mt-8">
           <InvoiceToolbar
-            search={search}
-            status={status}
-            from={from}
-            to={to}
-            sort={sort}
-            onSearchChange={setSearch}
-            onStatusChange={setStatus}
-            onFromChange={setFrom}
-            onToChange={setTo}
-            onSortChange={setSort}
-            onExport={handleExportInvoices}
-            onCreate={handleCreateInvoice}
-          />
+  search={search}
+  status={status}
+  from={from}
+  to={to}
+  sort={sort}
+  selectedCount={selectedInvoices.length}
+  onSearchChange={setSearch}
+  onStatusChange={setStatus}
+  onFromChange={setFrom}
+  onToChange={setTo}
+  onSortChange={setSort}
+  onExport={handleExportInvoices}
+  onCreate={handleCreateInvoice}
+  onBulkMarkPaid={handleBulkMarkPaid}
+/>
         </div>
 
         {loading ? (
@@ -254,11 +307,14 @@ function InvoicesPage() {
         ) : (
           <>
             <InvoiceTable
-              invoices={filteredInvoices}
-              onView={handleViewInvoice}
-              onSend={handleSendInvoice}
-              onMarkPaid={handleMarkPaid}
-            />
+  invoices={filteredInvoices}
+  selectedInvoices={selectedInvoices}
+  onSelect={handleSelectInvoice}
+  onSelectAll={handleSelectAll}
+  onView={handleViewInvoice}
+  onSend={handleSendInvoice}
+  onMarkPaid={handleMarkPaid}
+/>
 
             {totalPages > 1 && (
               <div className="mt-6 flex items-center justify-end gap-3">
