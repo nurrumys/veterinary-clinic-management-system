@@ -9,6 +9,7 @@ import AppointmentsPage from "./pages/appointments/AppointmentsPage";
 import VaccinationsPage from "./pages/vaccinations/VaccinationsPage";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
+import InvoicesPage from "./pages/invoices/InvoicesPage";
 
 function App() {
   return (
@@ -76,6 +77,14 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+  path="/invoices"
+  element={
+    <ProtectedRoute>
+      <InvoicesPage />
+    </ProtectedRoute>
+  }
+/>
     </Routes>
   );
 }

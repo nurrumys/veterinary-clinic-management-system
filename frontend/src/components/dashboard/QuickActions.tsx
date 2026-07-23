@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+
 import {
   CalendarPlus,
   PawPrint,
@@ -10,24 +12,28 @@ import Card from "../ui/Card";
 const actions = [
   {
     title: "New Appointment",
+    path: "/appointments",
     icon: CalendarPlus,
     color: "text-blue-600",
     bg: "bg-blue-100",
   },
   {
     title: "Add Pet",
+    path: "/pets",
     icon: PawPrint,
     color: "text-green-600",
     bg: "bg-green-100",
   },
   {
     title: "Add Owner",
+    path: "/owners",
     icon: Users,
     color: "text-violet-600",
     bg: "bg-violet-100",
   },
   {
     title: "New Invoice",
+    path: "/invoices",
     icon: FileText,
     color: "text-orange-600",
     bg: "bg-orange-100",
@@ -35,6 +41,8 @@ const actions = [
 ];
 
 function QuickActions() {
+  const navigate = useNavigate();
+
   return (
     <Card className="h-full">
       {/* Header */}
@@ -52,13 +60,13 @@ function QuickActions() {
       {/* Actions */}
 
       <div className="mt-6 grid grid-cols-2 gap-4">
-
         {actions.map((action) => {
           const Icon = action.icon;
 
           return (
             <button
               key={action.title}
+              onClick={() => navigate(action.path)}
               className="
                 flex
                 h-32
@@ -74,6 +82,9 @@ function QuickActions() {
                 hover:-translate-y-1
                 hover:border-cyan-400
                 hover:shadow-md
+                focus:outline-none
+                focus:ring-2
+                focus:ring-cyan-400
               "
             >
               <div
@@ -91,7 +102,6 @@ function QuickActions() {
             </button>
           );
         })}
-
       </div>
     </Card>
   );
