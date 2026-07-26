@@ -7,12 +7,19 @@ import type { Veterinarian } from "../../types/veterinarian";
 type VeterinarianTableProps = {
   veterinarians: Veterinarian[];
 
-  onEdit: (veterinarian: Veterinarian) => void;
+  onEdit: (
+    veterinarian: Veterinarian
+  ) => void;
+
+  onViewPerformance: (
+    veterinarian: Veterinarian
+  ) => void;
 };
 
 function VeterinarianTable({
   veterinarians,
   onEdit,
+  onViewPerformance,
 }: VeterinarianTableProps) {
   return (
     <Card>
@@ -69,6 +76,9 @@ function VeterinarianTable({
                   key={veterinarian.id}
                   veterinarian={veterinarian}
                   onEdit={onEdit}
+                  onViewPerformance={
+                    onViewPerformance
+                  }
                 />
               ))
             ) : (

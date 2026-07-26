@@ -1,15 +1,23 @@
 import VeterinarianActions from "./VeterinarianActions";
+
 import type { Veterinarian } from "../../types/veterinarian";
 
 type VeterinarianRowProps = {
   veterinarian: Veterinarian;
 
-  onEdit: (veterinarian: Veterinarian) => void;
+  onEdit: (
+    veterinarian: Veterinarian
+  ) => void;
+
+  onViewPerformance: (
+    veterinarian: Veterinarian
+  ) => void;
 };
 
 function VeterinarianRow({
   veterinarian,
   onEdit,
+  onViewPerformance,
 }: VeterinarianRowProps) {
   return (
     <tr
@@ -106,7 +114,9 @@ function VeterinarianRow({
             }
           `}
         >
-          {veterinarian.active ? "ACTIVE" : "INACTIVE"}
+          {veterinarian.active
+            ? "ACTIVE"
+            : "INACTIVE"}
         </span>
       </td>
 
@@ -115,6 +125,9 @@ function VeterinarianRow({
         <VeterinarianActions
           veterinarian={veterinarian}
           onEdit={onEdit}
+          onViewPerformance={
+            onViewPerformance
+          }
         />
       </td>
     </tr>

@@ -12,6 +12,7 @@ export type Veterinarian = {
   active: boolean;
 
   createdAt: string;
+
   updatedAt: string;
 };
 
@@ -27,3 +28,19 @@ export type CreateVeterinarianRequest = {
 
 export type UpdateVeterinarianRequest =
   CreateVeterinarianRequest;
+
+export type VeterinarianPerformance = {
+  vetId: number;
+
+  vetName: string;
+
+  totalVisitsYtd: number;
+
+  completedVisitsYtd: number;
+
+  cancelledVisitsYtd: number;
+
+  upcomingVisits: number;
+
+  revenueGeneratedYtd: number;
+};
