@@ -67,6 +67,7 @@ Note: soft-deletable resources (e.g. `Pet`) have no "real delete" endpoint at al
 - **VisitStatus**: `SCHEDULED`, `CHECKED_IN`, `IN_EXAM`, `COMPLETED`, `CANCELLED`
 - **InvoiceStatus**: `DRAFT`, `SENT`, `PAID`
 - **InvoiceItemCategory**: `CONSULTATION`, `VACCINATION`, `SURGERY`, `HOSPITAL`, `OTHER`
+- **SupportRequestStatus**: `OPEN`, `IN_PROGRESS`, `RESOLVED`
 
 ## 5. Endpoints
 
@@ -466,6 +467,50 @@ No request body. `{id}` must reference a `COMPLETED` visit with a non-null `foll
 }
 ```
 
+### 5.9 Support Requests
+
+> Post-launch addition, not part of the original PDF-derived spec — an internal contact-support ticket flow. Any authenticated staff member can file a ticket; only `ADMIN` can triage/resolve. See `decisions.md`.
+
+| Method | Path | Roles | Description |
+|---|---|---|---|
+| POST | `/api/support-requests` | ADMIN, VET, RECEPTIONIST | Submit a support request (notifies configured admin recipients by email, best-effort) |
+| GET | `/api/support-requests` | ADMIN, VET, RECEPTIONIST | List support requests (ADMIN sees all; VET/RECEPTIONIST see only their own); filter by `status` |
+| GET | `/api/support-requests/{id}` | ADMIN, VET, RECEPTIONIST | Support request detail (non-admin: only their own, otherwise `403`) |
+| PATCH | `/api/support-requests/{id}/status` | ADMIN | Update status and optionally set an admin response |
+
+**POST /api/support-requests — request**
+```json
+{
+  "subject": "Cannot print invoice",
+  "message": "The invoice PDF button does nothing when I click it on the Invoices page."
+}
+```
+
+**POST /api/support-requests — response**
+```json
+{
+  "id": 7,
+  "requestedByUserId": 3,
+  "requestedByName": "Ali Kaya",
+  "subject": "Cannot print invoice",
+  "message": "The invoice PDF button does nothing when I click it on the Invoices page.",
+  "status": "OPEN",
+  "adminResponse": null,
+  "createdAt": "2026-07-26T09:00:00",
+  "updatedAt": "2026-07-26T09:00:00"
+}
+```
+
+**PATCH /api/support-requests/{id}/status — request**
+```json
+{
+  "status": "RESOLVED",
+  "adminResponse": "Fixed in the latest deploy, please refresh and try again."
+}
+```
+
+> Non-admin `GET /api/support-requests/{id}` for a request that belongs to a different user returns `403 Forbidden` (`ApiErrorResponse`), not `404` — the resource exists, the caller is just not authorized to view it.
+
 ## 6. Listing Query Parameters (convention)
 
 - `page` (default 0), `size` (default 20), `sort` (e.g. `sort=name,asc`)
@@ -474,3 +519,4 @@ No request body. `{id}` must reference a `COMPLETED` visit with a non-null `foll
   - Pets: `species`, `ownerId`, `active`
   - Visits: `vetId`, `from`, `to`, `status`
   - Invoices: `status`, `from`, `to`
+  - Support requests: `status`

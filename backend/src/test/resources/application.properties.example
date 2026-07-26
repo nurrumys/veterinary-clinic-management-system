@@ -20,3 +20,9 @@ app.seed.receptionist.email=receptionist@clinic.com
 app.seed.receptionist.password=change-me
 
 app.seed.demo-data.enabled=false
+
+spring.mail.host=localhost
+spring.mail.port=25
+
+app.support.notification-emails=
+app.support.notifications.enabled=false
