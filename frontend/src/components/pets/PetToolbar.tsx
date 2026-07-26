@@ -4,6 +4,7 @@ import {
   Search,
 } from "lucide-react";
 
+import type { Owner } from "../../types/owner";
 
 type PetToolbarProps = {
   search: string;
@@ -11,27 +12,30 @@ type PetToolbarProps = {
   owner: string;
   sort: string;
 
+  owners: Owner[];
+
   onSearchChange: (value: string) => void;
   onSpeciesChange: (value: string) => void;
   onOwnerChange: (value: string) => void;
   onSortChange: (value: string) => void;
 
   onAddPet: () => void;
+  onExport: () => void;
 };
-
 
 function PetToolbar({
   search,
   species,
   owner,
   sort,
+  owners,
   onSearchChange,
   onSpeciesChange,
   onOwnerChange,
   onSortChange,
   onAddPet,
+  onExport,
 }: PetToolbarProps) {
-
 
   return (
 
@@ -45,16 +49,7 @@ function PetToolbar({
       "
     >
 
-
-      {/* Search */}
-
-      <div
-        className="
-          relative
-          flex-1
-          min-w-0
-        "
-      >
+      <div className="relative flex-1 min-w-0">
 
         <Search
           size={20}
@@ -66,7 +61,6 @@ function PetToolbar({
             text-slate-400
           "
         />
-
 
         <input
           type="text"
@@ -93,12 +87,6 @@ function PetToolbar({
 
       </div>
 
-
-
-
-
-      {/* Species */}
-
       <select
         value={species}
         onChange={(e) =>
@@ -107,15 +95,11 @@ function PetToolbar({
         className="
           h-12
           w-[160px]
-          shrink-0
           rounded-xl
           border
           border-slate-200
           bg-white
           px-4
-          text-sm
-          text-slate-700
-          outline-none
         "
       >
 
@@ -137,12 +121,6 @@ function PetToolbar({
 
       </select>
 
-
-
-
-
-      {/* Owner */}
-
       <select
         value={owner}
         onChange={(e) =>
@@ -150,16 +128,12 @@ function PetToolbar({
         }
         className="
           h-12
-          w-[160px]
-          shrink-0
+          w-[180px]
           rounded-xl
           border
           border-slate-200
           bg-white
           px-4
-          text-sm
-          text-slate-700
-          outline-none
         "
       >
 
@@ -167,25 +141,18 @@ function PetToolbar({
           All Owners
         </option>
 
-        <option value="1">
-          John Smith
-        </option>
+        {owners.map((owner) => (
 
-        <option value="2">
-          Emma Johnson
-        </option>
+          <option
+            key={owner.id}
+            value={owner.id}
+          >
+            {owner.firstName} {owner.lastName}
+          </option>
 
-        <option value="3">
-          Michael Brown
-        </option>
+        ))}
 
       </select>
-
-
-
-
-
-      {/* Sort */}
 
       <select
         value={sort}
@@ -195,15 +162,11 @@ function PetToolbar({
         className="
           h-12
           w-[150px]
-          shrink-0
           rounded-xl
           border
           border-slate-200
           bg-white
           px-4
-          text-sm
-          text-slate-700
-          outline-none
         "
       >
 
@@ -225,19 +188,13 @@ function PetToolbar({
 
       </select>
 
-
-
-
-
-      {/* Export */}
-
       <button
         type="button"
+        onClick={onExport}
         className="
           flex
           h-12
           w-[120px]
-          shrink-0
           items-center
           justify-center
           gap-2
@@ -253,17 +210,11 @@ function PetToolbar({
         "
       >
 
-        <Download size={18}/>
+        <Download size={18} />
 
         Export
 
       </button>
-
-
-
-
-
-      {/* Add Pet */}
 
       <button
         type="button"
@@ -272,7 +223,6 @@ function PetToolbar({
           flex
           h-12
           w-[140px]
-          shrink-0
           items-center
           justify-center
           gap-2
@@ -286,19 +236,16 @@ function PetToolbar({
         "
       >
 
-        <Plus size={18}/>
+        <Plus size={18} />
 
         Add Pet
 
       </button>
-
-
 
     </div>
 
   );
 
 }
-
 
 export default PetToolbar;

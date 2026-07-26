@@ -6,7 +6,9 @@ type DeletePetDialogProps = {
   isLoading?: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  mode?: "archive" | "restore";
 };
+
 
 function DeletePetDialog({
   open,
@@ -14,46 +16,143 @@ function DeletePetDialog({
   isLoading = false,
   onClose,
   onConfirm,
+  mode = "archive",
 }: DeletePetDialogProps) {
+
+
+  const isRestore = mode === "restore";
+
+
   return (
+
     <Modal
+
       open={open}
-      title="Delete Pet"
+
+      title={
+        isRestore
+          ? "Restore Pet"
+          : "Archive Pet"
+      }
+
       onClose={onClose}
+
       footer={
+
         <>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-xl border border-slate-300 px-5 py-2.5 font-medium text-slate-700 transition hover:bg-slate-100"
-          >
-            Cancel
-          </button>
 
           <button
+
             type="button"
-            disabled={isLoading}
-            onClick={onConfirm}
-            className="rounded-xl bg-red-600 px-5 py-2.5 font-medium text-white transition hover:bg-red-700 disabled:opacity-50"
+
+            onClick={onClose}
+
+            className="
+              rounded-xl
+              border
+              border-slate-300
+              px-5
+              py-2.5
+              font-medium
+              text-slate-700
+              transition
+              hover:bg-slate-100
+            "
+
           >
-            {isLoading ? "Deleting..." : "Delete"}
+
+            Cancel
+
           </button>
+
+
+
+
+
+          <button
+
+            type="button"
+
+            disabled={isLoading}
+
+            onClick={onConfirm}
+
+            className={`
+              rounded-xl
+              px-5
+              py-2.5
+              font-medium
+              text-white
+              transition
+              disabled:opacity-50
+              ${
+                isRestore
+                  ? "bg-green-600 hover:bg-green-700"
+                  : "bg-orange-600 hover:bg-orange-700"
+              }
+            `}
+
+          >
+
+            {
+              isLoading
+
+                ? "Saving..."
+
+                : isRestore
+                  ? "Restore"
+                  : "Archive"
+            }
+
+          </button>
+
+
         </>
+
       }
+
     >
+
+
+
       <p className="text-slate-600">
-        Are you sure you want to delete{" "}
+
+        {isRestore
+          ? "Are you sure you want to restore "
+          : "Are you sure you want to archive "
+        }
+
+
         <span className="font-semibold text-slate-900">
+
           {petName}
+
         </span>
+
+
         ?
+
       </p>
+
+
+
 
       <p className="mt-3 text-sm text-slate-500">
-        This action cannot be undone.
+
+        {isRestore
+          ? "This pet will become active again."
+          : "This pet will be hidden from active lists but kept in records."
+        }
+
       </p>
+
+
+
     </Modal>
+
   );
+
 }
+
 
 export default DeletePetDialog;

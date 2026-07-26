@@ -1,57 +1,33 @@
 import Card from "../ui/Card";
 
-import { veterinarians } from "../../mocks/veterinarians";
-
 import VeterinarianRow from "./VeterinarianRow";
 
 import type { Veterinarian } from "../../types/veterinarian";
 
-
 type VeterinarianTableProps = {
+  veterinarians: Veterinarian[];
 
-  onEdit: (
-    veterinarian: Veterinarian
-  ) => void;
-
-
-  onDelete: (
-    veterinarian: Veterinarian
-  ) => void;
-
+  onEdit: (veterinarian: Veterinarian) => void;
 };
 
-
-
 function VeterinarianTable({
-
+  veterinarians,
   onEdit,
-
-  onDelete,
-
 }: VeterinarianTableProps) {
-
-
   return (
-
     <Card>
-
-
       <div
         className="
           w-full
           overflow-hidden
         "
       >
-
-
         <table
           className="
             w-full
             table-fixed
           "
         >
-
-
           <thead
             className="
               border-b
@@ -59,202 +35,63 @@ function VeterinarianTable({
               bg-slate-50
             "
           >
-
             <tr>
-
-
-              <th
-                className="
-                  w-[18%]
-                  px-6
-                  py-4
-                  text-left
-                  text-xs
-                  font-semibold
-                  uppercase
-                  tracking-wide
-                  text-slate-500
-                "
-              >
+              <th className="w-[25%] px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Name
               </th>
 
-
-
-              <th
-                className="
-                  w-[22%]
-                  px-6
-                  py-4
-                  text-left
-                  text-xs
-                  font-semibold
-                  uppercase
-                  tracking-wide
-                  text-slate-500
-                "
-              >
-                Email
-              </th>
-
-
-
-
-              <th
-                className="
-                  w-[15%]
-                  px-6
-                  py-4
-                  text-left
-                  text-xs
-                  font-semibold
-                  uppercase
-                  tracking-wide
-                  text-slate-500
-                "
-              >
-                Phone
-              </th>
-
-
-
-
-              <th
-                className="
-                  w-[16%]
-                  px-6
-                  py-4
-                  text-left
-                  text-xs
-                  font-semibold
-                  uppercase
-                  tracking-wide
-                  text-slate-500
-                "
-              >
+              <th className="w-[20%] px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Specialty
               </th>
 
-
-
-
-              <th
-                className="
-                  w-[14%]
-                  px-6
-                  py-4
-                  text-left
-                  text-xs
-                  font-semibold
-                  uppercase
-                  tracking-wide
-                  text-slate-500
-                "
-              >
+              <th className="w-[18%] px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                 License
               </th>
 
+              <th className="w-[17%] px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Work Hours
+              </th>
 
-
-
-              <th
-                className="
-                  w-[10%]
-                  px-6
-                  py-4
-                  text-left
-                  text-xs
-                  font-semibold
-                  uppercase
-                  tracking-wide
-                  text-slate-500
-                "
-              >
+              <th className="w-[10%] px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Status
               </th>
 
-
-
-
-              <th
-                className="
-                  w-[10%]
-                  px-6
-                  py-4
-                  text-center
-                  text-xs
-                  font-semibold
-                  uppercase
-                  tracking-wide
-                  text-slate-500
-                "
-              >
+              <th className="w-[10%] px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Actions
               </th>
-
-
             </tr>
-
-
           </thead>
 
-
-
-
-
           <tbody>
-
-
-            {veterinarians.map((veterinarian) => (
-
-
-              <VeterinarianRow
-
-
-                key={
-                  veterinarian.id
-                }
-
-
-
-                veterinarian={
-                  veterinarian
-                }
-
-
-
-                onEdit={
-                  onEdit
-                }
-
-
-
-                onDelete={
-                  onDelete
-                }
-
-
-
-              />
-
-
-            ))}
-
-
+            {veterinarians.length > 0 ? (
+              veterinarians.map((veterinarian) => (
+                <VeterinarianRow
+                  key={veterinarian.id}
+                  veterinarian={veterinarian}
+                  onEdit={onEdit}
+                />
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="
+                    px-6
+                    py-12
+                    text-center
+                    text-sm
+                    text-slate-500
+                  "
+                >
+                  No veterinarians found.
+                </td>
+              </tr>
+            )}
           </tbody>
-
-
         </table>
-
-
       </div>
-
-
     </Card>
-
   );
-
 }
-
 
 export default VeterinarianTable;

@@ -1,18 +1,18 @@
 import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
-  useForm,
-} from "react-hook-form";
+  veterinarianSchema,
+  type VeterinarianFormValues,
+} from "../../schemas/veterinarianSchema";
 
 import type {
   CreateVeterinarianRequest,
   Veterinarian,
 } from "../../types/veterinarian";
 
-
-
 type VeterinarianFormProps = {
-
   initialValues?: Veterinarian | null;
 
   onSubmit: (
@@ -20,274 +20,53 @@ type VeterinarianFormProps = {
   ) => void;
 
   onCancel: () => void;
-
 };
 
-
-
-
-
 function VeterinarianForm({
-
   initialValues,
-
   onSubmit,
-
   onCancel,
-
 }: VeterinarianFormProps) {
-
-
-
   const {
     register,
     handleSubmit,
     reset,
-
-  } = useForm<CreateVeterinarianRequest>({
-
+    formState: { errors },
+  } = useForm<VeterinarianFormValues>({
+    resolver: zodResolver(veterinarianSchema),
     defaultValues: {
-
-      firstName: "",
-
-      lastName: "",
-
-      email: "",
-
-      phone: "",
-
-      specialization: "",
-
-      licenseNumber: "",
-
+      name: "",
+      specialty: "",
+      licenseNo: "",
+      workHours: "",
     },
-
   });
 
-
-
-
-
-
-
-
-
   useEffect(() => {
-
-
     if (initialValues) {
-
-
       reset({
-
-        firstName:
-          initialValues.firstName,
-
-
-        lastName:
-          initialValues.lastName,
-
-
-        email:
-          initialValues.email,
-
-
-        phone:
-          initialValues.phone,
-
-
-        specialization:
-          initialValues.specialization,
-
-
-        licenseNumber:
-          initialValues.licenseNumber,
-
-
+        name: initialValues.name,
+        specialty: initialValues.specialty,
+        licenseNo: initialValues.licenseNo,
+        workHours: initialValues.workHours,
       });
-
-
     } else {
-
-
       reset({
-
-        firstName: "",
-
-        lastName: "",
-
-        email: "",
-
-        phone: "",
-
-        specialization: "",
-
-        licenseNumber: "",
-
+        name: "",
+        specialty: "",
+        licenseNo: "",
+        workHours: "",
       });
-
-
     }
-
-
-
-  }, [
-    initialValues,
-    reset,
-  ]);
-
-
-
-
-
-
-
-
+  }, [initialValues, reset]);
 
   return (
-
     <form
-
-      onSubmit={
-        handleSubmit(onSubmit)
-      }
-
-      className="
-        space-y-6
-      "
-
+      onSubmit={handleSubmit((values) => onSubmit(values))}
+      className="space-y-6"
     >
-
-
-
-
-
-
-
-      <div
-        className="
-          grid
-          grid-cols-2
-          gap-5
-        "
-      >
-
-
-
-
-        {/* First Name */}
-
-        <div>
-
-
-          <label
-            className="
-              mb-2
-              block
-              text-sm
-              font-medium
-              text-slate-700
-            "
-          >
-
-            First Name
-
-          </label>
-
-
-
-          <input
-
-            {...register(
-              "firstName"
-            )}
-
-            className="
-              w-full
-              rounded-xl
-              border
-              border-slate-300
-              px-4
-              py-3
-              outline-none
-              focus:border-blue-500
-            "
-
-            placeholder="Enter first name"
-
-          />
-
-
-        </div>
-
-
-
-
-
-
-
-        {/* Last Name */}
-
-        <div>
-
-
-          <label
-            className="
-              mb-2
-              block
-              text-sm
-              font-medium
-              text-slate-700
-            "
-          >
-
-            Last Name
-
-          </label>
-
-
-
-          <input
-
-            {...register(
-              "lastName"
-            )}
-
-            className="
-              w-full
-              rounded-xl
-              border
-              border-slate-300
-              px-4
-              py-3
-              outline-none
-              focus:border-blue-500
-            "
-
-            placeholder="Enter last name"
-
-          />
-
-
-        </div>
-
-
-
-      </div>
-
-
-
-
-
-
-
-
-
-      {/* Email */}
-
+      {/* Name */}
       <div>
-
-
         <label
           className="
             mb-2
@@ -297,21 +76,11 @@ function VeterinarianForm({
             text-slate-700
           "
         >
-
-          Email
-
+          Name
         </label>
 
-
-
         <input
-
-          {...register(
-            "email"
-          )}
-
-          type="email"
-
+          {...register("name")}
           className="
             w-full
             rounded-xl
@@ -322,74 +91,15 @@ function VeterinarianForm({
             outline-none
             focus:border-blue-500
           "
-
-          placeholder="Enter email"
-
+          placeholder="Enter veterinarian name"
         />
 
-
+        {errors.name && (
+          <p className="mt-1 text-sm text-red-500">
+            {errors.name.message}
+          </p>
+        )}
       </div>
-
-
-
-
-
-
-
-
-
-      {/* Phone */}
-
-      <div>
-
-
-        <label
-          className="
-            mb-2
-            block
-            text-sm
-            font-medium
-            text-slate-700
-          "
-        >
-
-          Phone
-
-        </label>
-
-
-
-        <input
-
-          {...register(
-            "phone"
-          )}
-
-          className="
-            w-full
-            rounded-xl
-            border
-            border-slate-300
-            px-4
-            py-3
-            outline-none
-            focus:border-blue-500
-          "
-
-          placeholder="Enter phone number"
-
-        />
-
-
-      </div>
-
-
-
-
-
-
-
-
 
       <div
         className="
@@ -398,15 +108,8 @@ function VeterinarianForm({
           gap-5
         "
       >
-
-
-
-
         {/* Specialty */}
-
         <div>
-
-
           <label
             className="
               mb-2
@@ -416,19 +119,11 @@ function VeterinarianForm({
               text-slate-700
             "
           >
-
             Specialty
-
           </label>
 
-
-
           <input
-
-            {...register(
-              "specialization"
-            )}
-
+            {...register("specialty")}
             className="
               w-full
               rounded-xl
@@ -439,26 +134,18 @@ function VeterinarianForm({
               outline-none
               focus:border-blue-500
             "
-
             placeholder="Enter specialty"
-
           />
 
-
+          {errors.specialty && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.specialty.message}
+            </p>
+          )}
         </div>
 
-
-
-
-
-
-
-
-        {/* License */}
-
+        {/* License Number */}
         <div>
-
-
           <label
             className="
               mb-2
@@ -468,19 +155,11 @@ function VeterinarianForm({
               text-slate-700
             "
           >
-
             License Number
-
           </label>
 
-
-
           <input
-
-            {...register(
-              "licenseNumber"
-            )}
-
+            {...register("licenseNo")}
             className="
               w-full
               rounded-xl
@@ -491,28 +170,54 @@ function VeterinarianForm({
               outline-none
               focus:border-blue-500
             "
-
             placeholder="VET-2024-001"
-
           />
 
-
+          {errors.licenseNo && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.licenseNo.message}
+            </p>
+          )}
         </div>
-
-
-
       </div>
 
+      {/* Work Hours */}
+      <div>
+        <label
+          className="
+            mb-2
+            block
+            text-sm
+            font-medium
+            text-slate-700
+          "
+        >
+          Work Hours
+        </label>
 
+        <input
+          {...register("workHours")}
+          className="
+            w-full
+            rounded-xl
+            border
+            border-slate-300
+            px-4
+            py-3
+            outline-none
+            focus:border-blue-500
+          "
+          placeholder="09:00 - 17:00"
+        />
 
-
-
-
-
-
+        {errors.workHours && (
+          <p className="mt-1 text-sm text-red-500">
+            {errors.workHours.message}
+          </p>
+        )}
+      </div>
 
       {/* Buttons */}
-
       <div
         className="
           flex
@@ -521,15 +226,9 @@ function VeterinarianForm({
           pt-5
         "
       >
-
-
-
         <button
-
           type="button"
-
           onClick={onCancel}
-
           className="
             rounded-xl
             border
@@ -541,21 +240,12 @@ function VeterinarianForm({
             transition
             hover:bg-slate-100
           "
-
         >
-
           Cancel
-
         </button>
 
-
-
-
-
         <button
-
           type="submit"
-
           className="
             rounded-xl
             bg-blue-600
@@ -566,28 +256,12 @@ function VeterinarianForm({
             transition
             hover:bg-blue-700
           "
-
         >
-
           Save Veterinarian
-
         </button>
-
-
-
-
       </div>
-
-
-
-
-
     </form>
-
   );
-
 }
-
-
 
 export default VeterinarianForm;

@@ -6,13 +6,16 @@ type OwnerToolbarProps = {
   onSearch: (value: string) => void;
   onSort: (value: string) => void;
   onAdd: () => void;
+  onExport: () => void;
 };
+
 
 
 function OwnerToolbar({
   onSearch,
   onSort,
   onAdd,
+  onExport,
 }: OwnerToolbarProps) {
 
 
@@ -32,6 +35,7 @@ function OwnerToolbar({
     onSearch(value);
 
   };
+
 
 
 
@@ -59,7 +63,6 @@ function OwnerToolbar({
           sm:flex-row
         "
       >
-
 
 
         <input
@@ -146,7 +149,13 @@ function OwnerToolbar({
 
 
 
+        {/* Export */}
+
         <button
+
+          type="button"
+
+          onClick={onExport}
 
           className="
             flex
@@ -174,7 +183,11 @@ function OwnerToolbar({
 
 
 
+        {/* Add Owner */}
+
         <button
+
+          type="button"
 
           onClick={onAdd}
 

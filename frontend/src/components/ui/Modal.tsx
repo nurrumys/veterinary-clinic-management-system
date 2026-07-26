@@ -1,6 +1,12 @@
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
 
+type ModalSize =
+  | "sm"
+  | "md"
+  | "lg"
+  | "xl"
+  | "2xl";
 
 type ModalProps = {
   open: boolean;
@@ -8,8 +14,8 @@ type ModalProps = {
   children: ReactNode;
   onClose: () => void;
   footer?: ReactNode;
+  maxWidth?: ModalSize;
 };
-
 
 function Modal({
   open,
@@ -17,15 +23,21 @@ function Modal({
   children,
   onClose,
   footer,
+  maxWidth = "md",
 }: ModalProps) {
-
   if (!open) {
     return null;
   }
 
+  const widthClasses = {
+    sm: "max-w-md",
+    md: "max-w-2xl",
+    lg: "max-w-4xl",
+    xl: "max-w-5xl",
+    "2xl": "max-w-6xl",
+  };
 
   return (
-
     <div
       className="
         fixed
@@ -38,24 +50,19 @@ function Modal({
         p-4
       "
     >
-
-
       <div
-        className="
+        className={`
           flex
           w-full
-          max-w-2xl
+          ${widthClasses[maxWidth]}
           max-h-[90vh]
           flex-col
           rounded-2xl
           bg-white
           shadow-2xl
-        "
+        `}
       >
-
-
         {/* Header */}
-
         <div
           className="
             flex
@@ -68,7 +75,6 @@ function Modal({
             py-4
           "
         >
-
           <h2
             className="
               text-xl
@@ -78,7 +84,6 @@ function Modal({
           >
             {title}
           </h2>
-
 
           <button
             type="button"
@@ -92,19 +97,11 @@ function Modal({
               hover:text-slate-700
             "
           >
-
-            <X size={20}/>
-
+            <X size={20} />
           </button>
-
-
         </div>
 
-
-
-
         {/* Body */}
-
         <div
           className="
             flex-1
@@ -113,18 +110,11 @@ function Modal({
             py-5
           "
         >
-
           {children}
-
         </div>
 
-
-
-
         {/* Footer */}
-
         {footer && (
-
           <div
             className="
               flex
@@ -137,23 +127,12 @@ function Modal({
               py-4
             "
           >
-
             {footer}
-
           </div>
-
         )}
-
-
-
       </div>
-
-
     </div>
-
   );
-
 }
-
 
 export default Modal;

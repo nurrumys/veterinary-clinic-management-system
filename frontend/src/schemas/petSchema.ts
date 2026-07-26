@@ -7,19 +7,19 @@ export const petSchema = z.object({
 
   name: z
     .string()
-    .min(2, "Pet name must be at least 2 characters."),
+    .trim()
+    .min(2, "Name must be at least 2 characters."),
 
   species: z
     .string()
+    .trim()
     .min(1, "Species is required."),
 
   breed: z
     .string()
-    .min(2, "Breed is required."),
+    .trim(),
 
-  speciesNote: z
-    .string()
-    .nullable(),
+  speciesNote: z.string().nullable(),
 
   birthDate: z
     .string()
@@ -27,19 +27,16 @@ export const petSchema = z.object({
 
   sex: z
     .string()
+    .trim()
     .min(1, "Sex is required."),
 
   weightKg: z
     .number()
     .positive("Weight must be greater than 0."),
 
-  allergies: z
-    .string()
-    .nullable(),
+  allergies: z.string().nullable(),
 
-  chronicConditions: z
-    .string()
-    .nullable(),
+  chronicConditions: z.string().nullable(),
 });
 
 export type PetFormValues = z.infer<typeof petSchema>;

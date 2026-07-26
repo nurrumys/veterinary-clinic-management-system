@@ -1,9 +1,22 @@
 import Card from "../ui/Card";
 import AppointmentTrendChart from "../charts/AppointmentTrendChart";
 
-import { appointmentTrendData } from "../../mocks/dashboard";
+import type { DashboardSummary } from "../../types/dashboard";
 
-function AppointmentStatistics() {
+type AppointmentStatisticsProps = {
+  summary: DashboardSummary;
+};
+
+function AppointmentStatistics({
+  summary,
+}: AppointmentStatisticsProps) {
+  const chartData = summary.appointmentTrend30Days.map(
+    (item) => ({
+      date: item.date,
+      count: item.count,
+    })
+  );
+
   return (
     <Card className="h-full">
       {/* Header */}
@@ -15,7 +28,7 @@ function AppointmentStatistics() {
           </h2>
 
           <p className="mt-1 text-sm text-slate-500">
-            Appointment trend for the last 7 days
+            Appointment trend for the last 30 days
           </p>
         </div>
 
@@ -35,7 +48,7 @@ function AppointmentStatistics() {
             hover:bg-slate-50
           "
         >
-          This Week
+          Last 30 Days
         </button>
       </div>
 
@@ -43,7 +56,7 @@ function AppointmentStatistics() {
 
       <div className="mt-4 h-[320px]">
         <AppointmentTrendChart
-          data={appointmentTrendData}
+          data={chartData}
         />
       </div>
     </Card>

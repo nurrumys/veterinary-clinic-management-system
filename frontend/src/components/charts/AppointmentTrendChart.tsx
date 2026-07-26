@@ -8,7 +8,10 @@ import {
   Tooltip,
 } from "recharts";
 
-import type { AppointmentTrendData } from "../../mocks/dashboard";
+type AppointmentTrendData = {
+  date: string;
+  count: number;
+};
 
 type AppointmentTrendChartProps = {
   data: AppointmentTrendData[];
@@ -37,7 +40,7 @@ function AppointmentTrendChart({
         />
 
         <XAxis
-          dataKey="day"
+          dataKey="date"
           axisLine={false}
           tickLine={false}
           tick={{
@@ -69,7 +72,7 @@ function AppointmentTrendChart({
 
         <Line
           type="monotone"
-          dataKey="appointments"
+          dataKey="count"
           stroke="#06b6d4"
           strokeWidth={3}
           dot={{

@@ -18,18 +18,21 @@ function Card({
         border
         border-slate-200
         bg-white
-        p-5
+        p-6
         shadow-sm
+        transition-shadow
+        duration-200
+        hover:shadow-md
         ${className}
       `}
     >
-
       {title && (
         <h2
           className="
-            mb-4
+            mb-5
             text-xl
             font-semibold
+            tracking-tight
             text-slate-900
           "
         >
@@ -38,7 +41,6 @@ function Card({
       )}
 
       {children}
-
     </div>
   );
 }

@@ -42,12 +42,13 @@ overflow-hidden
 
 
 <main
-className="
-flex-1
-overflow-y-auto
-bg-slate-100
-p-6
-"
+  className="
+    flex-1
+    overflow-y-auto
+    bg-slate-100
+    p-6
+    min-h-0
+  "
 >
 
 {children}

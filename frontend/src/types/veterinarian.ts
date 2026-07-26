@@ -1,40 +1,29 @@
 export type Veterinarian = {
   id: number;
 
-  firstName: string;
-  lastName: string;
+  name: string;
 
-  email: string;
-  phone: string;
+  specialty: string;
 
-  specialization: string;
+  licenseNo: string;
 
-  licenseNumber: string;
+  workHours: string;
 
-  status:
-    | "ACTIVE"
-    | "INACTIVE"
-    | "ON_LEAVE";
+  active: boolean;
 
   createdAt: string;
   updatedAt: string;
 };
 
-
-
 export type CreateVeterinarianRequest = {
-  firstName: string;
-  lastName: string;
+  name: string;
 
-  email: string;
-  phone: string;
+  specialty: string;
 
-  specialization: string;
+  licenseNo: string;
 
-  licenseNumber: string;
+  workHours: string;
 };
-
-
 
 export type UpdateVeterinarianRequest =
   CreateVeterinarianRequest;

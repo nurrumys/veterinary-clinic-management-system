@@ -1,47 +1,30 @@
 import Modal from "../ui/Modal";
 
+import type { Vaccination } from "../../types/vaccination";
 
-type DeleteVeterinarianDialogProps = {
-
+type DeleteVaccinationDialogProps = {
   open: boolean;
 
-  veterinarianName: string;
+  vaccination: Vaccination | null;
 
   onClose: () => void;
 
   onConfirm: () => void;
-
 };
 
-
-
-function DeleteVeterinarianDialog({
-
+function DeleteVaccinationDialog({
   open,
-
-  veterinarianName,
-
+  vaccination,
   onClose,
-
   onConfirm,
-
-}: DeleteVeterinarianDialogProps) {
-
-
+}: DeleteVaccinationDialogProps) {
   return (
-
     <Modal
-
       open={open}
-
-      title="Delete Veterinarian"
-
+      title="Delete Vaccination"
       onClose={onClose}
-
       footer={
-
         <>
-
           <button
             type="button"
             onClick={onClose}
@@ -59,8 +42,6 @@ function DeleteVeterinarianDialog({
             Cancel
           </button>
 
-
-
           <button
             type="button"
             onClick={onConfirm}
@@ -76,43 +57,22 @@ function DeleteVeterinarianDialog({
           >
             Delete
           </button>
-
-
         </>
-
       }
-
     >
-
-
       <p className="text-slate-600">
-
-        Are you sure you want to delete{" "}
-
+        Are you sure you want to delete the vaccination record for{" "}
         <span className="font-semibold text-slate-900">
-
-          {veterinarianName}
-
+          {vaccination?.vaccineType ?? "-"}
         </span>
-
         ?
-
       </p>
-
 
       <p className="mt-3 text-sm text-slate-500">
-
         This action cannot be undone.
-
       </p>
-
-
-
     </Modal>
-
   );
-
 }
 
-
-export default DeleteVeterinarianDialog;
+export default DeleteVaccinationDialog;
