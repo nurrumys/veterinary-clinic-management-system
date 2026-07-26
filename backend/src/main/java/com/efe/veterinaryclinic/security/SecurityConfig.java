@@ -70,6 +70,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/vaccinations/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/invoices").hasAnyRole("ADMIN", "RECEPTIONIST")
                         .requestMatchers(HttpMethod.PATCH, "/api/invoices/**").hasAnyRole("ADMIN", "RECEPTIONIST")
+                        .requestMatchers(HttpMethod.PATCH, "/api/support-requests/*/status").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

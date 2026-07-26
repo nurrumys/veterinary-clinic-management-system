@@ -43,7 +43,7 @@ Full requirements live in:
 
 ## Modules
 
-`auth`, `owner`, `pet`, `vet`, `visit`, `vaccination`, `invoice`, `dashboard`, `common`, `security`, `config`.
+`auth`, `owner`, `pet`, `vet`, `visit`, `vaccination`, `invoice`, `dashboard`, `support`, `common`, `security`, `config`.
 
 ## Architecture Rules
 

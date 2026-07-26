@@ -39,7 +39,9 @@ This document converts the original React frontend learning assignment into a co
 
 ## 5. Modules
 
-`auth`, `owner`, `pet`, `vet`, `visit`, `vaccination`, `invoice`, `dashboard`, `common`, `security`, `config`.
+`auth`, `owner`, `pet`, `vet`, `visit`, `vaccination`, `invoice`, `dashboard`, `support`, `common`, `security`, `config`.
+
+> **`support` module addition**: not part of the original PDF-derived spec — an internal contact-support ticket flow added after launch so clinic staff can report application problems to the admin. See `decisions.md` for rationale.
 
 ## 6. Entities
 
@@ -64,6 +66,14 @@ This document converts the original React frontend learning assignment into a co
 - `TreatmentDrug`
 - `PetDocument`
 - `PetPhoto`
+
+### 6.2.1 `support` Module Entities (post-launch addition, not in the original PDF spec)
+
+**SupportRequest**
+- id, requestedByUserId, subject, message, status, adminResponse, createdAt, updatedAt
+
+**SupportRequestStatus (enum)**
+- OPEN, IN_PROGRESS, RESOLVED
 
 ### 6.3 Entity Fields
 
@@ -115,6 +125,7 @@ This document converts the original React frontend learning assignment into a co
 - One `Visit` belongs to one `Pet` and one `Vet`.
 - One `Visit` can have many `Invoice`s (`Invoice` → `Visit` is many-to-one; a visit is not limited to a single invoice, e.g. re-issue or split billing).
 - One `Invoice` has many `InvoiceItem`s.
+- One `User` has many `SupportRequest`s (`SupportRequest` → `User` is many-to-one, via `requestedBy`).
 
 ## 8. Date/Time Rules
 

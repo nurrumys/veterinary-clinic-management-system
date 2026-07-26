@@ -270,3 +270,12 @@ Verification commands referenced below:
 51. **Final demo flow validation**
     - Walk through the full acceptance flow in `docs/backend-spec.md` §15 end-to-end.
     - Verify: manual run through Swagger or the real frontend, no build errors.
+
+---
+
+## Week 5 — Post-launch additions
+
+52. ~~**Contact Support module**~~ ✅ done (2026-07-26)
+    - `SupportRequest` entity/enum, ticket CRUD (create/list/detail/status-update), own-ticket scoping for non-admin, admin-only status transitions. Email notification to configured admin recipients on ticket creation (Gmail SMTP via `spring-boot-starter-mail`, best-effort/non-blocking, disabled in tests). See `decisions.md` entries 36-37.
+    - Files: `support/*`, `security/SecurityConfig.java`, `pom.xml`, `application.properties` (+ test variants), `docs/backend-spec.md`, `docs/api-contract.md`.
+    - Verify: `./mvnw test`.
