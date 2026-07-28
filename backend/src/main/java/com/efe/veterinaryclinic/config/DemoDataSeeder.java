@@ -26,6 +26,8 @@ import com.efe.veterinaryclinic.visit.dto.MedicalNotesUpdateRequest;
 import com.efe.veterinaryclinic.visit.dto.VisitRequest;
 import com.efe.veterinaryclinic.visit.dto.VisitResponse;
 import com.efe.veterinaryclinic.visit.dto.VisitStatusUpdateRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -45,6 +47,8 @@ import java.util.List;
  */
 @Component
 public class DemoDataSeeder implements CommandLineRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(DemoDataSeeder.class);
 
     private final boolean demoDataEnabled;
     private final OwnerRepository ownerRepository;
@@ -80,8 +84,11 @@ public class DemoDataSeeder implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         if (!demoDataEnabled || ownerRepository.count() > 0) {
+            log.info("Demo data seeding skipped (enabled={}, existingOwners={})", demoDataEnabled, ownerRepository.count());
             return;
         }
+
+        log.info("Demo data seeding started");
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -176,6 +183,8 @@ public class DemoDataSeeder implements CommandLineRunner {
                 new InvoiceItemRequest("Consultation - vomiting", InvoiceItemCategory.CONSULTATION, 1, new BigDecimal("400.00")),
                 new InvoiceItemRequest("Bland diet prescription", InvoiceItemCategory.OTHER, 1, new BigDecimal("150.00")))));
         invoiceService.markSent(minnosInvoice.id());
+
+        log.info("Demo data seeding completed");
     }
 
     private VisitResponse createCompletedVisit(Long petId, Long vetId, LocalDateTime scheduledAt, String chiefComplaint,
