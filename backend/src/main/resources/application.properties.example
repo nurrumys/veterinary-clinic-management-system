@@ -27,3 +27,18 @@ app.seed.receptionist.email=${SEED_RECEPTIONIST_EMAIL:receptionist@clinic.com}
 app.seed.receptionist.password=${SEED_RECEPTIONIST_PASSWORD:change-me}
 
 app.seed.demo-data.enabled=${SEED_DEMO_DATA_ENABLED:true}
+
+# Gmail SMTP is used for a best-effort support-ticket notification email
+# (see support/SupportRequestNotifier.java). Requires a Gmail "app password",
+# not the account's normal password. Leave MAIL_USERNAME/MAIL_PASSWORD unset
+# to run without email — SupportRequestNotifier no-ops if notification-emails
+# is empty.
+spring.mail.host=${MAIL_HOST:smtp.gmail.com}
+spring.mail.port=${MAIL_PORT:587}
+spring.mail.username=${MAIL_USERNAME:}
+spring.mail.password=${MAIL_PASSWORD:}
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+
+app.support.notification-emails=${SUPPORT_NOTIFICATION_EMAILS:}
+app.support.notifications.enabled=${SUPPORT_NOTIFICATIONS_ENABLED:true}
