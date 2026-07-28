@@ -2,6 +2,7 @@ import api from "./api";
 
 import type {
   Veterinarian,
+  VeterinarianPerformance,
   CreateVeterinarianRequest,
   UpdateVeterinarianRequest,
 } from "../types/veterinarian";
@@ -66,13 +67,13 @@ export const updateVet = async (
   return response.data;
 };
 
-
 export const getVetPerformance = async (
   id: number
 ) => {
-  const response = await api.get(
-    `/vets/${id}/performance`
-  );
+  const response =
+    await api.get<VeterinarianPerformance>(
+      `/vets/${id}/performance`
+    );
 
   return response.data;
 };

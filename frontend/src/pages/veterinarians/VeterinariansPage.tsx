@@ -10,6 +10,7 @@ import VeterinarianStats from "../../components/veterinarians/VeterinarianStats"
 import VeterinarianToolbar from "../../components/veterinarians/VeterinarianToolbar";
 import VeterinarianTable from "../../components/veterinarians/VeterinarianTable";
 import VeterinarianForm from "../../components/veterinarians/VeterinarianForm";
+import VeterinarianPerformanceDialog from "../../components/veterinarians/VeterinarianPerformanceDialog";
 
 
 import {
@@ -47,6 +48,15 @@ function VeterinariansPage() {
     selectedVeterinarian,
     setSelectedVeterinarian,
   ] = useState<Veterinarian | null>(null);
+  const [
+  isPerformanceModalOpen,
+  setIsPerformanceModalOpen,
+] = useState(false);
+
+const [
+  selectedPerformanceVet,
+  setSelectedPerformanceVet,
+] = useState<Veterinarian | null>(null);
 
   
 
@@ -84,6 +94,12 @@ function VeterinariansPage() {
     setSelectedVeterinarian(veterinarian);
     setIsModalOpen(true);
   };
+  const handleViewPerformance = (
+  veterinarian: Veterinarian
+) => {
+  setSelectedPerformanceVet(veterinarian);
+  setIsPerformanceModalOpen(true);
+};
 
   const handleSubmitVeterinarian = async (
     values: CreateVeterinarianRequest
@@ -105,6 +121,10 @@ function VeterinariansPage() {
       console.error("Failed to save veterinarian:", error);
     }
   };
+  const handleClosePerformance = () => {
+  setIsPerformanceModalOpen(false);
+  setSelectedPerformanceVet(null);
+};
 
   
 
@@ -225,11 +245,13 @@ const handleExportVeterinarians = () => {
     onExport={handleExportVeterinarians}
   />
 
-  <VeterinarianTable
-    veterinarians={veterinarians}
-    onEdit={handleEditVeterinarian}
-    
-  />
+ <VeterinarianTable
+  veterinarians={veterinarians}
+  onEdit={handleEditVeterinarian}
+  onViewPerformance={
+    handleViewPerformance
+  }
+/>
 
   {!loading && totalPages > 1 && (
     <div className="mt-6 flex items-center justify-between">
@@ -298,7 +320,15 @@ const handleExportVeterinarians = () => {
             onSubmit={handleSubmitVeterinarian}
             onCancel={handleCloseModal}
           />
+          
         </Modal>
+        <VeterinarianPerformanceDialog
+  open={isPerformanceModalOpen}
+  vetId={
+    selectedPerformanceVet?.id ?? null
+  }
+  onClose={handleClosePerformance}
+/>
 
        
       </PageContainer>

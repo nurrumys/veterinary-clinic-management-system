@@ -1,5 +1,6 @@
 import {
   Pencil,
+  BarChart3,
 } from "lucide-react";
 
 import type { Veterinarian } from "../../types/veterinarian";
@@ -10,11 +11,16 @@ type VeterinarianActionsProps = {
   onEdit: (
     veterinarian: Veterinarian
   ) => void;
+
+  onViewPerformance: (
+    veterinarian: Veterinarian
+  ) => void;
 };
 
 function VeterinarianActions({
   veterinarian,
   onEdit,
+  onViewPerformance,
 }: VeterinarianActionsProps) {
   return (
     <div
@@ -22,13 +28,13 @@ function VeterinarianActions({
         flex
         items-center
         justify-center
+        gap-3
       "
     >
+      {/* Edit */}
       <button
         type="button"
-        onClick={() =>
-          onEdit(veterinarian)
-        }
+        onClick={() => onEdit(veterinarian)}
         className="
           text-blue-600
           transition
@@ -37,6 +43,22 @@ function VeterinarianActions({
         title="Edit"
       >
         <Pencil size={20} />
+      </button>
+
+      {/* Performance */}
+      <button
+        type="button"
+        onClick={() =>
+          onViewPerformance(veterinarian)
+        }
+        className="
+          text-emerald-600
+          transition
+          hover:text-emerald-800
+        "
+        title="Performance"
+      >
+        <BarChart3 size={20} />
       </button>
     </div>
   );
