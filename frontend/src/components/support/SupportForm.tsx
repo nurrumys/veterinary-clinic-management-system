@@ -92,8 +92,8 @@ function SupportForm({
             py-3
             outline-none
             transition
-            focus:border-blue-500
             resize-none
+            focus:border-blue-500
           "
         />
 
@@ -108,6 +108,7 @@ function SupportForm({
         <button
           type="button"
           onClick={onCancel}
+          disabled={isLoading}
           className="
             rounded-xl
             border
@@ -118,6 +119,8 @@ function SupportForm({
             text-slate-600
             transition
             hover:bg-slate-100
+            disabled:cursor-not-allowed
+            disabled:opacity-50
           "
         >
           Cancel
@@ -135,6 +138,7 @@ function SupportForm({
             text-white
             transition
             hover:bg-blue-700
+            disabled:cursor-not-allowed
             disabled:opacity-50
           "
         >

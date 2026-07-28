@@ -114,9 +114,7 @@ const handleView = (
 const handleSubmit = async (
   values: CreateSupportRequest
 ) => {
-
   try {
-
     await createSupportRequest(values);
 
     await fetchSupportRequests();
@@ -130,13 +128,14 @@ const handleSubmit = async (
       error
     );
 
+    setError("Failed to create support request.");
   }
-
 };
+
+
 const handleCloseModal = () => {
-
   setIsModalOpen(false);
-
+  setSelectedRequest(null);
 };
 const handleStatusFilter = (
   value: SupportRequestStatus | ""

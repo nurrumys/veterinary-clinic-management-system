@@ -42,7 +42,7 @@ function SupportTable({
   return (
     <div
       className="
-        overflow-hidden
+        overflow-x-auto
         rounded-2xl
         border
         border-slate-200

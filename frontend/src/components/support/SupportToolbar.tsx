@@ -40,6 +40,8 @@ function SupportToolbar({
             outline-none
             transition
             focus:border-blue-500
+            focus:ring-2
+            focus:ring-blue-100
           "
         >
           <option value="">All Status</option>
@@ -65,6 +67,9 @@ function SupportToolbar({
           text-white
           transition
           hover:bg-blue-700
+          focus:outline-none
+          focus:ring-2
+          focus:ring-blue-200
         "
       >
         <Plus size={18} />

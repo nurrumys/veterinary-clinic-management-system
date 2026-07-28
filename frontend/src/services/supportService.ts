@@ -23,7 +23,7 @@ export type GetSupportRequestsParams = {
 
 export const getSupportRequests = async (
   params?: GetSupportRequestsParams
-) => {
+): Promise<SupportPageResponse> => {
   const response = await api.get<SupportPageResponse>(
     "/support-requests",
     {
@@ -36,7 +36,7 @@ export const getSupportRequests = async (
 
 export const getSupportRequestById = async (
   id: number
-) => {
+): Promise<SupportRequest> => {
   const response = await api.get<SupportRequest>(
     `/support-requests/${id}`
   );
@@ -46,7 +46,7 @@ export const getSupportRequestById = async (
 
 export const createSupportRequest = async (
   data: CreateSupportRequest
-) => {
+): Promise<SupportRequest> => {
   const response = await api.post<SupportRequest>(
     "/support-requests",
     data
@@ -58,7 +58,7 @@ export const createSupportRequest = async (
 export const updateSupportRequestStatus = async (
   id: number,
   data: UpdateSupportRequestStatus
-) => {
+): Promise<SupportRequest> => {
   const response = await api.patch<SupportRequest>(
     `/support-requests/${id}/status`,
     data

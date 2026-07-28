@@ -23,7 +23,10 @@ function SupportStats({
     (item) => item.status === "RESOLVED"
   ).length;
 
-  const stats = [
+  const stats: {
+    title: string;
+    value: number;
+  }[] = [
     {
       title: "Total Requests",
       value: total,
@@ -51,7 +54,7 @@ function SupportStats({
               {stat.title}
             </p>
 
-            <h2 className="text-3xl font-bold text-slate-900">
+            <h2 className="text-3xl font-bold tabular-nums text-slate-900">
               {stat.value}
             </h2>
           </div>

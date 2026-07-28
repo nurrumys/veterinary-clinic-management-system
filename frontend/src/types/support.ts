@@ -22,5 +22,5 @@ export interface CreateSupportRequest {
 
 export interface UpdateSupportRequestStatus {
   status: SupportRequestStatus;
-  adminResponse: string;
+  adminResponse?: string;
 }

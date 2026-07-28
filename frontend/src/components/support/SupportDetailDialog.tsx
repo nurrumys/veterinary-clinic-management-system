@@ -23,7 +23,6 @@ function SupportDetailDialog({
       onClose={onClose}
     >
       <div className="space-y-6">
-
         <div>
           <h3 className="text-sm font-medium text-slate-500">
             Subject
@@ -31,6 +30,16 @@ function SupportDetailDialog({
 
           <p className="mt-1 text-base font-semibold text-slate-900">
             {support.subject}
+          </p>
+        </div>
+
+        <div>
+          <h3 className="text-sm font-medium text-slate-500">
+            Requested By
+          </h3>
+
+          <p className="mt-1 text-base text-slate-700">
+            {support.requestedByName}
           </p>
         </div>
 
@@ -60,7 +69,9 @@ function SupportDetailDialog({
           </h3>
 
           <div className="mt-2 rounded-xl bg-slate-50 p-4 text-sm leading-6 text-slate-700">
-            {support.adminResponse || (
+            {support.adminResponse ? (
+              support.adminResponse
+            ) : (
               <span className="italic text-slate-400">
                 No response yet.
               </span>
@@ -69,16 +80,15 @@ function SupportDetailDialog({
         </div>
 
         <div className="grid grid-cols-2 gap-6 border-t border-slate-200 pt-4">
-
           <div>
             <h3 className="text-sm font-medium text-slate-500">
               Created
             </h3>
 
             <p className="mt-1 text-sm text-slate-700">
-              {new Date(
-                support.createdAt
-              ).toLocaleString()}
+              {new Date(support.createdAt).toLocaleString(
+                "en-GB"
+              )}
             </p>
           </div>
 
@@ -88,14 +98,12 @@ function SupportDetailDialog({
             </h3>
 
             <p className="mt-1 text-sm text-slate-700">
-              {new Date(
-                support.updatedAt
-              ).toLocaleString()}
+              {new Date(support.updatedAt).toLocaleString(
+                "en-GB"
+              )}
             </p>
           </div>
-
         </div>
-
       </div>
     </Modal>
   );
