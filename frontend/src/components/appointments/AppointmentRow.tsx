@@ -2,6 +2,7 @@ import {
   Edit,
   FileText,
   RefreshCw,
+  GitBranchPlus,
 } from "lucide-react";
 
 import type { Visit } from "../../types/visit";
@@ -13,6 +14,7 @@ type AppointmentRowProps = {
   onEdit: (appointment: Visit) => void;
   onUpdateStatus: (appointment: Visit) => void;
   onMedicalNotes: (appointment: Visit) => void;
+  onCreateFollowUp: (appointment: Visit) => void;
 };
 
 const statusStyles = {
@@ -47,6 +49,7 @@ function AppointmentRow({
   onEdit,
   onUpdateStatus,
   onMedicalNotes,
+  onCreateFollowUp,
 }: AppointmentRowProps) {
   return (
     <tr className="border-b border-slate-100 hover:bg-slate-50">
@@ -112,6 +115,19 @@ function AppointmentRow({
           >
             <FileText size={18} />
           </button>
+
+          {appointment.status === "COMPLETED" &&
+            appointment.followUpDate && (
+              <button
+                onClick={() =>
+                  onCreateFollowUp(appointment)
+                }
+                className="text-cyan-600 transition-colors hover:text-cyan-800"
+                title="Create Follow-up"
+              >
+                <GitBranchPlus size={18} />
+              </button>
+            )}
         </div>
       </td>
     </tr>

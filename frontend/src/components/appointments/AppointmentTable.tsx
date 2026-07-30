@@ -12,6 +12,7 @@ type AppointmentTableProps = {
   onEdit: (appointment: Visit) => void;
   onUpdateStatus: (appointment: Visit) => void;
   onMedicalNotes: (appointment: Visit) => void;
+  onCreateFollowUp: (appointment: Visit) => void;
 };
 
 function AppointmentTable({
@@ -21,6 +22,7 @@ function AppointmentTable({
   onEdit,
   onUpdateStatus,
   onMedicalNotes,
+  onCreateFollowUp,
 }: AppointmentTableProps) {
   return (
     <Card>
@@ -91,6 +93,7 @@ function AppointmentTable({
                     onEdit={onEdit}
                     onUpdateStatus={onUpdateStatus}
                     onMedicalNotes={onMedicalNotes}
+                    onCreateFollowUp={onCreateFollowUp}
                   />
                 );
               })

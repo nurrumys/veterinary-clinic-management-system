@@ -20,7 +20,6 @@ export type VisitPageResponse = {
 export const getVisits = async (
   params?: VisitFilters
 ) => {
-
   const response = await api.get<VisitPageResponse>(
     "/visits",
     {
@@ -34,7 +33,6 @@ export const getVisits = async (
 export const getVisitById = async (
   id: number
 ) => {
-
   const response = await api.get<Visit>(
     `/visits/${id}`
   );
@@ -45,7 +43,6 @@ export const getVisitById = async (
 export const createVisit = async (
   data: CreateVisitRequest
 ) => {
-
   const response = await api.post<Visit>(
     "/visits",
     data
@@ -58,7 +55,6 @@ export const updateVisit = async (
   id: number,
   data: UpdateVisitRequest
 ) => {
-
   const response = await api.put<Visit>(
     `/visits/${id}`,
     data
@@ -71,7 +67,6 @@ export const updateVisitStatus = async (
   id: number,
   data: UpdateVisitStatusRequest
 ) => {
-
   const response = await api.patch<Visit>(
     `/visits/${id}/status`,
     data
@@ -84,7 +79,6 @@ export const updateMedicalNotes = async (
   id: number,
   data: UpdateMedicalNotesRequest
 ) => {
-
   const response = await api.patch<Visit>(
     `/visits/${id}/medical-notes`,
     data
@@ -93,10 +87,14 @@ export const updateMedicalNotes = async (
   return response.data;
 };
 
-export const getCalendarVisits = async () => {
-
-  const response = await api.get(
-    "/visits/calendar"
+export const getCalendarVisits = async (
+  params?: VisitFilters
+) => {
+  const response = await api.get<Visit[]>(
+    "/visits/calendar",
+    {
+      params,
+    }
   );
 
   return response.data;
@@ -105,7 +103,6 @@ export const getCalendarVisits = async () => {
 export const createFollowUpVisit = async (
   id: number
 ) => {
-
   const response = await api.post<Visit>(
     `/visits/${id}/follow-up`
   );

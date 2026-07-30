@@ -6,6 +6,11 @@ type AppointmentToolbarProps = {
   onSort: (value: string) => void;
   onAdd: () => void;
   onExport: () => void;
+
+  viewMode: "table" | "calendar";
+  onViewModeChange: (
+    mode: "table" | "calendar"
+  ) => void;
 };
 
 function AppointmentToolbar({
@@ -13,6 +18,8 @@ function AppointmentToolbar({
   onSort,
   onAdd,
   onExport,
+  viewMode,
+  onViewModeChange,
 }: AppointmentToolbarProps) {
   const [searchValue, setSearchValue] =
     useState("");
@@ -106,6 +113,45 @@ function AppointmentToolbar({
           gap-3
         "
       >
+        <div
+          className="
+            flex
+            h-11
+            overflow-hidden
+            rounded-xl
+            border
+            border-slate-200
+          "
+        >
+          <button
+            type="button"
+            onClick={() =>
+              onViewModeChange("table")
+            }
+            className={`flex h-full items-center justify-center px-5 text-sm font-medium transition ${
+              viewMode === "table"
+                ? "bg-blue-600 text-white"
+                : "bg-white text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            Table
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              onViewModeChange("calendar")
+            }
+            className={`flex h-full items-center justify-center px-5 text-sm font-medium transition ${
+              viewMode === "calendar"
+                ? "bg-blue-600 text-white"
+                : "bg-white text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            Calendar
+          </button>
+        </div>
+
         <button
           type="button"
           onClick={onExport}
@@ -124,7 +170,6 @@ function AppointmentToolbar({
           "
         >
           <Download size={18} />
-
           Export
         </button>
 
@@ -146,7 +191,6 @@ function AppointmentToolbar({
           "
         >
           <Plus size={18} />
-
           Add Appointment
         </button>
       </div>

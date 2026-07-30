@@ -8,15 +8,18 @@ import AppointmentTable from "../../components/appointments/AppointmentTable";
 import AppointmentForm from "../../components/appointments/AppointmentForm";
 import UpdateStatusDialog from "../../components/appointments/UpdateStatusDialog";
 import MedicalNotesDialog from "../../components/appointments/MedicalNotesDialog";
+import AppointmentCalendar from "../../components/appointments/AppointmentCalendar";
 
 import Modal from "../../components/ui/Modal";
 
 import {
   getVisits,
+  getCalendarVisits,
   createVisit,
   updateVisit,
   updateVisitStatus,
   updateMedicalNotes,
+  createFollowUpVisit,
 } from "../../services/visitService";
 
 import { getPets } from "../../services/petService";
@@ -34,6 +37,8 @@ import type { Veterinarian } from "../../types/veterinarian";
 
 function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Visit[]>([]);
+  const [calendarAppointments, setCalendarAppointments] =
+  useState<Visit[]>([]);
   const [pets, setPets] = useState<Pet[]>([]);
   const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([]);
 
@@ -54,6 +59,8 @@ function AppointmentsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] =
     useState("scheduledAsc");
+    const [viewMode, setViewMode] =
+  useState<"table" | "calendar">("table");
 
   const [page, setPage] = useState(0);
   const [size] = useState(20);
@@ -108,6 +115,15 @@ function AppointmentsPage() {
       setLoading(false);
     }
   };
+  const fetchCalendarVisits = async () => {
+  try {
+    const data = await getCalendarVisits();
+
+    setCalendarAppointments(data);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   const fetchPets = async () => {
     try {
@@ -143,6 +159,11 @@ function AppointmentsPage() {
     fetchPets();
     fetchVets();
   }, []);
+  useEffect(() => {
+  if (viewMode === "calendar") {
+    fetchCalendarVisits();
+  }
+}, [viewMode]);
 
   const handleAdd = () => {
     setSelectedAppointment(null);
@@ -228,6 +249,64 @@ function AppointmentsPage() {
       console.error(err);
     }
   };
+  const handleCreateFollowUp = async (
+  appointment: Visit
+) => {
+  try {
+    await createFollowUpVisit(appointment.id);
+
+    alert("Follow-up visit created successfully.");
+
+    fetchVisits();
+
+  } catch (err: any) {
+    console.error(err);
+
+    if (err.response?.status === 409) {
+      alert(
+        "A follow-up visit has already been created for this appointment."
+      );
+    } else {
+      alert(
+        "Failed to create follow-up visit."
+      );
+    }
+  }
+};
+const handleCalendarUpdate = async (
+  appointment: Visit,
+  newDate: string
+) => {
+  try {
+    await updateVisit(
+      appointment.id,
+      {
+        petId: appointment.petId,
+        vetId: appointment.vetId,
+        scheduledAt: newDate,
+        chiefComplaint: appointment.chiefComplaint,
+      }
+    );
+
+    alert("Appointment rescheduled successfully.");
+
+    await fetchVisits();
+await fetchCalendarVisits();
+
+  } catch (err: any) {
+    console.error(err);
+
+    if (err.response?.status === 409) {
+      alert(
+        "Cannot reschedule. Another appointment exists for this veterinarian."
+      );
+    } else {
+      alert(
+        "Failed to reschedule appointment."
+      );
+    }
+  }
+};
 
   const handleExportAppointments = () => {
     const headers = [
@@ -310,20 +389,33 @@ function AppointmentsPage() {
         <AppointmentStats appointments={appointments} />
 
         <AppointmentToolbar
-          onSearch={setSearchTerm}
-          onSort={setSortOption}
-          onAdd={handleAdd}
-          onExport={handleExportAppointments}
-        />
+  onSearch={setSearchTerm}
+  onSort={setSortOption}
+  onAdd={handleAdd}
+  onExport={handleExportAppointments}
+  viewMode={viewMode}
+  onViewModeChange={setViewMode}
+/>
 
-        <AppointmentTable
-  appointments={filteredAppointments}
+        
+{viewMode === "table" ? (
+  <AppointmentTable
+    appointments={filteredAppointments}
+    pets={pets}
+    veterinarians={veterinarians}
+    onEdit={handleEdit}
+    onUpdateStatus={handleUpdateStatus}
+    onMedicalNotes={handleMedicalNotes}
+    onCreateFollowUp={handleCreateFollowUp}
+  />
+) : (
+  <AppointmentCalendar
+  appointments={calendarAppointments}
   pets={pets}
   veterinarians={veterinarians}
-  onEdit={handleEdit}
-  onUpdateStatus={handleUpdateStatus}
-  onMedicalNotes={handleMedicalNotes}
+  onUpdate={handleCalendarUpdate}
 />
+)}
 
         {totalPages > 1 && (
           <div className="flex items-center justify-end gap-2">
