@@ -9,6 +9,7 @@ import com.efe.veterinaryclinic.owner.dto.OwnerResponse;
 import com.efe.veterinaryclinic.pet.PetRepository;
 import com.efe.veterinaryclinic.pet.PetService;
 import com.efe.veterinaryclinic.pet.dto.PetResponse;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,10 @@ public class OwnerService {
         }
 
         return PageResponse.from(ownerRepository.findAll(spec, pageable).map(this::toResponse));
+    }
+
+    public List<Owner> searchTop(String search, int limit) {
+        return ownerRepository.findAll(OwnerSpecifications.nameContains(search), PageRequest.of(0, limit)).getContent();
     }
 
     public OwnerDetailResponse getById(Long id) {

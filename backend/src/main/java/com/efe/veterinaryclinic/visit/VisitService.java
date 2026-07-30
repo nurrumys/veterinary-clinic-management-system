@@ -12,6 +12,7 @@ import com.efe.veterinaryclinic.visit.dto.MedicalNotesUpdateRequest;
 import com.efe.veterinaryclinic.visit.dto.VisitRequest;
 import com.efe.veterinaryclinic.visit.dto.VisitResponse;
 import com.efe.veterinaryclinic.visit.dto.VisitStatusUpdateRequest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -64,6 +65,11 @@ public class VisitService {
         findPetOrThrow(petId);
 
         return PageResponse.from(visitRepository.findByPet_Id(petId, pageable).map(VisitResponse::from));
+    }
+
+    public List<Visit> searchTop(String search, int limit) {
+        return visitRepository.findAll(VisitSpecifications.matchesSearch(search),
+                PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "scheduledAt"))).getContent();
     }
 
     public List<VisitResponse> calendar(Long vetId, LocalDate from, LocalDate to, VisitStatus status) {

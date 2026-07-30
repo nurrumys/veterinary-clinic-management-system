@@ -10,11 +10,13 @@ import com.efe.veterinaryclinic.pet.dto.PetResponse;
 import com.efe.veterinaryclinic.visit.Visit;
 import com.efe.veterinaryclinic.visit.VisitRepository;
 import com.efe.veterinaryclinic.visit.VisitStatus;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -61,6 +63,10 @@ public class PetService {
         }
 
         return PageResponse.from(petRepository.findAll(spec, pageable).map(pet -> PetResponse.from(pet, isInactive(pet))));
+    }
+
+    public List<Pet> searchTop(String search, int limit) {
+        return petRepository.findAll(PetSpecifications.nameContains(search), PageRequest.of(0, limit)).getContent();
     }
 
     public PetResponse getById(Long id) {

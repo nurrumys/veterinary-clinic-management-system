@@ -511,6 +511,31 @@ No request body. `{id}` must reference a `COMPLETED` visit with a non-null `foll
 
 > Non-admin `GET /api/support-requests/{id}` for a request that belongs to a different user returns `403 Forbidden` (`ApiErrorResponse`), not `404` — the resource exists, the caller is just not authorized to view it.
 
+### 5.10 Search
+
+> Post-launch addition, not part of the original PDF-derived spec — a single search box for the dashboard that looks across owners, pets, and visits at once. See `decisions.md`.
+
+| Method | Path | Roles | Description |
+|---|---|---|---|
+| GET | `/api/search?q=` | ADMIN, VET, RECEPTIONIST | Search owners, pets, and visits by a single query string; returns up to 5 matches per type |
+
+**GET /api/search?q=luna — response**
+```json
+{
+  "owners": [
+    { "id": 3, "firstName": "Ayşe", "lastName": "Lunar", "phone": "+90 555 111 2233", "email": "ayse@example.com" }
+  ],
+  "pets": [
+    { "id": 12, "name": "Luna", "species": "CAT", "ownerId": 7, "ownerName": "Mehmet Demir" }
+  ],
+  "visits": [
+    { "id": 88, "scheduledAt": "2026-07-10T09:00:00", "status": "SCHEDULED", "petId": 12, "petName": "Luna" }
+  ]
+}
+```
+
+Not a `PageResponse` — this is a bounded, multi-entity typeahead result (fixed cap of 5 per category, not paginated), the same kind of intentional exception as the calendar/weight-record endpoints (§5.3/§5.5, decision 31). `q` is matched case-insensitively: owners by `firstName`/`lastName`, pets by `name`, visits by their pet's `name` or the visit's own `chiefComplaint`. A missing or blank `q` returns `200 OK` with all three lists empty, never `400`.
+
 ## 6. Listing Query Parameters (convention)
 
 - `page` (default 0), `size` (default 20), `sort` (e.g. `sort=name,asc`)
