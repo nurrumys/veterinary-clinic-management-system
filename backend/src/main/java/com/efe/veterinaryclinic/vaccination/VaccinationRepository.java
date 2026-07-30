@@ -14,4 +14,6 @@ public interface VaccinationRepository extends JpaRepository<Vaccination, Long> 
     long countByNextDueDateLessThanEqual(LocalDate date);
 
     List<Vaccination> findByNextDueDateLessThanEqualOrderByNextDueDateAsc(LocalDate date);
+
+    List<Vaccination> findByNextDueDate(LocalDate date);
 }

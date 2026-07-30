@@ -3,6 +3,7 @@ package com.efe.veterinaryclinic.pet;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PetRepository extends JpaRepository<Pet, Long>, JpaSpecificationExecutor<Pet> {
@@ -12,4 +13,6 @@ public interface PetRepository extends JpaRepository<Pet, Long>, JpaSpecificatio
     long countByArchivedFalse();
 
     List<Pet> findByOwnerId(Long ownerId);
+
+    List<Pet> findByCreatedAtGreaterThanEqual(LocalDateTime since);
 }

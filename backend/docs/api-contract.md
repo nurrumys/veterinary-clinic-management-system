@@ -536,6 +536,32 @@ No request body. `{id}` must reference a `COMPLETED` visit with a non-null `foll
 
 Not a `PageResponse` — this is a bounded, multi-entity typeahead result (fixed cap of 5 per category, not paginated), the same kind of intentional exception as the calendar/weight-record endpoints (§5.3/§5.5, decision 31). `q` is matched case-insensitively: owners by `firstName`/`lastName`, pets by `name`, visits by their pet's `name` or the visit's own `chiefComplaint`. A missing or blank `q` returns `200 OK` with all three lists empty, never `400`.
 
+### 5.11 Notifications
+
+> Post-launch addition, not part of the original PDF-derived spec — feeds the dashboard's notification bell. See `decisions.md`.
+
+| Method | Path | Roles | Description |
+|---|---|---|---|
+| GET | `/api/notifications` | ADMIN, VET, RECEPTIONIST | Appointments starting within 2 hours, vaccinations due today, and owners/pets/visits created within the last 24 hours |
+
+**GET /api/notifications — response**
+```json
+{
+  "upcomingAppointments": [
+    { "visitId": 300, "petName": "Boncuk", "vetName": "Dr. Ahmet Kaya", "scheduledAt": "2026-07-30T15:30:00" }
+  ],
+  "vaccinationsDueToday": [
+    { "petId": 45, "petName": "Luna", "vaccineType": "Rabies" }
+  ],
+  "newRecords": [
+    { "recordType": "PET", "id": 52, "label": "Tekir", "createdAt": "2026-07-30T09:12:00" },
+    { "recordType": "OWNER", "id": 18, "label": "Mehmet Demir", "createdAt": "2026-07-30T08:50:00" }
+  ]
+}
+```
+
+Not a `PageResponse` — same kind of bounded, non-paginated aggregate as the dashboard summary (§5.8) and search (§5.10). `upcomingAppointments` only includes `SCHEDULED` visits starting in the next 2 hours (already-started or cancelled visits are excluded). `vaccinationsDueToday` matches `nextDueDate` exactly equal to today (narrower than the dashboard's 30-day `upcomingVaccinationAlerts` window). `newRecords` merges newly created owners, pets, and visits from the last 24 hours into one list sorted by `createdAt` descending, each tagged with `recordType` (`OWNER`, `PET`, `VISIT`).
+
 ## 6. Listing Query Parameters (convention)
 
 - `page` (default 0), `size` (default 20), `sort` (e.g. `sort=name,asc`)

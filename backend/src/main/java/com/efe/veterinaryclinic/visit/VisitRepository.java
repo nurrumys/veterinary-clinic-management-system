@@ -39,4 +39,9 @@ public interface VisitRepository extends JpaRepository<Visit, Long>, JpaSpecific
             Long vetId, VisitStatus excludedStatus, LocalDateTime from);
 
     Optional<Visit> findTopByPet_IdAndStatusNotOrderByScheduledAtDesc(Long petId, VisitStatus excludedStatus);
+
+    List<Visit> findByStatusAndScheduledAtBetweenOrderByScheduledAtAsc(
+            VisitStatus status, LocalDateTime windowStart, LocalDateTime windowEnd);
+
+    List<Visit> findByCreatedAtGreaterThanEqual(LocalDateTime since);
 }
