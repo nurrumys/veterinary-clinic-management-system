@@ -5,11 +5,13 @@ import type { SupportRequest } from "../../types/support";
 type SupportTableProps = {
   supports: SupportRequest[];
   onView: (support: SupportRequest) => void;
+  onUpdateStatus: (support: SupportRequest) => void;
 };
 
 function SupportTable({
   supports,
   onView,
+  onUpdateStatus,
 }: SupportTableProps) {
   if (supports.length === 0) {
     return (
@@ -81,6 +83,7 @@ function SupportTable({
               key={support.id}
               support={support}
               onView={onView}
+              onUpdateStatus={onUpdateStatus}
             />
           ))}
         </tbody>

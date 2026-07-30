@@ -1,4 +1,4 @@
-import { Eye } from "lucide-react";
+import { Eye, SquarePen } from "lucide-react";
 
 import StatusBadge from "./StatusBadge";
 
@@ -7,11 +7,13 @@ import type { SupportRequest } from "../../types/support";
 type SupportRowProps = {
   support: SupportRequest;
   onView: (support: SupportRequest) => void;
+  onUpdateStatus: (support: SupportRequest) => void;
 };
 
 function SupportRow({
   support,
   onView,
+  onUpdateStatus,
 }: SupportRowProps) {
   return (
     <tr className="border-b border-slate-100 transition-colors hover:bg-slate-50">
@@ -34,25 +36,47 @@ function SupportRow({
       </td>
 
       <td className="px-6 py-4">
-        <button
-          type="button"
-          aria-label="View support request"
-          onClick={() => onView(support)}
-          className="
-            inline-flex
-            h-9
-            w-9
-            items-center
-            justify-center
-            rounded-lg
-            border
-            border-slate-200
-            transition-colors
-            hover:bg-slate-100
-          "
-        >
-          <Eye size={18} />
-        </button>
+        <div className="flex justify-end gap-2">
+          <button
+            type="button"
+            aria-label="View support request"
+            onClick={() => onView(support)}
+            className="
+              inline-flex
+              h-9
+              w-9
+              items-center
+              justify-center
+              rounded-lg
+              border
+              border-slate-200
+              transition-colors
+              hover:bg-slate-100
+            "
+          >
+            <Eye size={18} />
+          </button>
+
+          <button
+            type="button"
+            aria-label="Update support status"
+            onClick={() => onUpdateStatus(support)}
+            className="
+              inline-flex
+              h-9
+              w-9
+              items-center
+              justify-center
+              rounded-lg
+              border
+              border-slate-200
+              transition-colors
+              hover:bg-slate-100
+            "
+          >
+            <SquarePen size={18} />
+          </button>
+        </div>
       </td>
     </tr>
   );

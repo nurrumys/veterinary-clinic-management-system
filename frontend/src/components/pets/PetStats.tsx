@@ -7,7 +7,6 @@ import {
 
 import StatsCard from "../dashboard/StatsCard";
 
-
 function PetStats() {
   return (
     <div
@@ -19,7 +18,6 @@ function PetStats() {
         xl:grid-cols-4
       "
     >
-
       <StatsCard
         title="Total Pets"
         value={421}
@@ -28,7 +26,6 @@ function PetStats() {
         iconColor="text-blue-600"
         iconBackground="bg-blue-100"
       />
-
 
       <StatsCard
         title="Dogs"
@@ -39,7 +36,6 @@ function PetStats() {
         iconBackground="bg-amber-100"
       />
 
-
       <StatsCard
         title="Cats"
         value={151}
@@ -49,7 +45,6 @@ function PetStats() {
         iconBackground="bg-violet-100"
       />
 
-
       <StatsCard
         title="New This Month"
         value={18}
@@ -58,11 +53,8 @@ function PetStats() {
         iconColor="text-emerald-600"
         iconBackground="bg-emerald-100"
       />
-
-
     </div>
   );
 }
-
 
 export default PetStats;

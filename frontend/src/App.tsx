@@ -7,9 +7,10 @@ import PetsPage from "./pages/pets/PetsPage";
 import VeterinariansPage from "./pages/veterinarians/VeterinariansPage";
 import AppointmentsPage from "./pages/appointments/AppointmentsPage";
 import VaccinationsPage from "./pages/vaccinations/VaccinationsPage";
+import InvoicesPage from "./pages/invoices/InvoicesPage";
+import SupportPage from "./pages/support/SupportPage";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
-import InvoicesPage from "./pages/invoices/InvoicesPage";
 
 function App() {
   return (
@@ -77,14 +78,24 @@ function App() {
           </ProtectedRoute>
         }
       />
+
       <Route
-  path="/invoices"
-  element={
-    <ProtectedRoute>
-      <InvoicesPage />
-    </ProtectedRoute>
-  }
-/>
+        path="/invoices"
+        element={
+          <ProtectedRoute>
+            <InvoicesPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/support"
+        element={
+          <ProtectedRoute>
+            <SupportPage />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

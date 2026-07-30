@@ -7,19 +7,24 @@ import SupportToolbar from "../../components/support/SupportToolbar";
 import SupportTable from "../../components/support/SupportTable";
 import SupportForm from "../../components/support/SupportForm";
 import SupportDetailDialog from "../../components/support/SupportDetailDialog";
+import UpdateSupportStatusDialog from "../../components/support/UpdateSupportStatusDialog";
 
 import Modal from "../../components/ui/Modal";
 
-import {
-  getSupportRequests,
-  createSupportRequest,
-} from "../../services/supportService";
+
 
 import type {
   SupportRequest,
   CreateSupportRequest,
   SupportRequestStatus,
 } from "../../types/support";
+import {
+  getSupportRequests,
+  getSupportRequestById,
+  createSupportRequest,
+  updateSupportRequestStatus,
+} from "../../services/supportService";
+
 function SupportPage() {
     const [requests, setRequests] =
   useState<SupportRequest[]>([]);
@@ -34,6 +39,8 @@ const [isModalOpen, setIsModalOpen] =
   useState(false);
 
 const [selectedRequest, setSelectedRequest] =
+  useState<SupportRequest | null>(null);
+  const [statusRequest, setStatusRequest] =
   useState<SupportRequest | null>(null);
 
 const [statusFilter, setStatusFilter] =
@@ -104,12 +111,29 @@ const handleAdd = () => {
   setIsModalOpen(true);
 
 };
-const handleView = (
+const handleView = async (
   request: SupportRequest
 ) => {
+  try {
+    const detail =
+      await getSupportRequestById(request.id);
 
-  setSelectedRequest(request);
+    setSelectedRequest(detail);
+  } catch (error) {
+    console.error(
+      "Failed to load support request details:",
+      error
+    );
 
+    setError(
+      "Failed to load support request details."
+    );
+  }
+};
+const handleUpdateStatus = (
+  request: SupportRequest
+) => {
+  setStatusRequest(request);
 };
 const handleSubmit = async (
   values: CreateSupportRequest
@@ -129,6 +153,29 @@ const handleSubmit = async (
     );
 
     setError("Failed to create support request.");
+  }
+};
+const confirmStatusUpdate = async (values: {
+  status: SupportRequestStatus;
+  adminResponse: string;
+}) => {
+  if (!statusRequest) return;
+
+  try {
+    await updateSupportRequestStatus(
+      statusRequest.id,
+      values
+    );
+
+    setStatusRequest(null);
+
+    fetchSupportRequests();
+  } catch (error) {
+    console.error(error);
+
+    setError(
+      "Failed to update support request."
+    );
   }
 };
 
@@ -212,6 +259,7 @@ return (
           <SupportTable
   supports={requests}
   onView={handleView}
+  onUpdateStatus={handleUpdateStatus}
 />
                     {totalPages > 1 && (
 
@@ -282,6 +330,20 @@ return (
   support={selectedRequest}
   onClose={() =>
     setSelectedRequest(null)
+  }
+/>
+<UpdateSupportStatusDialog
+  open={statusRequest !== null}
+  initialStatus={
+    statusRequest?.status ?? "OPEN"
+  }
+  initialAdminResponse={
+    statusRequest?.adminResponse
+  }
+  isLoading={loading}
+  onSubmit={confirmStatusUpdate}
+  onCancel={() =>
+    setStatusRequest(null)
   }
 />
     </div>

@@ -539,7 +539,9 @@ useEffect(() => {
         <div className="space-y-8">
 
 
-          <PetStats />
+          <PetStats
+  
+/>
 
 
 

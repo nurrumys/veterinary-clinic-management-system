@@ -8,7 +8,7 @@ import {
   Receipt,
   LifeBuoy,
 } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const menuItems = [
   {
@@ -49,6 +49,8 @@ const menuItems = [
 ];
 
 function Sidebar() {
+  const navigate = useNavigate();
+
   return (
     <aside
       className="
@@ -192,6 +194,7 @@ function Sidebar() {
           </p>
 
           <button
+            onClick={() => navigate("/support")}
             className="
               mt-3
               w-full
