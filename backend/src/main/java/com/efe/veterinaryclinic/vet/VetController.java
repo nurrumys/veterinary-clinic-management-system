@@ -4,6 +4,7 @@ import com.efe.veterinaryclinic.common.dto.PageResponse;
 import com.efe.veterinaryclinic.vet.dto.VetPerformanceResponse;
 import com.efe.veterinaryclinic.vet.dto.VetRequest;
 import com.efe.veterinaryclinic.vet.dto.VetResponse;
+import com.efe.veterinaryclinic.vet.dto.VetStatsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -45,6 +46,12 @@ public class VetController {
     @Operation(summary = "Get vet detail", description = "ADMIN, VET, RECEPTIONIST.")
     public ResponseEntity<VetResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(vetService.getById(id));
+    }
+
+    @GetMapping("/stats")
+    @Operation(summary = "Get vet statistics", description = "ADMIN, VET, RECEPTIONIST. Totals for dashboard stat cards, computed over the full dataset (not just the current page).")
+    public ResponseEntity<VetStatsResponse> getStats() {
+        return ResponseEntity.ok(vetService.getStats());
     }
 
     @PutMapping("/{id}")

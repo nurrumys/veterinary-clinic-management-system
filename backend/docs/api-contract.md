@@ -131,6 +131,7 @@ Note: soft-deletable resources (e.g. `Pet`) have no "real delete" endpoint at al
 | GET | `/api/owners/{id}` | ADMIN, VET, RECEPTIONIST | Owner detail (pets, invoices) |
 | PUT | `/api/owners/{id}` | ADMIN, RECEPTIONIST | Update owner |
 | DELETE | `/api/owners/{id}` | ADMIN | Delete owner (only if owner has no pets) |
+| GET | `/api/owners/stats` | ADMIN, VET, RECEPTIONIST | Owner stat-card totals over the full dataset |
 
 **POST /api/owners — request**
 ```json
@@ -174,6 +175,17 @@ Note: soft-deletable resources (e.g. `Pet`) have no "real delete" endpoint at al
 
 > If the owner has no pets, deletion succeeds with `204 No Content`. Pets are never cascade-deleted or auto-archived as a side effect.
 
+**GET /api/owners/stats — response**
+```json
+{
+  "totalOwners": 137,
+  "totalPets": 214,
+  "newOwnersThisMonth": 12
+}
+```
+
+> Not a `PageResponse` — a small, fixed-shape aggregate for the Owners page stat cards (see `decisions.md` entry 41). `totalPets` counts all pets registered to owners, regardless of archived status.
+
 ### 5.3 Pets
 
 | Method | Path | Roles | Description |
@@ -188,6 +200,7 @@ Note: soft-deletable resources (e.g. `Pet`) have no "real delete" endpoint at al
 | GET | `/api/pets/{id}/vaccinations` | ADMIN, VET, RECEPTIONIST | Pet's vaccination history |
 | GET | `/api/pets/{id}/weight-records` | ADMIN, VET, RECEPTIONIST | Pet's weight history |
 | POST | `/api/pets/{id}/weight-records` | ADMIN, VET, RECEPTIONIST | Add a weight record (weighing can happen at check-in) |
+| GET | `/api/pets/stats` | ADMIN, VET, RECEPTIONIST | Pet stat-card totals over the full dataset |
 
 > `GET /api/pets/{id}/weight-records` intentionally returns a plain array, not `PageResponse` — a single pet's weight history is a small, bounded list, so pagination metadata would add no value. Sort is fixed ascending by `recordedAt`.
 
@@ -230,6 +243,18 @@ Note: soft-deletable resources (e.g. `Pet`) have no "real delete" endpoint at al
 
 > Note: if `species` is not `CAT` or `DOG`, `breed` is not required and `speciesNote` should be provided instead (see `docs/business-rules.md`).
 
+**GET /api/pets/stats — response**
+```json
+{
+  "totalPets": 421,
+  "dogs": 248,
+  "cats": 151,
+  "newThisMonth": 18
+}
+```
+
+> Not a `PageResponse` — a small, fixed-shape aggregate for the Pets page stat cards (see `decisions.md` entries 41-42). `totalPets`/`dogs`/`cats` count only non-archived pets, consistent with the dashboard's `activePatients` KPI.
+
 > `inactive` is a derived, read-only field (see `docs/business-rules.md` §6): `true` when the pet's most recent non-`CANCELLED` visit (or `createdAt` if it has none) is more than 2 years ago. It is present on every `PetResponse` (create/update/get/list/archive/activate) and is independent of `archived`, which is the explicit soft-delete flag.
 
 ### 5.4 Vets
@@ -242,6 +267,19 @@ Note: soft-deletable resources (e.g. `Pet`) have no "real delete" endpoint at al
 | PUT | `/api/vets/{id}` | ADMIN | Update vet |
 | GET | `/api/vets/{id}/schedule` | ADMIN, VET, RECEPTIONIST | Vet's schedule |
 | GET | `/api/vets/{id}/performance` | ADMIN | Vet performance metrics |
+| GET | `/api/vets/stats` | ADMIN, VET, RECEPTIONIST | Vet stat-card totals over the full dataset |
+
+**GET /api/vets/stats — response**
+```json
+{
+  "totalVets": 18,
+  "availableDoctors": 15,
+  "specialties": 6,
+  "newThisMonth": 2
+}
+```
+
+> Not a `PageResponse` — a small, fixed-shape aggregate for the Veterinarians page stat cards (see `decisions.md` entry 41). `availableDoctors` counts vets with `active = true`; `specialties` is a distinct count of `Vet.specialty` values.
 
 ### 5.5 Visits
 
@@ -337,6 +375,7 @@ No request body. `{id}` must reference a `COMPLETED` visit with a non-null `foll
 | GET | `/api/vaccinations/{id}` | ADMIN, VET, RECEPTIONIST | Vaccination detail |
 | PUT | `/api/vaccinations/{id}` | ADMIN, VET | Update vaccination |
 | DELETE | `/api/vaccinations/{id}` | ADMIN | Delete vaccination |
+| GET | `/api/vaccinations/stats` | ADMIN, VET, RECEPTIONIST | Vaccination stat-card totals over the full dataset |
 
 **POST /api/vaccinations — request**
 ```json
@@ -368,6 +407,18 @@ No request body. `{id}` must reference a `COMPLETED` visit with a non-null `foll
 
 > `RECEPTIONIST` cannot create/update/delete vaccinations — read-only access only (see `docs/business-rules.md`).
 
+**GET /api/vaccinations/stats — response**
+```json
+{
+  "totalVaccinations": 342,
+  "administeredToday": 3,
+  "upcomingDue": 87,
+  "vaccinatedPets": 198
+}
+```
+
+> Not a `PageResponse` — a small, fixed-shape aggregate for the Vaccinations page stat cards (see `decisions.md` entries 41-42). `upcomingDue` counts records with `nextDueDate` strictly after today (future-only — narrower than the dashboard's `pendingVaccinations` KPI, which also includes overdue records). `vaccinatedPets` is a distinct count of pets with at least one vaccination record.
+
 ### 5.7 Invoices
 
 | Method | Path | Roles | Description |
@@ -378,6 +429,7 @@ No request body. `{id}` must reference a `COMPLETED` visit with a non-null `foll
 | PATCH | `/api/invoices/{id}/send` | ADMIN, RECEPTIONIST | Mark invoice as sent |
 | PATCH | `/api/invoices/{id}/mark-paid` | ADMIN, RECEPTIONIST | Mark invoice as paid |
 | PATCH | `/api/invoices/bulk-mark-paid` | ADMIN, RECEPTIONIST | Bulk mark invoices as paid |
+| GET | `/api/invoices/stats` | ADMIN, VET, RECEPTIONIST | Invoice stat-card totals over the full dataset |
 
 **POST /api/invoices — request**
 ```json
@@ -418,6 +470,18 @@ No request body. `{id}` must reference a `COMPLETED` visit with a non-null `foll
   "invoiceIds": [501, 502, 503]
 }
 ```
+
+**GET /api/invoices/stats — response**
+```json
+{
+  "totalInvoices": 96,
+  "draft": 4,
+  "sent": 12,
+  "paid": 80
+}
+```
+
+> Not a `PageResponse` — a small, fixed-shape aggregate for the Invoices page stat cards (see `decisions.md` entry 41), replacing a frontend computation that previously only counted the currently loaded page of invoices.
 
 ### 5.8 Dashboard
 

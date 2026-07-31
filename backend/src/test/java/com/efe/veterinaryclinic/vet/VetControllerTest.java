@@ -227,6 +227,47 @@ class VetControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void vetStatsReflectTotalsAvailableDoctorsAndDistinctSpecialtiesAfterCreatingVets() throws Exception {
+        String adminToken = loginAndGetToken(SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD);
+        long totalBefore = fetchVetStatsField(adminToken, "totalVets");
+        long availableBefore = fetchVetStatsField(adminToken, "availableDoctors");
+        long specialtiesBefore = fetchVetStatsField(adminToken, "specialties");
+        long newThisMonthBefore = fetchVetStatsField(adminToken, "newThisMonth");
+
+        String uniqueSpecialty = "Exotic Animal Medicine " + System.nanoTime();
+        String createBodyA = objectMapper.writeValueAsString(
+                new VetPayload("Dr. Stats A", uniqueSpecialty, "VET-LIC-STATS-A", "Mon-Fri 09:00-17:00"));
+        String createBodyB = objectMapper.writeValueAsString(
+                new VetPayload("Dr. Stats B", uniqueSpecialty, "VET-LIC-STATS-B", "Mon-Fri 09:00-17:00"));
+
+        mockMvc.perform(post("/api/vets")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBodyA))
+                .andExpect(status().isCreated());
+        mockMvc.perform(post("/api/vets")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBodyB))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/vets/stats").header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalVets").value(totalBefore + 2))
+                .andExpect(jsonPath("$.availableDoctors").value(availableBefore + 2))
+                .andExpect(jsonPath("$.specialties").value(specialtiesBefore + 1))
+                .andExpect(jsonPath("$.newThisMonth").value(newThisMonthBefore + 2));
+    }
+
+    private long fetchVetStatsField(String token, String field) throws Exception {
+        String response = mockMvc.perform(get("/api/vets/stats").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        return objectMapper.readTree(response).get(field).asLong();
+    }
+
     private void updateVisitStatus(String token, long visitId, String status) throws Exception {
         mockMvc.perform(patch("/api/visits/" + visitId + "/status")
                         .header("Authorization", "Bearer " + token)

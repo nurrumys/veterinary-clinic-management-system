@@ -9,6 +9,7 @@ import com.efe.veterinaryclinic.invoice.InvoiceStatus;
 import com.efe.veterinaryclinic.vet.dto.VetPerformanceResponse;
 import com.efe.veterinaryclinic.vet.dto.VetRequest;
 import com.efe.veterinaryclinic.vet.dto.VetResponse;
+import com.efe.veterinaryclinic.vet.dto.VetStatsResponse;
 import com.efe.veterinaryclinic.visit.VisitRepository;
 import com.efe.veterinaryclinic.visit.VisitStatus;
 import org.springframework.data.domain.Pageable;
@@ -63,6 +64,17 @@ public class VetService {
         vet.update(request.name(), request.specialty(), request.licenseNo(), request.workHours());
 
         return VetResponse.from(vetRepository.save(vet));
+    }
+
+    public VetStatsResponse getStats() {
+        LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
+
+        long totalVets = vetRepository.count();
+        long availableDoctors = vetRepository.countByActiveTrue();
+        long specialties = vetRepository.countDistinctSpecialty();
+        long newThisMonth = vetRepository.countByCreatedAtGreaterThanEqual(startOfMonth.atStartOfDay());
+
+        return new VetStatsResponse(totalVets, availableDoctors, specialties, newThisMonth);
     }
 
     public VetPerformanceResponse getPerformance(Long id) {

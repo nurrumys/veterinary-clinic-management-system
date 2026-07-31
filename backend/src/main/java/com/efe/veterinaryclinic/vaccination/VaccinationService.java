@@ -6,6 +6,7 @@ import com.efe.veterinaryclinic.pet.Pet;
 import com.efe.veterinaryclinic.pet.PetRepository;
 import com.efe.veterinaryclinic.vaccination.dto.VaccinationRequest;
 import com.efe.veterinaryclinic.vaccination.dto.VaccinationResponse;
+import com.efe.veterinaryclinic.vaccination.dto.VaccinationStatsResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -70,6 +71,18 @@ public class VaccinationService {
 
     public void delete(Long id) {
         vaccinationRepository.delete(findVaccinationOrThrow(id));
+    }
+
+    public VaccinationStatsResponse getStats() {
+        LocalDate today = LocalDate.now();
+
+        long totalVaccinations = vaccinationRepository.count();
+        long administeredToday = vaccinationRepository.countByAdministeredAtBetween(
+                today.atStartOfDay(), today.plusDays(1).atStartOfDay());
+        long upcomingDue = vaccinationRepository.countByNextDueDateAfter(today);
+        long vaccinatedPets = vaccinationRepository.countDistinctPet();
+
+        return new VaccinationStatsResponse(totalVaccinations, administeredToday, upcomingDue, vaccinatedPets);
     }
 
     private LocalDate calculateNextDueDate(String vaccineType, LocalDateTime administeredAt) {

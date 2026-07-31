@@ -9,6 +9,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -290,6 +293,35 @@ class VaccinationControllerTest {
         mockMvc.perform(get("/api/pets/999999/vaccinations")
                         .header("Authorization", "Bearer " + receptionistToken))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void vaccinationStatsReflectTotalsAdministeredTodayUpcomingDueAndUniquePetsAfterCreatingOne() throws Exception {
+        String vetToken = loginAndGetToken(SEED_VET1_EMAIL, SEED_VET1_PASSWORD);
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long totalBefore = fetchVaccinationStatsField(receptionistToken, "totalVaccinations");
+        long administeredTodayBefore = fetchVaccinationStatsField(receptionistToken, "administeredToday");
+        long upcomingDueBefore = fetchVaccinationStatsField(receptionistToken, "upcomingDue");
+        long vaccinatedPetsBefore = fetchVaccinationStatsField(receptionistToken, "vaccinatedPets");
+
+        long petId = createPet(receptionistToken, "vaccination-stats@example.com", "Stats Kivi");
+        String administeredAt = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        createVaccination(vetToken, petId, "ONE_YEAR", administeredAt, "LOT-STATS-001", "Dr. Ahmet Kaya");
+
+        mockMvc.perform(get("/api/vaccinations/stats").header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalVaccinations").value(totalBefore + 1))
+                .andExpect(jsonPath("$.administeredToday").value(administeredTodayBefore + 1))
+                .andExpect(jsonPath("$.upcomingDue").value(upcomingDueBefore + 1))
+                .andExpect(jsonPath("$.vaccinatedPets").value(vaccinatedPetsBefore + 1));
+    }
+
+    private long fetchVaccinationStatsField(String token, String field) throws Exception {
+        String response = mockMvc.perform(get("/api/vaccinations/stats").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        return objectMapper.readTree(response).get(field).asLong();
     }
 
     private long createVaccination(String token, long petId, String vaccineType, String administeredAt,

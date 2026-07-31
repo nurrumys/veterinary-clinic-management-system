@@ -12,6 +12,10 @@ public interface PetRepository extends JpaRepository<Pet, Long>, JpaSpecificatio
 
     long countByArchivedFalse();
 
+    long countByArchivedFalseAndSpeciesIgnoreCase(String species);
+
+    long countByCreatedAtGreaterThanEqual(LocalDateTime since);
+
     List<Pet> findByOwnerId(Long ownerId);
 
     List<Pet> findByCreatedAtGreaterThanEqual(LocalDateTime since);

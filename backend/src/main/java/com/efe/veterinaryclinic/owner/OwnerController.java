@@ -4,6 +4,7 @@ import com.efe.veterinaryclinic.common.dto.PageResponse;
 import com.efe.veterinaryclinic.owner.dto.OwnerDetailResponse;
 import com.efe.veterinaryclinic.owner.dto.OwnerRequest;
 import com.efe.veterinaryclinic.owner.dto.OwnerResponse;
+import com.efe.veterinaryclinic.owner.dto.OwnerStatsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -48,6 +49,12 @@ public class OwnerController {
     @Operation(summary = "Get owner detail", description = "ADMIN, VET, RECEPTIONIST. Includes the owner's pets and pet count.")
     public ResponseEntity<OwnerDetailResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(ownerService.getById(id));
+    }
+
+    @GetMapping("/stats")
+    @Operation(summary = "Get owner statistics", description = "ADMIN, VET, RECEPTIONIST. Totals for dashboard stat cards, computed over the full dataset (not just the current page).")
+    public ResponseEntity<OwnerStatsResponse> getStats() {
+        return ResponseEntity.ok(ownerService.getStats());
     }
 
     @PutMapping("/{id}")

@@ -6,6 +6,7 @@ import com.efe.veterinaryclinic.invoice.dto.BulkMarkPaidRequest;
 import com.efe.veterinaryclinic.invoice.dto.InvoiceItemRequest;
 import com.efe.veterinaryclinic.invoice.dto.InvoiceRequest;
 import com.efe.veterinaryclinic.invoice.dto.InvoiceResponse;
+import com.efe.veterinaryclinic.invoice.dto.InvoiceStatsResponse;
 import com.efe.veterinaryclinic.visit.Visit;
 import com.efe.veterinaryclinic.visit.VisitRepository;
 import org.springframework.data.domain.Pageable;
@@ -68,6 +69,15 @@ public class InvoiceService {
         }
 
         return PageResponse.from(invoiceRepository.findAll(spec, pageable).map(InvoiceResponse::from));
+    }
+
+    public InvoiceStatsResponse getStats() {
+        long totalInvoices = invoiceRepository.count();
+        long draft = invoiceRepository.countByStatus(InvoiceStatus.DRAFT);
+        long sent = invoiceRepository.countByStatus(InvoiceStatus.SENT);
+        long paid = invoiceRepository.countByStatus(InvoiceStatus.PAID);
+
+        return new InvoiceStatsResponse(totalInvoices, draft, sent, paid);
     }
 
     public InvoiceResponse markSent(Long id) {

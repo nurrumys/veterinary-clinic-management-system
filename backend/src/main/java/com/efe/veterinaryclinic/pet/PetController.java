@@ -3,6 +3,7 @@ package com.efe.veterinaryclinic.pet;
 import com.efe.veterinaryclinic.common.dto.PageResponse;
 import com.efe.veterinaryclinic.pet.dto.PetRequest;
 import com.efe.veterinaryclinic.pet.dto.PetResponse;
+import com.efe.veterinaryclinic.pet.dto.PetStatsResponse;
 import com.efe.veterinaryclinic.pet.dto.PetWeightRecordRequest;
 import com.efe.veterinaryclinic.pet.dto.PetWeightRecordResponse;
 import com.efe.veterinaryclinic.vaccination.VaccinationService;
@@ -67,6 +68,12 @@ public class PetController {
     @Operation(summary = "Get pet detail", description = "ADMIN, VET, RECEPTIONIST.")
     public ResponseEntity<PetResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(petService.getById(id));
+    }
+
+    @GetMapping("/stats")
+    @Operation(summary = "Get pet statistics", description = "ADMIN, VET, RECEPTIONIST. Totals for dashboard stat cards, computed over the full dataset (not just the current page). totalPets/dogs/cats count only non-archived pets.")
+    public ResponseEntity<PetStatsResponse> getStats() {
+        return ResponseEntity.ok(petService.getStats());
     }
 
     @PutMapping("/{id}")

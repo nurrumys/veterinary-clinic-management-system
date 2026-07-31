@@ -218,6 +218,38 @@ class OwnerControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void ownerStatsReflectTotalsAfterCreatingOwnerAndPet() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long totalOwnersBefore = fetchStatsField(receptionistToken, "totalOwners");
+        long totalPetsBefore = fetchStatsField(receptionistToken, "totalPets");
+        long newThisMonthBefore = fetchStatsField(receptionistToken, "newOwnersThisMonth");
+
+        long ownerId = createOwner(receptionistToken, "stats-owner@example.com");
+        String petBody = objectMapper.writeValueAsString(
+                new PetPayload(ownerId, "Boncuk", "DOG", "Golden Retriever", null,
+                        "2022-03-15", "FEMALE", 24.5, null, null));
+        mockMvc.perform(post("/api/pets")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(petBody))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/owners/stats").header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalOwners").value(totalOwnersBefore + 1))
+                .andExpect(jsonPath("$.totalPets").value(totalPetsBefore + 1))
+                .andExpect(jsonPath("$.newOwnersThisMonth").value(newThisMonthBefore + 1));
+    }
+
+    private long fetchStatsField(String token, String field) throws Exception {
+        String response = mockMvc.perform(get("/api/owners/stats").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        return objectMapper.readTree(response).get(field).asLong();
+    }
+
     private long createOwner(String token, String email) throws Exception {
         String ownerBody = objectMapper.writeValueAsString(
                 new OwnerPayload("Mehmet", "Demir", "+90 555 123 4567", email, "Istanbul, Turkey"));

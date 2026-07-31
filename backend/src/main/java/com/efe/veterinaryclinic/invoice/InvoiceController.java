@@ -4,6 +4,7 @@ import com.efe.veterinaryclinic.common.dto.PageResponse;
 import com.efe.veterinaryclinic.invoice.dto.BulkMarkPaidRequest;
 import com.efe.veterinaryclinic.invoice.dto.InvoiceRequest;
 import com.efe.veterinaryclinic.invoice.dto.InvoiceResponse;
+import com.efe.veterinaryclinic.invoice.dto.InvoiceStatsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -54,6 +55,12 @@ public class InvoiceController {
     @Operation(summary = "Get invoice detail", description = "ADMIN, VET, RECEPTIONIST.")
     public ResponseEntity<InvoiceResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(invoiceService.getById(id));
+    }
+
+    @GetMapping("/stats")
+    @Operation(summary = "Get invoice statistics", description = "ADMIN, VET, RECEPTIONIST. Totals for dashboard stat cards, computed over the full dataset (not just the current page).")
+    public ResponseEntity<InvoiceStatsResponse> getStats() {
+        return ResponseEntity.ok(invoiceService.getStats());
     }
 
     @PatchMapping("/{id}/send")

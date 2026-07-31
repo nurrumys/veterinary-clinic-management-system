@@ -9,4 +9,6 @@ import java.util.List;
 public interface OwnerRepository extends JpaRepository<Owner, Long>, JpaSpecificationExecutor<Owner> {
 
     List<Owner> findByCreatedAtGreaterThanEqual(LocalDateTime since);
+
+    long countByCreatedAtGreaterThanEqual(LocalDateTime since);
 }

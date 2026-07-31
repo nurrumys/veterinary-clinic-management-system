@@ -296,6 +296,39 @@ class InvoiceControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void invoiceStatsReflectTotalsAndStatusCountsAfterCreatingAndPayingAnInvoice() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long totalBefore = fetchInvoiceStatsField(receptionistToken, "totalInvoices");
+        long draftBefore = fetchInvoiceStatsField(receptionistToken, "draft");
+        long paidBefore = fetchInvoiceStatsField(receptionistToken, "paid");
+
+        long invoiceId = createInvoice(receptionistToken, "invoice-stats@example.com", "Stats Pati", "VET-LIC-INV-STATS");
+
+        mockMvc.perform(get("/api/invoices/stats").header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalInvoices").value(totalBefore + 1))
+                .andExpect(jsonPath("$.draft").value(draftBefore + 1))
+                .andExpect(jsonPath("$.paid").value(paidBefore));
+
+        mockMvc.perform(patch("/api/invoices/" + invoiceId + "/mark-paid")
+                        .header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/invoices/stats").header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.draft").value(draftBefore))
+                .andExpect(jsonPath("$.paid").value(paidBefore + 1));
+    }
+
+    private long fetchInvoiceStatsField(String token, String field) throws Exception {
+        String response = mockMvc.perform(get("/api/invoices/stats").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        return objectMapper.readTree(response).get(field).asLong();
+    }
+
     private long createInvoice(String token, String ownerEmail, String petName, String licenseNo) throws Exception {
         long visitId = createVisit(token, ownerEmail, petName, licenseNo);
 

@@ -3,6 +3,7 @@ package com.efe.veterinaryclinic.vaccination;
 import com.efe.veterinaryclinic.common.dto.PageResponse;
 import com.efe.veterinaryclinic.vaccination.dto.VaccinationRequest;
 import com.efe.veterinaryclinic.vaccination.dto.VaccinationResponse;
+import com.efe.veterinaryclinic.vaccination.dto.VaccinationStatsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -45,6 +46,12 @@ public class VaccinationController {
     @Operation(summary = "Get vaccination detail", description = "ADMIN, VET, RECEPTIONIST.")
     public ResponseEntity<VaccinationResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(vaccinationService.getById(id));
+    }
+
+    @GetMapping("/stats")
+    @Operation(summary = "Get vaccination statistics", description = "ADMIN, VET, RECEPTIONIST. Totals for dashboard stat cards, computed over the full dataset (not just the current page).")
+    public ResponseEntity<VaccinationStatsResponse> getStats() {
+        return ResponseEntity.ok(vaccinationService.getStats());
     }
 
     @PutMapping("/{id}")

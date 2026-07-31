@@ -7,6 +7,7 @@ import com.efe.veterinaryclinic.owner.Owner;
 import com.efe.veterinaryclinic.owner.OwnerRepository;
 import com.efe.veterinaryclinic.pet.dto.PetRequest;
 import com.efe.veterinaryclinic.pet.dto.PetResponse;
+import com.efe.veterinaryclinic.pet.dto.PetStatsResponse;
 import com.efe.veterinaryclinic.visit.Visit;
 import com.efe.veterinaryclinic.visit.VisitRepository;
 import com.efe.veterinaryclinic.visit.VisitStatus;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -100,6 +102,17 @@ public class PetService {
         Pet saved = petRepository.save(pet);
 
         return PetResponse.from(saved, isInactive(saved));
+    }
+
+    public PetStatsResponse getStats() {
+        LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
+
+        long totalPets = petRepository.countByArchivedFalse();
+        long dogs = petRepository.countByArchivedFalseAndSpeciesIgnoreCase("DOG");
+        long cats = petRepository.countByArchivedFalseAndSpeciesIgnoreCase("CAT");
+        long newThisMonth = petRepository.countByCreatedAtGreaterThanEqual(startOfMonth.atStartOfDay());
+
+        return new PetStatsResponse(totalPets, dogs, cats, newThisMonth);
     }
 
     public boolean isInactive(Pet pet) {

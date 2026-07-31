@@ -6,6 +6,7 @@ import com.efe.veterinaryclinic.common.exception.ResourceNotFoundException;
 import com.efe.veterinaryclinic.owner.dto.OwnerDetailResponse;
 import com.efe.veterinaryclinic.owner.dto.OwnerRequest;
 import com.efe.veterinaryclinic.owner.dto.OwnerResponse;
+import com.efe.veterinaryclinic.owner.dto.OwnerStatsResponse;
 import com.efe.veterinaryclinic.pet.PetRepository;
 import com.efe.veterinaryclinic.pet.PetService;
 import com.efe.veterinaryclinic.pet.dto.PetResponse;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -65,6 +67,16 @@ public class OwnerService {
         owner.update(request.firstName(), request.lastName(), request.phone(), request.email(), request.address());
 
         return toResponse(ownerRepository.save(owner));
+    }
+
+    public OwnerStatsResponse getStats() {
+        LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
+
+        long totalOwners = ownerRepository.count();
+        long totalPets = petRepository.count();
+        long newOwnersThisMonth = ownerRepository.countByCreatedAtGreaterThanEqual(startOfMonth.atStartOfDay());
+
+        return new OwnerStatsResponse(totalOwners, totalPets, newOwnersThisMonth);
     }
 
     public void delete(Long id) {

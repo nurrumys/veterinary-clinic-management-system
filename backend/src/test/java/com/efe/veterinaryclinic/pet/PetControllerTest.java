@@ -310,6 +310,43 @@ class PetControllerTest {
     }
 
     @Test
+    void petStatsCountOnlyNonArchivedPetsBySpecies() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long totalBefore = fetchPetStatsField(receptionistToken, "totalPets");
+        long dogsBefore = fetchPetStatsField(receptionistToken, "dogs");
+        long catsBefore = fetchPetStatsField(receptionistToken, "cats");
+        long newThisMonthBefore = fetchPetStatsField(receptionistToken, "newThisMonth");
+
+        long ownerId = createOwner(receptionistToken, "pet-stats-owner@example.com");
+        long dogId = createPet(receptionistToken, ownerId, "Boncuk", "DOG", "Golden Retriever", null);
+        createPet(receptionistToken, ownerId, "Tekir", "CAT", "Tabby", null);
+
+        mockMvc.perform(get("/api/pets/stats").header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalPets").value(totalBefore + 2))
+                .andExpect(jsonPath("$.dogs").value(dogsBefore + 1))
+                .andExpect(jsonPath("$.cats").value(catsBefore + 1))
+                .andExpect(jsonPath("$.newThisMonth").value(newThisMonthBefore + 2));
+
+        mockMvc.perform(patch("/api/pets/" + dogId + "/archive")
+                        .header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/pets/stats").header("Authorization", "Bearer " + receptionistToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalPets").value(totalBefore + 1))
+                .andExpect(jsonPath("$.dogs").value(dogsBefore));
+    }
+
+    private long fetchPetStatsField(String token, String field) throws Exception {
+        String response = mockMvc.perform(get("/api/pets/stats").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        return objectMapper.readTree(response).get(field).asLong();
+    }
+
+    @Test
     void receptionistAddsWeightRecordThenItAppearsInHistoryOrderedByRecordedAt() throws Exception {
         String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
         long ownerId = createOwner(receptionistToken, "weight-owner@example.com");
