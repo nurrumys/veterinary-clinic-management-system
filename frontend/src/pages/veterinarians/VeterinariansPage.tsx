@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus } from "lucide-react";
+
 
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import PageContainer from "../../components/layout/PageContainer";
@@ -38,6 +38,8 @@ function VeterinariansPage() {
   const [loading, setLoading] = useState(false);
 
   const [sort, setSort] = useState("name,asc");
+
+  const [search, setSearch] = useState("");
 
   const [
     isModalOpen,
@@ -176,6 +178,9 @@ const handleExportVeterinarians = () => {
     setIsModalOpen(false);
     setSelectedVeterinarian(null);
   };
+  const filteredVeterinarians = veterinarians.filter((vet) =>
+  vet.name.toLowerCase().includes(search.toLowerCase())
+);
     return (
     <DashboardLayout>
       <PageContainer>
@@ -203,29 +208,7 @@ const handleExportVeterinarians = () => {
       Manage veterinarians and their information.
     </p>
   </div>
-
-  <button
-    type="button"
-    onClick={handleAddVeterinarian}
-    className="
-      flex
-      h-11
-      items-center
-      gap-2
-      rounded-xl
-      bg-blue-600
-      px-5
-      text-sm
-      font-medium
-      text-white
-      transition
-      hover:bg-blue-700
-    "
-  >
-    <Plus size={18} />
-    Add Veterinarian
-  </button>
-</div>
+  </div>
 
         {/* Content */}
         
@@ -236,17 +219,20 @@ const handleExportVeterinarians = () => {
   <VeterinarianStats />
 </div>
 
-  <VeterinarianToolbar
-    sort={sort}
-    onSortChange={(value) => {
-      setSort(value);
-      setPage(0);
-    }}
-    onExport={handleExportVeterinarians}
-  />
+ <VeterinarianToolbar
+  search={search}
+  onSearchChange={setSearch}
+  sort={sort}
+  onSortChange={(value) => {
+    setSort(value);
+    setPage(0);
+  }}
+  onExport={handleExportVeterinarians}
+  onAdd={handleAddVeterinarian}
+/>
 
  <VeterinarianTable
-  veterinarians={veterinarians}
+  veterinarians={filteredVeterinarians}
   onEdit={handleEditVeterinarian}
   onViewPerformance={
     handleViewPerformance

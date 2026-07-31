@@ -1,42 +1,58 @@
 import { z } from "zod";
 
-export const petSchema = z.object({
-  ownerId: z
-    .number()
-    .positive("Owner is required."),
+export const petSchema = z
+  .object({
+    ownerId: z
+      .number()
+      .positive("Owner is required."),
 
-  name: z
-    .string()
-    .trim()
-    .min(2, "Name must be at least 2 characters."),
+    name: z
+      .string()
+      .trim()
+      .min(2, "Name must be at least 2 characters."),
 
-  species: z
-    .string()
-    .trim()
-    .min(1, "Species is required."),
+    species: z
+      .string()
+      .trim()
+      .min(1, "Species is required."),
 
-  breed: z
-    .string()
-    .trim(),
+    breed: z
+      .string()
+      .trim(),
 
-  speciesNote: z.string().nullable(),
+    speciesNote: z.string().nullable(),
 
-  birthDate: z
-    .string()
-    .min(1, "Birth date is required."),
+    birthDate: z
+      .string()
+      .min(1, "Birth date is required."),
 
-  sex: z
-    .string()
-    .trim()
-    .min(1, "Sex is required."),
+    sex: z
+      .string()
+      .trim()
+      .min(1, "Sex is required."),
 
-  weightKg: z
-    .number()
-    .positive("Weight must be greater than 0."),
+    weightKg: z
+      .number()
+      .positive("Weight must be greater than 0."),
 
-  allergies: z.string().nullable(),
+    allergies: z.string().nullable(),
 
-  chronicConditions: z.string().nullable(),
-});
+    chronicConditions: z.string().nullable(),
+  })
+  .superRefine((data, ctx) => {
+    const isCatOrDog = ["CAT", "DOG"].includes(data.species);
+
+    if (
+      !isCatOrDog &&
+      (!data.speciesNote || data.speciesNote.trim() === "")
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["speciesNote"],
+        message:
+          "Species note is required when species is not CAT or DOG.",
+      });
+    }
+  });
 
 export type PetFormValues = z.infer<typeof petSchema>;

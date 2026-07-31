@@ -28,51 +28,40 @@ body {
 
 
 /* =========================
-   FullCalendar Container
-========================= */
-
-.fc {
-  width: 100%;
-  background: white;
-  border-radius: 14px;
-}
-
-
-
-/* =========================
    Toolbar
 ========================= */
 
-
 .fc-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: nowrap !important;
+
   margin-bottom: 18px !important;
+}
+
+.fc-toolbar-chunk {
+  display: flex !important;
+  align-items: center !important;
 }
 
 
 .fc-toolbar-title {
-
   font-size: 1.6rem !important;
-
   font-weight: 700;
-
   color: #0f172a;
 }
 
-
 .fc-button {
-
-  background-color:#1e293b !important;
-
-  border:none !important;
-
-  border-radius:10px !important;
-
-  padding:7px 14px !important;
-
-  font-size:13px !important;
-
-  font-weight:600 !important;
-
+  background-color: #1e293b !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 7px 14px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+.fc .fc-customToday-button {
+  margin-left: 10px !important;
 }
 
 
@@ -366,4 +355,13 @@ body {
 
   font-weight:700;
 
+}
+/* Month - Week - Day buttons */
+.fc .fc-toolbar-chunk:last-child .fc-button {
+  margin-left: 8px !important;
+  border-radius: 10px !important;
+}
+
+.fc .fc-toolbar-chunk:last-child .fc-button:first-child {
+  margin-left: 0 !important;
 }

@@ -38,10 +38,16 @@ function OwnerForm({
   });
 
   useEffect(() => {
-    if (initialValues) {
-      reset(initialValues);
+  reset(
+    initialValues ?? {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      address: "",
     }
-  }, [initialValues, reset]);
+  );
+}, [initialValues, reset]);
 
   return (
     <form

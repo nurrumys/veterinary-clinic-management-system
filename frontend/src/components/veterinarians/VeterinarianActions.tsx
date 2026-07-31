@@ -56,7 +56,7 @@ function VeterinarianActions({
           transition
           hover:text-emerald-800
         "
-        title="Performance"
+        title="View Performance"
       >
         <BarChart3 size={20} />
       </button>

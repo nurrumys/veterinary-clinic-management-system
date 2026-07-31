@@ -145,23 +145,8 @@ setTotalPages(data.totalPages);
 
 
 
-      console.log(
-        "PETS API DATA:",
-        data
-      );
-
-
-
-      setPets(
-        data.content ?? []
-      );
-
-
-
     } catch(error) {
 
-
-      console.error(error);
 
 
 
@@ -194,14 +179,9 @@ setTotalPages(data.totalPages);
     );
 
 
-  } catch(error) {
-
-    console.error(
-      "Owners load error:",
-      error
-    );
-
-  }
+  } catch {
+  setOwners([]);
+}
 
 };
 
@@ -383,10 +363,7 @@ useEffect(() => {
       } else {
 
 
-        console.log(
-          "PET FORM VALUES:",
-          values
-        );
+       
 
 
         await createPet(values);
@@ -404,27 +381,13 @@ useEffect(() => {
 
 
 
-    } catch(error) {
-
-
-      console.error(
-        "Save pet error:",
-        error
-      );
-
-
-    }
+    } catch {}
 
 
   };
 
 
-
-
-
-
-
-  const handleArchivePet = (
+const handleArchivePet = (
     pet: Pet
   ) => {
 
@@ -433,14 +396,7 @@ useEffect(() => {
 
 
   };
-
-
-
-
-
-
-
-  const handleConfirmArchive = async () => {
+   const handleConfirmArchive = async () => {
 
 
     if(!petToArchive) return;
@@ -478,16 +434,7 @@ useEffect(() => {
 
 
 
-    } catch(error) {
-
-
-      console.error(
-        "Pet status change error:",
-        error
-      );
-
-
-    }
+    } catch {}
 
 
   };

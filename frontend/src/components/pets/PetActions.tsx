@@ -1,11 +1,13 @@
 import {
+  Eye,
   Pencil,
   Archive,
   RotateCcw,
 } from "lucide-react";
 
-import type { Pet } from "../../types/pet";
+import { useNavigate } from "react-router-dom";
 
+import type { Pet } from "../../types/pet";
 
 type PetActionsProps = {
   pet: Pet;
@@ -13,16 +15,15 @@ type PetActionsProps = {
   onDelete: (pet: Pet) => void;
 };
 
-
 function PetActions({
   pet,
   onEdit,
   onDelete,
 }: PetActionsProps) {
 
+  const navigate = useNavigate();
 
   return (
-
     <div
       className="
         flex
@@ -31,6 +32,26 @@ function PetActions({
       "
     >
 
+      {/* View */}
+
+      <button
+        type="button"
+        onClick={() => navigate(`/pets/${pet.id}`)}
+        className="
+          flex
+          items-center
+          justify-center
+          text-slate-600
+          transition
+          hover:text-slate-900
+        "
+        title="View"
+      >
+        <Eye
+          size={20}
+          strokeWidth={2}
+        />
+      </button>
 
       {/* Edit */}
 
@@ -47,15 +68,11 @@ function PetActions({
         "
         title="Edit"
       >
-
         <Pencil
           size={20}
           strokeWidth={2}
         />
-
       </button>
-
-
 
       {/* Archive / Restore */}
 
@@ -74,14 +91,11 @@ function PetActions({
           "
           title="Archive"
         >
-
           <Archive
             size={20}
             strokeWidth={2}
           />
-
         </button>
-
 
       ) : (
 
@@ -98,22 +112,16 @@ function PetActions({
           "
           title="Restore"
         >
-
           <RotateCcw
             size={20}
             strokeWidth={2}
           />
-
         </button>
 
       )}
 
-
     </div>
-
   );
-
 }
-
 
 export default PetActions;

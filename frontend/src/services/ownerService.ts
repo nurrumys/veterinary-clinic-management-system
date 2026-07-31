@@ -2,6 +2,7 @@ import api from "./api";
 
 import type {
   Owner,
+  OwnerDetail,
   CreateOwnerRequest,
   UpdateOwnerRequest,
 } from "../types/owner";
@@ -24,7 +25,6 @@ export type GetOwnersParams = {
 export const getOwners = async (
   params?: GetOwnersParams
 ) => {
-
   const response = await api.get<OwnerPageResponse>(
     "/owners",
     {
@@ -38,8 +38,7 @@ export const getOwners = async (
 export const getOwnerById = async (
   id: number
 ) => {
-
-  const response = await api.get<Owner>(
+  const response = await api.get<OwnerDetail>(
     `/owners/${id}`
   );
 
@@ -49,7 +48,6 @@ export const getOwnerById = async (
 export const createOwner = async (
   data: CreateOwnerRequest
 ) => {
-
   const response = await api.post<Owner>(
     "/owners",
     data
@@ -62,7 +60,6 @@ export const updateOwner = async (
   id: number,
   data: UpdateOwnerRequest
 ) => {
-
   const response = await api.put<Owner>(
     `/owners/${id}`,
     data
@@ -74,9 +71,7 @@ export const updateOwner = async (
 export const deleteOwner = async (
   id: number
 ) => {
-
   await api.delete(
     `/owners/${id}`
   );
-
 };

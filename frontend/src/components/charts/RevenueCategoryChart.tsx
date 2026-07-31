@@ -23,9 +23,24 @@ const COLORS = [
   "#0891B2",
 ];
 
+const CATEGORY_LABELS: Record<string, string> = {
+  CONSULTATION: "Consultation",
+  VACCINATION: "Vaccination",
+  SURGERY: "Surgery",
+  HOSPITAL: "Hospital Services",
+  OTHER: "Other",
+};
+
 function RevenueCategoryChart({
   data,
 }: RevenueCategoryChartProps) {
+  const chartData = data.map((item) => ({
+    ...item,
+    label:
+      CATEGORY_LABELS[item.category] ??
+      item.category,
+  }));
+
   return (
     <ResponsiveContainer
       width="100%"
@@ -33,14 +48,14 @@ function RevenueCategoryChart({
     >
       <PieChart>
         <Pie
-          data={data}
+          data={chartData}
           dataKey="amount"
-          nameKey="category"
+          nameKey="label"
           innerRadius={70}
           outerRadius={110}
           paddingAngle={3}
         >
-          {data.map((_, index) => (
+          {chartData.map((_, index) => (
             <Cell
               key={index}
               fill={

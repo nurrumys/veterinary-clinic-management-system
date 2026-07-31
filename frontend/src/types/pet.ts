@@ -15,6 +15,7 @@ export type Pet = {
   chronicConditions: string | null;
 
   archived: boolean;
+  inactive: boolean;
 
   createdAt: string;
   updatedAt: string;

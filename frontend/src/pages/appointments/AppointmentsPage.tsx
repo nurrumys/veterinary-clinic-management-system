@@ -152,8 +152,8 @@ function AppointmentsPage() {
   };
 
   useEffect(() => {
-    fetchVisits();
-  }, [page, size, sortOption, searchTerm]);
+  fetchVisits();
+}, [page, size, sortOption]);
 
   useEffect(() => {
     fetchPets();
@@ -201,9 +201,9 @@ function AppointmentsPage() {
       }
 
       setIsModalOpen(false);
-      setSelectedAppointment(null);
+setSelectedAppointment(null);
 
-      fetchVisits();
+await fetchVisits();
 
     } catch (err) {
       console.error(err);
@@ -223,7 +223,7 @@ function AppointmentsPage() {
 
       setStatusAppointment(null);
 
-      fetchVisits();
+await fetchVisits();
 
     } catch (err) {
       console.error(err);
@@ -243,7 +243,7 @@ function AppointmentsPage() {
 
       setMedicalAppointment(null);
 
-      fetchVisits();
+await fetchVisits();
 
     } catch (err) {
       console.error(err);
@@ -257,7 +257,7 @@ function AppointmentsPage() {
 
     alert("Follow-up visit created successfully.");
 
-    fetchVisits();
+await fetchVisits();
 
   } catch (err: any) {
     console.error(err);
@@ -310,22 +310,34 @@ await fetchCalendarVisits();
 
   const handleExportAppointments = () => {
     const headers = [
-      "ID",
-      "Pet ID",
-      "Vet ID",
-      "Scheduled At",
-      "Status",
-      "Chief Complaint",
-    ];
+  "ID",
+  "Pet Name",
+  "Veterinarian",
+  "Scheduled At",
+  "Status",
+  "Chief Complaint",
+];
 
-    const rows = appointments.map((a) => [
-      a.id,
-      a.petId,
-      a.vetId,
-      a.scheduledAt,
-      a.status,
-      a.chiefComplaint,
-    ]);
+const rows = appointments.map((appointment) => {
+  const petName =
+    pets.find(
+      (pet) => pet.id === appointment.petId
+    )?.name ?? "";
+
+  const veterinarianName =
+    veterinarians.find(
+      (vet) => vet.id === appointment.vetId
+    )?.name ?? "";
+
+  return [
+    appointment.id,
+    petName,
+    veterinarianName,
+    appointment.scheduledAt,
+    appointment.status,
+    appointment.chiefComplaint,
+  ];
+});
 
     const csv = [
       headers.join(","),

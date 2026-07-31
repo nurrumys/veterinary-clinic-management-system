@@ -1,18 +1,20 @@
 import Card from "../ui/Card";
 import RevenueCategoryChart from "../charts/RevenueCategoryChart";
 
-import type { DashboardSummary } from "../../types/dashboard";
+import type {
+  DashboardSummary,
+  RevenueCategory,
+} from "../../types/dashboard";
 
 type RevenueCategoryCardProps = {
   summary: DashboardSummary;
 };
 
-const categoryLabels: Record<string, string> = {
+const categoryLabels: Record<RevenueCategory, string> = {
   CONSULTATION: "Consultation",
-  MEDICATION: "Medication",
   VACCINATION: "Vaccination",
   SURGERY: "Surgery",
-  LAB_TEST: "Lab Test",
+  HOSPITAL: "Hospital Services",
   OTHER: "Other",
 };
 

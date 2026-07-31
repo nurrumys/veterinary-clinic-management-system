@@ -35,33 +35,29 @@ function PetForm({
 
 
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    watch,
-    formState: { errors },
-  } = useForm<PetFormValues>({
+ const {
+  register,
+  handleSubmit,
+  reset,
+  watch,
+  setValue,
+  formState: { errors },
+} = useForm<PetFormValues>({
+  resolver: zodResolver(petSchema),
 
-    resolver: zodResolver(petSchema),
-
-
-    defaultValues: {
-
-      ownerId: 0,
-      name: "",
-      species: "",
-      breed: "",
-      speciesNote: "",
-      birthDate: "",
-      sex: "",
-      weightKg: 0,
-      allergies: "",
-      chronicConditions: "",
-
-    },
-
-  });
+  defaultValues: {
+    ownerId: 0,
+    name: "",
+    species: "",
+    breed: "",
+    speciesNote: "",
+    birthDate: "",
+    sex: "",
+    weightKg: 0,
+    allergies: "",
+    chronicConditions: "",
+  },
+});
 
 
 
@@ -82,14 +78,9 @@ function PetForm({
         );
 
 
-      } catch(error) {
-
-        console.error(
-          "Failed to load owners:",
-          error
-        );
-
-      }
+      } catch {
+  setOwners([]);
+}
 
     };
 
@@ -163,19 +154,13 @@ function PetForm({
 
 
 
-    if(species !== "OTHER") {
+    if (species === "OTHER") {
+  setValue("breed", "");
+}
 
-
-      reset((values) => ({
-
-        ...values,
-
-        speciesNote: "",
-
-      }));
-
-
-    }
+if (species !== "OTHER") {
+  setValue("speciesNote", "");
+}
 
 
   }, [
@@ -627,6 +612,11 @@ function PetForm({
                   "
 
                 />
+                {errors.speciesNote && (
+  <p className="mt-1 text-sm text-red-500">
+    {errors.speciesNote.message}
+  </p>
+)}
 
 
 

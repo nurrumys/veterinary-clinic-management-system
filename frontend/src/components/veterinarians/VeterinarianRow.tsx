@@ -99,24 +99,25 @@ function VeterinarianRow({
       {/* Status */}
       <td className="px-6 py-5">
         <span
-          className={`
-            inline-flex
-            whitespace-nowrap
-            rounded-full
-            px-3
-            py-1
-            text-xs
-            font-medium
-            ${
-              veterinarian.active
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }
-          `}
+         className={`
+  inline-flex
+  items-center
+  whitespace-nowrap
+  rounded-full
+  px-2.5
+  py-1
+  text-xs
+  font-semibold
+  ${
+    veterinarian.active
+      ? "bg-green-100 text-green-700"
+      : "bg-red-100 text-red-700"
+  }
+`}
         >
           {veterinarian.active
-            ? "ACTIVE"
-            : "INACTIVE"}
+  ? "Active"
+  : "Inactive"}
         </span>
       </td>
 

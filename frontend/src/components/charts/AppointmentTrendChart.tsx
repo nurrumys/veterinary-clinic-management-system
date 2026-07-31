@@ -17,6 +17,13 @@ type AppointmentTrendChartProps = {
   data: AppointmentTrendData[];
 };
 
+function formatDate(date: string) {
+  return new Date(date).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+  });
+}
+
 function AppointmentTrendChart({
   data,
 }: AppointmentTrendChartProps) {
@@ -39,15 +46,17 @@ function AppointmentTrendChart({
           strokeDasharray="4 4"
         />
 
-        <XAxis
-          dataKey="date"
-          axisLine={false}
-          tickLine={false}
-          tick={{
-            fill: "#64748b",
-            fontSize: 12,
-          }}
-        />
+       <XAxis
+  dataKey="date"
+  tickFormatter={formatDate}
+  minTickGap={40}
+  axisLine={false}
+  tickLine={false}
+  tick={{
+    fill: "#64748b",
+    fontSize: 12,
+  }}
+/>
 
         <YAxis
           axisLine={false}
@@ -56,9 +65,11 @@ function AppointmentTrendChart({
             fill: "#64748b",
             fontSize: 12,
           }}
+          allowDecimals={false}
         />
 
         <Tooltip
+          
           contentStyle={{
             borderRadius: "12px",
             border: "1px solid #e2e8f0",

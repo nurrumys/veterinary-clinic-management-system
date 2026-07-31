@@ -26,7 +26,7 @@ function AppointmentTable({
 }: AppointmentTableProps) {
   return (
     <Card>
-      <div className="overflow-hidden rounded-xl">
+      <div className="w-full overflow-x-auto rounded-xl">
         <table className="w-full border-collapse">
           <thead className="border-b border-slate-200 bg-slate-50">
             <tr>
@@ -65,7 +65,12 @@ function AppointmentTable({
               <tr>
                 <td
                   colSpan={7}
-                  className="px-6 py-10 text-center text-slate-500"
+                  className="
+                    px-6
+                    py-10
+                    text-center
+                    text-slate-500
+                  "
                 >
                   No appointments found.
                 </td>

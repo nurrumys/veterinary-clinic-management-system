@@ -11,6 +11,7 @@ export const visitSchema = z.object({
 
   scheduledAt: z
     .string()
+    .trim()
     .min(
       1,
       "Appointment date and time is required."

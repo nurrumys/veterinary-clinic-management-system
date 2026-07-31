@@ -121,7 +121,7 @@ const data = await getOwners({
   sort,
 });
 
-console.log("OWNERS API DATA:", data);
+
 
 setOwners(data.content);
 setTotalPages(data.totalPages);
@@ -164,7 +164,7 @@ setTotalPages(data.totalPages);
 
 
   const handleExportOwners = () => {
-    console.log("EXPORT OWNERS:", owners);
+    
 
 
     const headers = [

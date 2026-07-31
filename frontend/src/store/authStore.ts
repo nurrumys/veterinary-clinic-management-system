@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
+
 
 type User = {
   id: number;
@@ -6,6 +8,7 @@ type User = {
   email: string;
   role: "ADMIN" | "VET" | "RECEPTIONIST";
 };
+
 
 type AuthStore = {
   token: string | null;
@@ -16,23 +19,42 @@ type AuthStore = {
   logout: () => void;
 };
 
-export const useAuthStore = create<AuthStore>((set) => ({
-  token: null,
-  user: null,
 
-  setToken: (token) =>
-    set({
-      token,
-    }),
+export const useAuthStore = create<AuthStore>()(
 
-  setUser: (user) =>
-    set({
-      user,
-    }),
+  persist(
 
-  logout: () =>
-    set({
+    (set) => ({
+
       token: null,
+
       user: null,
+
+
+      setToken: (token) =>
+        set({
+          token,
+        }),
+
+
+      setUser: (user) =>
+        set({
+          user,
+        }),
+
+
+      logout: () =>
+        set({
+          token: null,
+          user: null,
+        }),
+
     }),
-}));
+
+    {
+      name: "auth-storage",
+    }
+
+  )
+
+);

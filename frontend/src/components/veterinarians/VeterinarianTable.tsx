@@ -24,11 +24,11 @@ function VeterinarianTable({
   return (
     <Card>
       <div
-        className="
-          w-full
-          overflow-hidden
-        "
-      >
+  className="
+    w-full
+    overflow-x-auto
+  "
+>
         <table
           className="
             w-full

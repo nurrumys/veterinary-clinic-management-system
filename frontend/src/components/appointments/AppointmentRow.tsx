@@ -17,7 +17,10 @@ type AppointmentRowProps = {
   onCreateFollowUp: (appointment: Visit) => void;
 };
 
-const statusStyles = {
+const statusStyles: Record<
+  Visit["status"],
+  string
+> = {
   SCHEDULED: "bg-blue-100 text-blue-700",
   CHECKED_IN: "bg-yellow-100 text-yellow-700",
   IN_EXAM: "bg-purple-100 text-purple-700",
@@ -29,7 +32,9 @@ function formatStatus(status: string) {
   return status
     .toLowerCase()
     .replace("_", " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+    .replace(/\b\w/g, (c) =>
+      c.toUpperCase()
+    );
 }
 
 function formatDateTime(date: string) {
@@ -66,7 +71,9 @@ function AppointmentRow({
       </td>
 
       <td className="px-4 py-4 whitespace-nowrap">
-        {formatDateTime(appointment.scheduledAt)}
+        {formatDateTime(
+          appointment.scheduledAt
+        )}
       </td>
 
       <td className="px-4 py-4">
@@ -82,7 +89,9 @@ function AppointmentRow({
             ${statusStyles[appointment.status]}
           `}
         >
-          {formatStatus(appointment.status)}
+          {formatStatus(
+            appointment.status
+          )}
         </span>
       </td>
 
@@ -93,7 +102,10 @@ function AppointmentRow({
       <td className="px-4 py-4">
         <div className="flex items-center justify-center gap-3">
           <button
-            onClick={() => onEdit(appointment)}
+            type="button"
+            onClick={() =>
+              onEdit(appointment)
+            }
             className="text-indigo-600 transition-colors hover:text-indigo-800"
             title="Edit Appointment"
           >
@@ -101,7 +113,12 @@ function AppointmentRow({
           </button>
 
           <button
-            onClick={() => onUpdateStatus(appointment)}
+            type="button"
+            onClick={() =>
+              onUpdateStatus(
+                appointment
+              )
+            }
             className="text-amber-600 transition-colors hover:text-amber-800"
             title="Update Status"
           >
@@ -109,23 +126,34 @@ function AppointmentRow({
           </button>
 
           <button
-            onClick={() => onMedicalNotes(appointment)}
+            type="button"
+            onClick={() =>
+              onMedicalNotes(
+                appointment
+              )
+            }
             className="text-emerald-600 transition-colors hover:text-emerald-800"
             title="Medical Notes"
           >
             <FileText size={18} />
           </button>
 
-          {appointment.status === "COMPLETED" &&
+          {appointment.status ===
+            "COMPLETED" &&
             appointment.followUpDate && (
               <button
+                type="button"
                 onClick={() =>
-                  onCreateFollowUp(appointment)
+                  onCreateFollowUp(
+                    appointment
+                  )
                 }
                 className="text-cyan-600 transition-colors hover:text-cyan-800"
                 title="Create Follow-up"
               >
-                <GitBranchPlus size={18} />
+                <GitBranchPlus
+                  size={18}
+                />
               </button>
             )}
         </div>

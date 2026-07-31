@@ -6,12 +6,12 @@ import interactionPlugin from "@fullcalendar/interaction";
 import type {
   EventClickArg,
   EventDropArg,
+  EventContentArg,
 } from "@fullcalendar/core";
 
 import type { Visit } from "../../types/visit";
 import type { Pet } from "../../types/pet";
 import type { Veterinarian } from "../../types/veterinarian";
-
 
 type AppointmentCalendarProps = {
   appointments: Visit[];
@@ -22,33 +22,31 @@ type AppointmentCalendarProps = {
     appointment: Visit,
     newDate: string
   ) => void;
-};
 
+  onSelect?: (
+    appointment: Visit
+  ) => void;
+};
 
 function AppointmentCalendar({
   appointments,
   pets,
   veterinarians,
   onUpdate,
+  onSelect,
 }: AppointmentCalendarProps) {
-
-
   const events = appointments.map((appointment) => {
-
     const pet =
       pets.find(
         (p) => p.id === appointment.petId
       )?.name ?? `Pet #${appointment.petId}`;
-
 
     const vet =
       veterinarians.find(
         (v) => v.id === appointment.vetId
       )?.name ?? `Vet #${appointment.vetId}`;
 
-
     return {
-
       id: String(appointment.id),
 
       title: pet,
@@ -58,7 +56,8 @@ function AppointmentCalendar({
       end: new Date(
         new Date(
           appointment.scheduledAt
-        ).getTime() + 30 * 60 * 1000
+        ).getTime() +
+          30 * 60 * 1000
       ),
 
       extendedProps: {
@@ -76,55 +75,42 @@ function AppointmentCalendar({
           ? "event-exam"
           : "event-scheduled",
       ],
-
     };
-
   });
-
-
 
   const handleEventDrop = (
     info: EventDropArg
   ) => {
-
     if (!onUpdate) return;
-
 
     const appointment =
       info.event.extendedProps.appointment;
 
-
     if (!appointment) return;
 
+    const newDate =
+      info.event.start!
+        .toLocaleString("sv-SE")
+        .replace(" ", "T");
 
     onUpdate(
       appointment,
-      info.event.start!.toISOString()
+      newDate
     );
-
   };
-
-
 
   const handleEventClick = (
     info: EventClickArg
   ) => {
-
     const appointment =
       info.event.extendedProps.appointment;
 
-
-    console.log(
-      "Selected appointment:",
-      appointment
-    );
-
+    if (onSelect) {
+      onSelect(appointment);
+    }
   };
 
-
-
   return (
-
     <div
       className="
         rounded-xl
@@ -134,7 +120,6 @@ function AppointmentCalendar({
         p-6
       "
     >
-
       <h2
         className="
           mb-5
@@ -146,92 +131,57 @@ function AppointmentCalendar({
         Appointment Calendar
       </h2>
 
-
       <FullCalendar
-
         plugins={[
           dayGridPlugin,
           timeGridPlugin,
           interactionPlugin,
         ]}
-
-
         initialView="dayGridMonth"
-
-
         headerToolbar={{
           left: "prev,next today",
-
           center: "title",
-
           right:
             "dayGridMonth,timeGridWeek,timeGridDay",
         }}
-
-
         events={events}
-
-
-        editable={true}
-
-
+        editable
         eventDrop={handleEventDrop}
-
-
         eventClick={handleEventClick}
-
-
         height="620px"
-
-
         dayMaxEvents={3}
-
-
         slotMinTime="08:00:00"
-
-
         slotMaxTime="20:00:00"
-
-
         slotDuration="00:30:00"
-
-
         eventTimeFormat={{
           hour: "2-digit",
           minute: "2-digit",
           hour12: false,
         }}
-
-
-        eventContent={(eventInfo) => (
-
+        eventContent={(
+          eventInfo: EventContentArg
+        ) => (
           <div className="calendar-event">
-
             <div className="calendar-time">
               {eventInfo.timeText}
             </div>
-
 
             <div className="calendar-title">
               {eventInfo.event.title}
             </div>
 
-
             <div className="calendar-vet">
-              Dr. {eventInfo.event.extendedProps.vet}
+              Dr.{" "}
+              {
+                eventInfo.event
+                  .extendedProps.vet
+              }
             </div>
-
           </div>
-
         )}
-
       />
-
     </div>
-
   );
-
 }
-
 
 export default AppointmentCalendar;

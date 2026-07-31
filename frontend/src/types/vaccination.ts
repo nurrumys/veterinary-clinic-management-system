@@ -18,10 +18,5 @@ export interface CreateVaccinationRequest {
   administeredBy: string;
 }
 
-export interface UpdateVaccinationRequest {
-  petId: number;
-  vaccineType: string;
-  administeredAt: string;
-  lotNumber: string;
-  administeredBy: string;
-}
+export type UpdateVaccinationRequest =
+  CreateVaccinationRequest;

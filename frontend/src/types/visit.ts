@@ -27,12 +27,8 @@ export interface CreateVisitRequest {
   chiefComplaint: string;
 }
 
-export interface UpdateVisitRequest {
-  petId: number;
-  vetId: number;
-  scheduledAt: string;
-  chiefComplaint: string;
-}
+export type UpdateVisitRequest =
+  CreateVisitRequest;
 
 export interface UpdateVisitStatusRequest {
   status: VisitStatus;

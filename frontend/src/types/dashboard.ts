@@ -1,13 +1,14 @@
 export type RevenueCategory =
   | "CONSULTATION"
-  | "MEDICATION"
   | "VACCINATION"
   | "SURGERY"
-  | "LAB_TEST"
+  | "HOSPITAL"
   | "OTHER";
 
 export type VisitStatus =
   | "SCHEDULED"
+  | "CHECKED_IN"
+  | "IN_EXAM"
   | "COMPLETED"
   | "CANCELLED";
 

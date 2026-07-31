@@ -20,12 +20,15 @@ function UpdateStatusDialog({
   onSubmit,
   onCancel,
 }: UpdateStatusDialogProps) {
-  const { register, handleSubmit, reset } =
-    useForm<FormValues>({
-      defaultValues: {
-        status: initialStatus,
-      },
-    });
+  const {
+    register,
+    handleSubmit,
+    reset,
+  } = useForm<FormValues>({
+    defaultValues: {
+      status: initialStatus,
+    },
+  });
 
   useEffect(() => {
     reset({
@@ -47,7 +50,18 @@ function UpdateStatusDialog({
 
         <select
           {...register("status")}
-          className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500"
+          className="
+            h-11
+            w-full
+            rounded-xl
+            border
+            border-slate-300
+            px-4
+            text-sm
+            outline-none
+            transition
+            focus:border-blue-500
+          "
         >
           <option value="SCHEDULED">
             Scheduled
@@ -75,7 +89,17 @@ function UpdateStatusDialog({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-xl border border-slate-300 px-5 py-2.5 font-medium text-slate-600 transition hover:bg-slate-100"
+          className="
+            rounded-xl
+            border
+            border-slate-300
+            px-5
+            py-2.5
+            font-medium
+            text-slate-600
+            transition
+            hover:bg-slate-100
+          "
         >
           Cancel
         </button>
@@ -83,7 +107,18 @@ function UpdateStatusDialog({
         <button
           type="submit"
           disabled={isLoading}
-          className="rounded-xl bg-blue-600 px-5 py-2.5 font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+          className="
+            rounded-xl
+            bg-blue-600
+            px-5
+            py-2.5
+            font-medium
+            text-white
+            transition
+            hover:bg-blue-700
+            disabled:cursor-not-allowed
+            disabled:opacity-50
+          "
         >
           {isLoading
             ? "Updating..."

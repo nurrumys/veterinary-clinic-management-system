@@ -44,10 +44,17 @@ function AppointmentForm({
   });
 
   useEffect(() => {
-    if (initialValues) {
-      reset(initialValues);
-    }
-  }, [initialValues, reset]);
+  if (initialValues) {
+    console.log("scheduledAt:", initialValues.scheduledAt);
+
+    reset({
+      ...initialValues,
+      scheduledAt: initialValues.scheduledAt
+        ? initialValues.scheduledAt.substring(0, 16)
+        : "",
+    });
+  }
+}, [initialValues, reset]);
 
   return (
     <form

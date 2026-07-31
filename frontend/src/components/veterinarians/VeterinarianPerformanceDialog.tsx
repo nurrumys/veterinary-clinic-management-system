@@ -56,6 +56,12 @@ function VeterinarianPerformanceDialog({
 
     fetchPerformance();
   }, [open, vetId]);
+  useEffect(() => {
+  if (!open) {
+    setPerformance(null);
+    setError(null);
+  }
+}, [open]);
 
   return (
     <Modal

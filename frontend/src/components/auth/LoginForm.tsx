@@ -44,20 +44,16 @@ function LoginForm() {
     setLoginError("");
 
     try {
+      
       const response = await login(data);
 
-      console.log("LOGIN RESPONSE:", response);
+setToken(response.token);
 
-      setToken(response.token);
+setUser(response.user);
 
-      console.log("TOKEN RESPONSE:", response.token);
-      console.log("STORE TOKEN:", useAuthStore.getState().token);
+localStorage.setItem("token", response.token);
 
-      setUser(response.user);
-
-      localStorage.setItem("token", response.token);
-
-      navigate("/dashboard");
+navigate("/dashboard");
     } catch (error) {
       console.error(error);
       setLoginError("Invalid email or password.");

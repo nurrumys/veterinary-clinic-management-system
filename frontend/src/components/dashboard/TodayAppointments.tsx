@@ -2,16 +2,25 @@ import { useNavigate } from "react-router-dom";
 
 import Card from "../ui/Card";
 
-import type { DashboardSummary } from "../../types/dashboard";
+import type {
+  DashboardSummary,
+  VisitStatus,
+} from "../../types/dashboard";
 
 type TodayAppointmentsProps = {
   summary: DashboardSummary;
 };
 
-function getStatusStyle(status: string) {
+function getStatusStyle(status: VisitStatus) {
   switch (status) {
     case "SCHEDULED":
       return "bg-purple-100 text-purple-700";
+
+    case "CHECKED_IN":
+      return "bg-blue-100 text-blue-700";
+
+    case "IN_EXAM":
+      return "bg-amber-100 text-amber-700";
 
     case "COMPLETED":
       return "bg-green-100 text-green-700";
@@ -24,10 +33,16 @@ function getStatusStyle(status: string) {
   }
 }
 
-function formatStatus(status: string) {
+function formatStatus(status: VisitStatus) {
   switch (status) {
     case "SCHEDULED":
       return "Scheduled";
+
+    case "CHECKED_IN":
+      return "Checked In";
+
+    case "IN_EXAM":
+      return "In Exam";
 
     case "COMPLETED":
       return "Completed";

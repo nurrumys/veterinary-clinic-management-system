@@ -1,7 +1,8 @@
+import { useNavigate } from "react-router-dom";
+
 import PetActions from "./PetActions";
 
 import type { Pet } from "../../types/pet";
-
 
 type PetRowProps = {
   pet: Pet;
@@ -10,18 +11,15 @@ type PetRowProps = {
   onDelete: (pet: Pet) => void;
 };
 
-
-
 function PetRow({
   pet,
   ownerName,
   onEdit,
   onDelete,
 }: PetRowProps) {
-
+  const navigate = useNavigate();
 
   return (
-
     <tr
       className="
         border-b
@@ -30,16 +28,24 @@ function PetRow({
         hover:bg-slate-50
       "
     >
-
-
       <td className="px-6 py-5">
-
         <div className="flex flex-col">
-
-          <span className="font-semibold text-slate-900">
+          <button
+            type="button"
+            onClick={() =>
+              navigate(`/pets/${pet.id}`)
+            }
+            className="
+              w-fit
+              font-semibold
+              text-slate-900
+              transition
+              hover:text-blue-600
+              hover:underline
+            "
+          >
             {pet.name}
-          </span>
-
+          </button>
 
           <span
             className="
@@ -50,13 +56,8 @@ function PetRow({
           >
             ID #{pet.id}
           </span>
-
-
         </div>
-
       </td>
-
-
 
       <td
         className="
@@ -68,9 +69,6 @@ function PetRow({
         {pet.species}
       </td>
 
-
-
-
       <td
         className="
           px-6
@@ -80,9 +78,6 @@ function PetRow({
       >
         {pet.breed}
       </td>
-
-
-
 
       <td
         className="
@@ -94,25 +89,15 @@ function PetRow({
         {ownerName}
       </td>
 
-
-
-
       <td className="px-6 py-5">
-
         <PetActions
           pet={pet}
           onEdit={onEdit}
           onDelete={onDelete}
         />
-
       </td>
-
-
     </tr>
-
   );
-
 }
-
 
 export default PetRow;

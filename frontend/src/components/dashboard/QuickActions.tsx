@@ -68,6 +68,7 @@ function QuickActions() {
               key={action.title}
               onClick={() => navigate(action.path)}
               className="
+                group
                 flex
                 h-32
                 flex-col
@@ -81,6 +82,7 @@ function QuickActions() {
                 duration-200
                 hover:-translate-y-1
                 hover:border-cyan-400
+                hover:bg-slate-50
                 hover:shadow-md
                 focus:outline-none
                 focus:ring-2
@@ -88,7 +90,7 @@ function QuickActions() {
               "
             >
               <div
-                className={`mb-3 flex h-12 w-12 items-center justify-center rounded-2xl ${action.bg}`}
+                className={`mb-3 flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm transition-transform duration-200 group-hover:scale-105 ${action.bg}`}
               >
                 <Icon
                   size={24}

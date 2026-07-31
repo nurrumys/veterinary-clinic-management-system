@@ -62,6 +62,7 @@ function AppointmentToolbar({
           className="
             h-11
             w-full
+            flex-1
             rounded-xl
             border
             border-slate-200
@@ -79,6 +80,7 @@ function AppointmentToolbar({
           }
           className="
             h-11
+            min-w-[170px]
             rounded-xl
             border
             border-slate-200
@@ -107,12 +109,13 @@ function AppointmentToolbar({
       </div>
 
       <div
-        className="
-          flex
-          items-center
-          gap-3
-        "
-      >
+  className="
+    flex
+    shrink-0
+    items-center
+    gap-3
+  "
+>
         <div
           className="
             flex
