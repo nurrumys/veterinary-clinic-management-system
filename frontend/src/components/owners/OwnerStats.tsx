@@ -5,15 +5,22 @@ import {
 } from "lucide-react";
 
 import StatsCard from "../dashboard/StatsCard";
-import { ownerStats } from "../../mocks/owners";
 
-function OwnerStats() {
+import type { OwnerStatsResponse } from "../../types/owner";
+
+type OwnerStatsProps = {
+  stats: OwnerStatsResponse;
+};
+
+function OwnerStats({
+  stats,
+}: OwnerStatsProps) {
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
       <StatsCard
         title="Total Owners"
-        value={ownerStats.totalOwners}
-        subtitle="+12 this month"
+        value={stats.totalOwners}
+        subtitle="Registered owners"
         icon={Users}
         iconColor="text-blue-600"
         iconBackground="bg-blue-100"
@@ -21,7 +28,7 @@ function OwnerStats() {
 
       <StatsCard
         title="Registered Pets"
-        value={ownerStats.totalPets}
+        value={stats.totalPets}
         subtitle="Linked to owners"
         icon={PawPrint}
         iconColor="text-violet-600"
@@ -30,7 +37,7 @@ function OwnerStats() {
 
       <StatsCard
         title="New This Month"
-        value={ownerStats.newOwnersThisMonth}
+        value={stats.newOwnersThisMonth}
         subtitle="Recently added"
         icon={UserPlus}
         iconColor="text-orange-600"

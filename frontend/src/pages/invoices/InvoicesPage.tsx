@@ -16,16 +16,20 @@ import {
   sendInvoice,
   markInvoicePaid,
   bulkMarkInvoicePaid,
+  getInvoiceStats,
 } from "../../services/invoiceService";
 
 import type {
   Invoice,
   InvoiceStatus,
+  InvoiceStats as InvoiceStatsType,
   CreateInvoiceRequest,
 } from "../../types/invoice";
 
 function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [stats, setStats] =
+  useState<InvoiceStatsType | null>(null);
 
   const [loading, setLoading] = useState(true);
 
@@ -89,6 +93,23 @@ function InvoicesPage() {
       setLoading(false);
     }
   };
+  const fetchStats = async () => {
+  try {
+
+    const data =
+      await getInvoiceStats();
+
+    setStats(data);
+
+  } catch (error) {
+
+    console.error(
+      "Invoice stats error:",
+      error
+    );
+
+  }
+};
 
   useEffect(() => {
     fetchInvoices();
@@ -99,6 +120,9 @@ function InvoicesPage() {
     to,
     sort,
   ]);
+  useEffect(() => {
+  fetchStats();
+}, []);
     const filteredInvoices = invoices.filter((invoice) => {
     if (!search.trim()) {
       return true;
@@ -275,7 +299,11 @@ const handleBulkMarkPaid = async () => {
       Manage clinic invoices and billing.
     </p>
   </div>
-        <InvoiceStats invoices={invoices} />
+        {stats && (
+  <InvoiceStats
+    stats={stats}
+  />
+)}
 
         <div className="mt-8">
           <InvoiceToolbar

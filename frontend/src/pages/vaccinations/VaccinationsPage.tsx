@@ -17,11 +17,15 @@ import {
   updateVaccination,
   deleteVaccination,
 } from "../../services/vaccinationService";
+import {
+  getVaccinationStats,
+} from "../../services/vaccinationService";
 
 import { getPets } from "../../services/petService";
 
 import type {
   Vaccination,
+  VaccinationStats as VaccinationStatsType,
   CreateVaccinationRequest,
 } from "../../types/vaccination";
 
@@ -30,6 +34,8 @@ function VaccinationsPage() {
   const [search, setSearch] = useState("");
   const [vaccinations, setVaccinations] = useState<Vaccination[]>([]);
   const [pets, setPets] = useState<Pet[]>([]);
+ const [stats, setStats] =
+  useState<VaccinationStatsType | null>(null);
 
   const [page, setPage] = useState(0);
   const [size] = useState(20);
@@ -109,6 +115,20 @@ const fetchPets = async () => {
     );
   }
 };
+const fetchStats = async () => {
+  try {
+    const data =
+      await getVaccinationStats();
+
+    setStats(data);
+
+  } catch (error) {
+    console.error(
+      "Vaccination stats error:",
+      error
+    );
+  }
+};
 useEffect(() => {
   fetchVaccinations();
 }, [
@@ -119,6 +139,9 @@ useEffect(() => {
 
 useEffect(() => {
   fetchPets();
+}, []);
+useEffect(() => {
+  fetchStats();
 }, []);
 const handleAddVaccination = () => {
   setSelectedVaccination(null);
@@ -256,9 +279,11 @@ return (
       Manage vaccination records for your patients.
     </p>
   </div>
-      <VaccinationStats
-        vaccinations={vaccinations}
-      />
+      {stats && (
+  <VaccinationStats
+    stats={stats}
+  />
+)}
 
       <div className="mt-8">
         <VaccinationToolbar

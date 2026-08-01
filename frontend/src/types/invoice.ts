@@ -3,6 +3,7 @@ export type InvoiceStatus =
   | "SENT"
   | "PAID";
 
+
 export type InvoiceItemCategory =
   | "CONSULTATION"
   | "MEDICATION"
@@ -10,6 +11,7 @@ export type InvoiceItemCategory =
   | "SURGERY"
   | "LAB_TEST"
   | "OTHER";
+
 
 export type InvoiceItem = {
   id: number;
@@ -24,6 +26,7 @@ export type InvoiceItem = {
 
   lineTotal: number;
 };
+
 
 export type Invoice = {
   id: number;
@@ -49,6 +52,7 @@ export type Invoice = {
   updatedAt: string;
 };
 
+
 export type CreateInvoiceItemRequest = {
   description: string;
 
@@ -59,11 +63,13 @@ export type CreateInvoiceItemRequest = {
   unitPrice: number;
 };
 
+
 export type CreateInvoiceRequest = {
   visitId: number;
 
   items: CreateInvoiceItemRequest[];
 };
+
 
 export type InvoiceFilters = {
   status?: InvoiceStatus;
@@ -79,6 +85,20 @@ export type InvoiceFilters = {
   sort?: string;
 };
 
+
 export type BulkMarkPaidRequest = {
   invoiceIds: number[];
+};
+
+
+// ✅ Stats API (/api/invoices/stats) için eklendi
+
+export type InvoiceStats = {
+  totalInvoices: number;
+
+  draft: number;
+
+  sent: number;
+
+  paid: number;
 };

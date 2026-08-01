@@ -13,6 +13,7 @@ import DeletePetDialog from "../../components/pets/DeletePetDialog";
 
 import {
   getPets,
+  getPetStats,
   createPet,
   updatePet,
   archivePet,
@@ -24,6 +25,7 @@ import { getOwners } from "../../services/ownerService";
 import type {
   CreatePetRequest,
   Pet,
+  PetStatsResponse,
 } from "../../types/pet";
 
 import type {
@@ -38,6 +40,13 @@ function PetsPage() {
   const [pets, setPets] =
     useState<Pet[]>([]);
     const [page, setPage] = useState(0);
+    const [stats, setStats] =
+  useState<PetStatsResponse>({
+    totalPets: 0,
+    dogs: 0,
+    cats: 0,
+    newThisMonth: 0,
+  });
 
 const [size] = useState(20);
 
@@ -130,6 +139,7 @@ switch (sort) {
     break;
 }
 
+
 const data = await getPets({
   page,
   size,
@@ -166,6 +176,20 @@ setTotalPages(data.totalPages);
 
 
   };
+  const fetchPetStats = async () => {
+  try {
+    const data =
+      await getPetStats();
+
+    setStats(data);
+
+  } catch (error) {
+    console.error(
+      "Failed to load pet stats:",
+      error
+    );
+  }
+};
   const fetchOwners = async () => {
 
   try {
@@ -190,6 +214,7 @@ setTotalPages(data.totalPages);
 
   useEffect(() => {
   fetchPets();
+  fetchPetStats();
 }, [
   page,
   size,
@@ -486,9 +511,7 @@ const handleArchivePet = (
         <div className="space-y-8">
 
 
-          <PetStats
-  
-/>
+          <PetStats stats={stats} />
 
 
 

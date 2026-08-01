@@ -5,6 +5,7 @@ import type {
   OwnerDetail,
   CreateOwnerRequest,
   UpdateOwnerRequest,
+  OwnerStatsResponse,
 } from "../types/owner";
 
 export type OwnerPageResponse = {
@@ -31,6 +32,15 @@ export const getOwners = async (
       params,
     }
   );
+
+  return response.data;
+};
+
+export const getOwnerStats = async () => {
+  const response =
+    await api.get<OwnerStatsResponse>(
+      "/owners/stats"
+    );
 
   return response.data;
 };

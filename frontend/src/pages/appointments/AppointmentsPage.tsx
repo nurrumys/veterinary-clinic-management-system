@@ -398,16 +398,41 @@ const rows = appointments.map((appointment) => {
   </p>
 </div>
 
-        <AppointmentStats appointments={appointments} />
+        <div
+  className="
+    rounded-2xl
+    border
+    border-slate-200
+    bg-white
+    p-6
+    shadow-sm
+  "
+>
+  <AppointmentStats
+    appointments={appointments}
+  />
+</div>
 
-        <AppointmentToolbar
-  onSearch={setSearchTerm}
-  onSort={setSortOption}
-  onAdd={handleAdd}
-  onExport={handleExportAppointments}
-  viewMode={viewMode}
-  onViewModeChange={setViewMode}
-/>
+
+<div
+  className="
+    rounded-2xl
+    border
+    border-slate-200
+    bg-white
+    p-5
+    shadow-sm
+  "
+>
+  <AppointmentToolbar
+    onSearch={setSearchTerm}
+    onSort={setSortOption}
+    onAdd={handleAdd}
+    onExport={handleExportAppointments}
+    viewMode={viewMode}
+    onViewModeChange={setViewMode}
+  />
+</div>
 
         
 {viewMode === "table" ? (

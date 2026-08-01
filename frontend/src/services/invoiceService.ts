@@ -5,15 +5,22 @@ import type {
   InvoiceFilters,
   CreateInvoiceRequest,
   BulkMarkPaidRequest,
+  InvoiceStats,
 } from "../types/invoice";
+
 
 type InvoicePage = {
   content: Invoice[];
+
   totalPages: number;
+
   totalElements: number;
+
   size: number;
+
   number: number;
 };
+
 
 export async function getInvoices(
   params: InvoiceFilters
@@ -28,6 +35,7 @@ export async function getInvoices(
   return response.data;
 }
 
+
 export async function getInvoice(
   id: number
 ) {
@@ -37,6 +45,7 @@ export async function getInvoice(
 
   return response.data;
 }
+
 
 export async function createInvoice(
   data: CreateInvoiceRequest
@@ -49,6 +58,7 @@ export async function createInvoice(
   return response.data;
 }
 
+
 export async function sendInvoice(
   id: number
 ) {
@@ -58,6 +68,7 @@ export async function sendInvoice(
 
   return response.data;
 }
+
 
 export async function markInvoicePaid(
   id: number
@@ -69,12 +80,26 @@ export async function markInvoicePaid(
   return response.data;
 }
 
+
 export async function bulkMarkInvoicePaid(
   data: BulkMarkPaidRequest
 ) {
   const response = await api.patch(
     "/invoices/bulk-mark-paid",
     data
+  );
+
+  return response.data;
+}
+
+
+// ✅ GET /api/invoices/stats
+// Dashboard kartları için
+
+export async function getInvoiceStats() {
+
+  const response = await api.get<InvoiceStats>(
+    "/invoices/stats"
   );
 
   return response.data;

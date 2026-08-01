@@ -40,44 +40,41 @@ function OwnerToolbar({
 
 
 
-  return (
-
+ return (
+  <div
+    className="
+      rounded-2xl
+      border
+      border-slate-200
+      bg-white
+      p-5
+      shadow-sm
+    "
+  >
     <div
       className="
         flex
-        flex-col
+        items-center
+        justify-between
         gap-4
-        lg:flex-row
-        lg:items-center
-        lg:justify-between
       "
     >
-
-
       <div
         className="
           flex
           flex-1
-          flex-col
+          items-center
           gap-4
-          sm:flex-row
         "
       >
-
-
         <input
-
           type="text"
-
           value={searchValue}
-
           onChange={handleSearch}
-
           placeholder="Search owners..."
-
           className="
             h-11
-            w-full
+            flex-1
             rounded-xl
             border
             border-slate-200
@@ -87,21 +84,13 @@ function OwnerToolbar({
             transition
             focus:border-blue-500
           "
-
         />
 
-
-
-
-
         <select
-
-          onChange={(e) =>
-            onSort(e.target.value)
-          }
-
+          onChange={(e) => onSort(e.target.value)}
           className="
             h-11
+            w-52
             rounded-xl
             border
             border-slate-200
@@ -110,9 +99,7 @@ function OwnerToolbar({
             outline-none
             focus:border-blue-500
           "
-
         >
-
           <option value="nameAsc">
             Name (A-Z)
           </option>
@@ -128,35 +115,20 @@ function OwnerToolbar({
           <option value="oldest">
             Oldest
           </option>
-
-
         </select>
-
-
       </div>
-
-
-
-
 
       <div
         className="
           flex
+          shrink-0
           items-center
           gap-3
         "
       >
-
-
-
-        {/* Export */}
-
         <button
-
           type="button"
-
           onClick={onExport}
-
           className="
             flex
             h-11
@@ -170,27 +142,14 @@ function OwnerToolbar({
             font-medium
             hover:bg-slate-50
           "
-
         >
-
-          <Download size={18}/>
-
+          <Download size={18} />
           Export
-
         </button>
 
-
-
-
-
-        {/* Add Owner */}
-
         <button
-
           type="button"
-
           onClick={onAdd}
-
           className="
             flex
             h-11
@@ -204,24 +163,14 @@ function OwnerToolbar({
             text-white
             hover:bg-blue-700
           "
-
         >
-
-          <Plus size={18}/>
-
+          <Plus size={18} />
           Add Owner
-
         </button>
-
-
-
       </div>
-
-
-
     </div>
-
-  );
+  </div>
+);
 
 }
 

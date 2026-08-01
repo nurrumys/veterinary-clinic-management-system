@@ -7,7 +7,17 @@ import {
 
 import StatsCard from "../dashboard/StatsCard";
 
-function PetStats() {
+import type {
+  PetStatsResponse,
+} from "../../types/pet";
+
+type PetStatsProps = {
+  stats: PetStatsResponse;
+};
+
+function PetStats({
+  stats,
+}: PetStatsProps) {
   return (
     <div
       className="
@@ -20,8 +30,8 @@ function PetStats() {
     >
       <StatsCard
         title="Total Pets"
-        value={421}
-        subtitle="+18 this month"
+        value={stats.totalPets}
+        subtitle="Registered pets"
         icon={PawPrint}
         iconColor="text-blue-600"
         iconBackground="bg-blue-100"
@@ -29,8 +39,8 @@ function PetStats() {
 
       <StatsCard
         title="Dogs"
-        value={248}
-        subtitle="58.9% of all pets"
+        value={stats.dogs}
+        subtitle="Registered dogs"
         icon={Dog}
         iconColor="text-amber-600"
         iconBackground="bg-amber-100"
@@ -38,8 +48,8 @@ function PetStats() {
 
       <StatsCard
         title="Cats"
-        value={151}
-        subtitle="35.9% of all pets"
+        value={stats.cats}
+        subtitle="Registered cats"
         icon={Cat}
         iconColor="text-violet-600"
         iconBackground="bg-violet-100"
@@ -47,7 +57,7 @@ function PetStats() {
 
       <StatsCard
         title="New This Month"
-        value={18}
+        value={stats.newThisMonth}
         subtitle="Recently registered"
         icon={PlusCircle}
         iconColor="text-emerald-600"

@@ -16,6 +16,7 @@ export type Veterinarian = {
   updatedAt: string;
 };
 
+
 export type CreateVeterinarianRequest = {
   name: string;
 
@@ -26,8 +27,10 @@ export type CreateVeterinarianRequest = {
   workHours: string;
 };
 
+
 export type UpdateVeterinarianRequest =
   CreateVeterinarianRequest;
+
 
 export type VeterinarianPerformance = {
   vetId: number;
@@ -43,4 +46,16 @@ export type VeterinarianPerformance = {
   upcomingVisits: number;
 
   revenueGeneratedYtd: number;
+};
+
+
+// API /vets/stats response
+export type VeterinarianStatsResponse = {
+  totalVets: number;
+
+  availableDoctors: number;
+
+  specialties: number;
+
+  newThisMonth: number;
 };

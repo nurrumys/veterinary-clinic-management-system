@@ -60,6 +60,7 @@ function VeterinarianPerformanceDialog({
   if (!open) {
     setPerformance(null);
     setError(null);
+    setLoading(false);
   }
 }, [open]);
 
@@ -126,7 +127,7 @@ function VeterinarianPerformanceDialog({
 
             <Card title="Completed Visits">
               <p className="text-3xl font-bold text-green-600">
-                {performance.completedVisitsYtd}
+                performance.revenueGeneratedYtd ?? 0
               </p>
 
               <p className="mt-2 text-sm text-slate-500">

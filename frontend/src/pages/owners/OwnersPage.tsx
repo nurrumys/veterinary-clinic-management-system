@@ -12,6 +12,7 @@ import Modal from "../../components/ui/Modal";
 
 import {
   getOwners,
+  getOwnerStats,
   createOwner,
   updateOwner,
   deleteOwner as deleteOwnerApi,
@@ -20,6 +21,7 @@ import {
 import type {
   Owner,
   CreateOwnerRequest,
+  OwnerStatsResponse,
 } from "../../types/owner";
 
 
@@ -29,6 +31,12 @@ function OwnersPage() {
 
   const [owners, setOwners] =
     useState<Owner[]>([]);
+    const [stats, setStats] =
+  useState<OwnerStatsResponse>({
+    totalOwners: 0,
+    totalPets: 0,
+    newOwnersThisMonth: 0,
+  });
 
 
 
@@ -75,93 +83,78 @@ function OwnersPage() {
   const [size] = useState(20);
 
   const [totalPages, setTotalPages] = useState(0);
-
-
-
-
-
   const fetchOwners = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-    try {
+    let sort: string | undefined;
 
-      setLoading(true);
+    switch (sortOption) {
+      case "nameAsc":
+        sort = "firstName,asc";
+        break;
 
-      setError("");
+      case "nameDesc":
+        sort = "firstName,desc";
+        break;
 
+      case "newest":
+        sort = "createdAt,desc";
+        break;
 
-      
+      case "oldest":
+        sort = "createdAt,asc";
+        break;
 
-let sort: string | undefined;
-
-switch (sortOption) {
-  case "nameAsc":
-    sort = "firstName,asc";
-    break;
-
-  case "nameDesc":
-    sort = "firstName,desc";
-    break;
-
-  case "newest":
-    sort = "createdAt,desc";
-    break;
-
-  case "oldest":
-    sort = "createdAt,asc";
-    break;
-
-  default:
-    sort = undefined;
-}
-
-const data = await getOwners({
-  page,
-  size,
-  search: searchTerm || undefined,
-  sort,
-});
-
-
-
-setOwners(data.content);
-setTotalPages(data.totalPages);
-
-
-    } catch(error) {
-
-
-      console.error(
-        error
-      );
-
-
-      setError(
-        "Failed to load owners."
-      );
-
-
-    } finally {
-
-
-      setLoading(false);
-
+      default:
+        sort = undefined;
     }
 
-  };
+    const data = await getOwners({
+      page,
+      size,
+      search: searchTerm || undefined,
+      sort,
+    });
 
+    setOwners(data.content);
+    setTotalPages(data.totalPages);
 
+  } catch (error) {
+    console.error(error);
 
+    setError(
+      "Failed to load owners."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
+const fetchOwnerStats = async () => {
+  try {
+    const data =
+      await getOwnerStats();
 
- useEffect(() => {
+    setStats(data);
+  } catch (error) {
+    console.error(
+      "Failed to load owner stats:",
+      error
+    );
+  }
+};
+
+useEffect(() => {
   fetchOwners();
+  fetchOwnerStats();
 }, [
   page,
   size,
   searchTerm,
   sortOption,
 ]);
-
 
   const handleExportOwners = () => {
     
@@ -445,7 +438,7 @@ setTotalPages(data.totalPages);
 
 
 
-        <OwnerStats />
+        <OwnerStats stats={stats} />
 
 
 

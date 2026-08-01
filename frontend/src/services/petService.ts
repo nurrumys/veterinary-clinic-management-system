@@ -4,6 +4,7 @@ import type {
   Pet,
   CreatePetRequest,
   UpdatePetRequest,
+  PetStatsResponse,
 } from "../types/pet";
 
 import type {
@@ -177,6 +178,17 @@ export const getPetVaccinations = async (
           size,
         },
       }
+    );
+
+  return response.data;
+};
+
+/* ---------------- Pet Statistics ---------------- */
+
+export const getPetStats = async (): Promise<PetStatsResponse> => {
+  const response =
+    await api.get<PetStatsResponse>(
+      "/pets/stats"
     );
 
   return response.data;

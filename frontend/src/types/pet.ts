@@ -38,3 +38,10 @@ export type CreatePetRequest = {
 };
 
 export type UpdatePetRequest = CreatePetRequest;
+
+export type PetStatsResponse = {
+  totalPets: number;
+  dogs: number;
+  cats: number;
+  newThisMonth: number;
+};

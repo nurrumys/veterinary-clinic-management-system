@@ -34,3 +34,9 @@ export type OwnerDetail = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type OwnerStatsResponse = {
+  totalOwners: number;
+  totalPets: number;
+  newOwnersThisMonth: number;
+};

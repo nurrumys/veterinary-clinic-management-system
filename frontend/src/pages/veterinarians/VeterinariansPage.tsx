@@ -17,17 +17,26 @@ import {
   getVets,
   createVet,
   updateVet,
+  getVetStats,
 } from "../../services/veterinarianService";
 
 import type {
   Veterinarian,
   CreateVeterinarianRequest,
+  VeterinarianStatsResponse,
 } from "../../types/veterinarian";
 
 function VeterinariansPage() {
   const [veterinarians, setVeterinarians] = useState<
     Veterinarian[]
   >([]);
+  const [stats, setStats] =
+  useState<VeterinarianStatsResponse>({
+    totalVets: 0,
+    availableDoctors: 0,
+    specialties: 0,
+    newThisMonth: 0,
+  });
 
   const [page, setPage] = useState(0);
 
@@ -81,10 +90,31 @@ const [
       setLoading(false);
     }
   };
+  const fetchVetStats = async () => {
+  try {
 
-  useEffect(() => {
-    fetchVeterinarians();
-  }, [page, sort]);
+    const data =
+      await getVetStats();
+
+    setStats(data);
+
+  } catch(error) {
+
+    console.error(
+      "Failed to load vet stats:",
+      error
+    );
+
+  }
+};
+
+ useEffect(() => {
+
+  fetchVeterinarians();
+
+  fetchVetStats();
+
+}, [page, sort]);
     const handleAddVeterinarian = () => {
     setSelectedVeterinarian(null);
     setIsModalOpen(true);
@@ -216,7 +246,9 @@ const handleExportVeterinarians = () => {
   <div className="space-y-6">
   
 
-  <VeterinarianStats />
+  <VeterinarianStats
+  stats={stats}
+/>
 </div>
 
  <VeterinarianToolbar
