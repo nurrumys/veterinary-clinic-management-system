@@ -13,102 +13,109 @@ import SupportPage from "./pages/support/SupportPage";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 
+import Toast from "./components/ui/Toast";
+
+
 function App() {
   return (
-    <Routes>
+    <>
+      <Toast />
 
-      <Route
-        path="/"
-        element={<Navigate to="/login" replace />}
-      />
+      <Routes>
 
-      <Route
-        path="/login"
-        element={<LoginPage />}
-      />
+        <Route
+          path="/"
+          element={<Navigate to="/login" replace />}
+        />
 
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <DashboardPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/login"
+          element={<LoginPage />}
+        />
 
-      <Route
-        path="/owners"
-        element={
-          <ProtectedRoute>
-            <OwnersPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/pets"
-        element={
-          <ProtectedRoute>
-            <PetsPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/owners"
+          element={
+            <ProtectedRoute>
+              <OwnersPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/pets/:id"
-        element={
-          <ProtectedRoute>
-            <PetDetailPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/pets"
+          element={
+            <ProtectedRoute>
+              <PetsPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/veterinarians"
-        element={
-          <ProtectedRoute>
-            <VeterinariansPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/pets/:id"
+          element={
+            <ProtectedRoute>
+              <PetDetailPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/appointments"
-        element={
-          <ProtectedRoute>
-            <AppointmentsPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/veterinarians"
+          element={
+            <ProtectedRoute>
+              <VeterinariansPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/vaccinations"
-        element={
-          <ProtectedRoute>
-            <VaccinationsPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/appointments"
+          element={
+            <ProtectedRoute>
+              <AppointmentsPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/invoices"
-        element={
-          <ProtectedRoute>
-            <InvoicesPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/vaccinations"
+          element={
+            <ProtectedRoute>
+              <VaccinationsPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/support"
-        element={
-          <ProtectedRoute>
-            <SupportPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/invoices"
+          element={
+            <ProtectedRoute>
+              <InvoicesPage />
+            </ProtectedRoute>
+          }
+        />
 
-    </Routes>
+        <Route
+          path="/support"
+          element={
+            <ProtectedRoute>
+              <SupportPage />
+            </ProtectedRoute>
+          }
+        />
+
+      </Routes>
+    </>
   );
 }
 
