@@ -17,6 +17,11 @@ spring.jpa.properties.hibernate.format_sql=true
 app.jwt.secret=${JWT_SECRET:change-me-in-local-application-properties}
 app.jwt.expiration-ms=${JWT_EXPIRATION_MS:86400000}
 
+# Max requests per IP to /api/auth/** within the refill period, before returning 429.
+app.rate-limit.enabled=${RATE_LIMIT_ENABLED:true}
+app.rate-limit.auth.capacity=${RATE_LIMIT_AUTH_CAPACITY:5}
+app.rate-limit.auth.refill-period-seconds=${RATE_LIMIT_AUTH_REFILL_PERIOD_SECONDS:60}
+
 app.seed.admin.email=${SEED_ADMIN_EMAIL:admin@clinic.com}
 app.seed.admin.password=${SEED_ADMIN_PASSWORD:change-me}
 app.seed.vet1.email=${SEED_VET1_EMAIL:vet1@clinic.com}

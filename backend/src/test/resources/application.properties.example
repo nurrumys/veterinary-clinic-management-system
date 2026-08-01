@@ -10,6 +10,10 @@ spring.jpa.properties.hibernate.format_sql=true
 app.jwt.secret=change-me-in-local-application-properties
 app.jwt.expiration-ms=3600000
 
+app.rate-limit.enabled=false
+app.rate-limit.auth.capacity=5
+app.rate-limit.auth.refill-period-seconds=60
+
 app.seed.admin.email=admin@clinic.com
 app.seed.admin.password=change-me
 app.seed.vet1.email=vet1@clinic.com
