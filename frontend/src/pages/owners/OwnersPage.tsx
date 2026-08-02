@@ -31,6 +31,7 @@ import toast from "react-hot-toast";
 function OwnersPage() {
 
 
+
   const [owners, setOwners] =
     useState<Owner[]>([]);
     const [stats, setStats] =
@@ -89,7 +90,9 @@ function OwnersPage() {
   const [totalPages, setTotalPages] = useState(0);
   const fetchOwners = async () => {
   try {
-    setLoading(true);
+    if (owners.length === 0) {
+  setLoading(true);
+}
     setError("");
 
     let sort: string | undefined;
@@ -149,16 +152,13 @@ const fetchOwnerStats = async () => {
     );
   }
 };
-
 useEffect(() => {
   fetchOwners();
+}, [page, size, searchTerm, sortOption]);
+
+useEffect(() => {
   fetchOwnerStats();
-}, [
-  page,
-  size,
-  searchTerm,
-  sortOption,
-]);
+}, []);
 
   const handleExportOwners = () => {
     
@@ -443,7 +443,9 @@ useEffect(() => {
 
 
         </div>
-        {loading ? (
+        
+  
+    {loading ? (
   <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-slate-500">
     Loading owners...
   </div>
@@ -469,8 +471,14 @@ useEffect(() => {
     />
 
     {owners.length === 0 ? (
-      <div className="rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center text-slate-500">
-        No owners found.
+      <div className="rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center">
+        <h3 className="text-lg font-semibold text-slate-700">
+          No owners found
+        </h3>
+
+        <p className="mt-2 text-slate-500">
+          There are no owners matching your search.
+        </p>
       </div>
     ) : (
       <>
@@ -489,7 +497,6 @@ useEffect(() => {
     )}
   </>
 )}
-
 
 
 

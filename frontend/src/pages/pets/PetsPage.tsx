@@ -12,6 +12,7 @@ import PetForm from "../../components/pets/PetForm";
 import DeletePetDialog from "../../components/pets/DeletePetDialog";
 import toast from "react-hot-toast";
 
+
 import {
   getPets,
   getPetStats,
@@ -63,12 +64,16 @@ const [totalPages, setTotalPages] = useState(0);
 
 
   const [error, setError] =
-    useState("");
-
+  useState("");
+  
 
 
   const [search, setSearch] =
     useState("");
+    const [debouncedSearch, setDebouncedSearch] =
+  
+    useState("");
+
 
 
 
@@ -114,7 +119,9 @@ const [totalPages, setTotalPages] = useState(0);
     try {
 
 
-      setLoading(true);
+      if (pets.length === 0) {
+  setLoading(true);
+}
 
       setError("");
 
@@ -144,7 +151,7 @@ switch (sort) {
 const data = await getPets({
   page,
   size,
-  search: search || undefined,
+  search: debouncedSearch || undefined,
   species: species || undefined,
   ownerId: owner ? Number(owner) : undefined,
   active: !showArchived,
@@ -195,7 +202,7 @@ setTotalPages(data.totalPages);
   try {
     const data = await getOwners();
 
-    console.log(data);
+    
 
     setOwners(data.content ?? []);
   } catch (error) {
@@ -209,16 +216,25 @@ setTotalPages(data.totalPages);
 
   useEffect(() => {
   fetchPets();
-  fetchPetStats();
 }, [
   page,
   size,
-  search,
+  debouncedSearch,
   species,
   owner,
   sort,
   showArchived,
 ]);
+useEffect(() => {
+  fetchPetStats();
+}, []);
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setDebouncedSearch(search.trim());
+  }, 400);
+
+  return () => clearTimeout(timer);
+}, [search]);
 
 useEffect(() => {
   fetchOwners();
@@ -629,21 +645,9 @@ return (
   </>
 )}
 
+</div>
 
-
-
-
-        </div>
-
-
-
-
-
-
-
-
-
-        <Modal
+<Modal
 
 
           open={isModalOpen}

@@ -197,6 +197,7 @@ const handleSubmitVaccination = async (
   }
 
   await fetchVaccinations();
+  await fetchStats();
 
   handleCloseModal();
 
@@ -225,6 +226,7 @@ const handleDeleteVaccination = async () => {
   );
 
   await fetchVaccinations();
+  await fetchStats();
 
   setVaccinationToDelete(null);
 
@@ -311,7 +313,9 @@ return (
         </div>
       ) : (
         <>
-          <VaccinationStats stats={stats!} />
+         {stats !== null && (
+  <VaccinationStats stats={stats} />
+)}
 
           <div className="mt-8">
             <VaccinationToolbar
