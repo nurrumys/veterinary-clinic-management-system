@@ -110,8 +110,9 @@ function LoginForm() {
       if (status === 401) {
 
         setLoginError(
-          "Invalid email or password."
-        );
+  error.response?.data?.message ??
+  "Invalid email or password."
+);
 
         return;
       }
