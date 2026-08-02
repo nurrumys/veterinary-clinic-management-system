@@ -44,11 +44,13 @@ public class Visit {
     @Column(nullable = false)
     private VisitStatus status;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String chiefComplaint;
 
+    @Column(length = 2000)
     private String diagnosis;
 
+    @Column(length = 4000)
     private String treatmentNotes;
 
     private LocalDate followUpDate;

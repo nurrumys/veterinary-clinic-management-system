@@ -9,6 +9,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsStringIgnoringCase;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -108,6 +111,203 @@ class OwnerControllerTest {
                         .content(createBody))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors[0].field").value("firstName"));
+    }
+
+    @Test
+    void createOwnerWithFirstNameAtMaxLengthIsAccepted() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String firstName = "A".repeat(100);
+        String createBody = objectMapper.writeValueAsString(
+                new OwnerPayload(firstName, "Demir", "+90 555 123 4567", "max-firstname@example.com", "Istanbul, Turkey"));
+
+        mockMvc.perform(post("/api/owners")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.firstName").value(firstName));
+    }
+
+    @Test
+    void createOwnerWithFirstNameOverMaxLengthReturnsBadRequest() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String firstName = "A".repeat(101);
+        String createBody = objectMapper.writeValueAsString(
+                new OwnerPayload(firstName, "Demir", "+90 555 123 4567", "over-firstname@example.com", "Istanbul, Turkey"));
+
+        mockMvc.perform(post("/api/owners")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("firstName"))
+                .andExpect(jsonPath("$.message").value(not(containsStringIgnoringCase("sql"))));
+    }
+
+    @Test
+    void createOwnerWithLastNameAtMaxLengthIsAccepted() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String lastName = "B".repeat(100);
+        String createBody = objectMapper.writeValueAsString(
+                new OwnerPayload("Mehmet", lastName, "+90 555 123 4567", "max-lastname@example.com", "Istanbul, Turkey"));
+
+        mockMvc.perform(post("/api/owners")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.lastName").value(lastName));
+    }
+
+    @Test
+    void createOwnerWithLastNameOverMaxLengthReturnsBadRequest() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String lastName = "B".repeat(101);
+        String createBody = objectMapper.writeValueAsString(
+                new OwnerPayload("Mehmet", lastName, "+90 555 123 4567", "over-lastname@example.com", "Istanbul, Turkey"));
+
+        mockMvc.perform(post("/api/owners")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("lastName"))
+                .andExpect(jsonPath("$.message").value(not(containsStringIgnoringCase("sql"))));
+    }
+
+    @Test
+    void createOwnerWithPhoneAtMaxLengthIsAccepted() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String phone = "1".repeat(20);
+        String createBody = objectMapper.writeValueAsString(
+                new OwnerPayload("Mehmet", "Demir", phone, "max-phone@example.com", "Istanbul, Turkey"));
+
+        mockMvc.perform(post("/api/owners")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.phone").value(phone));
+    }
+
+    @Test
+    void createOwnerWithPhoneOverMaxLengthReturnsBadRequest() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String phone = "1".repeat(21);
+        String createBody = objectMapper.writeValueAsString(
+                new OwnerPayload("Mehmet", "Demir", phone, "over-phone@example.com", "Istanbul, Turkey"));
+
+        mockMvc.perform(post("/api/owners")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("phone"))
+                .andExpect(jsonPath("$.message").value(not(containsStringIgnoringCase("sql"))));
+    }
+
+    @Test
+    void createOwnerWithEmailAtMaxLengthIsAccepted() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String localPart = "a".repeat(64);
+        String domainLabel = "a".repeat(61);
+        String email = localPart + "@" + domainLabel + "." + domainLabel + "." + domainLabel + ".com";
+        assertThat(email.length()).isEqualTo(254);
+        String createBody = objectMapper.writeValueAsString(
+                new OwnerPayload("Mehmet", "Demir", "+90 555 123 4567", email, "Istanbul, Turkey"));
+
+        mockMvc.perform(post("/api/owners")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.email").value(email));
+    }
+
+    @Test
+    void createOwnerWithEmailOverMaxLengthReturnsBadRequest() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String localPart = "a".repeat(64);
+        String domainLabel = "a".repeat(61);
+        String domainLabelPlusOne = "a".repeat(62);
+        String email = localPart + "@" + domainLabelPlusOne + "." + domainLabel + "." + domainLabel + ".com";
+        assertThat(email.length()).isEqualTo(255);
+        String createBody = objectMapper.writeValueAsString(
+                new OwnerPayload("Mehmet", "Demir", "+90 555 123 4567", email, "Istanbul, Turkey"));
+
+        mockMvc.perform(post("/api/owners")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("email"))
+                .andExpect(jsonPath("$.message").value(not(containsStringIgnoringCase("sql"))));
+    }
+
+    @Test
+    void createOwnerWithAddressAtMaxLengthIsAccepted() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String address = "C".repeat(500);
+        String createBody = objectMapper.writeValueAsString(
+                new OwnerPayload("Mehmet", "Demir", "+90 555 123 4567", "max-address@example.com", address));
+
+        mockMvc.perform(post("/api/owners")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.address").value(address));
+    }
+
+    @Test
+    void createOwnerWithAddressOverMaxLengthReturnsBadRequest() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        String address = "C".repeat(501);
+        String createBody = objectMapper.writeValueAsString(
+                new OwnerPayload("Mehmet", "Demir", "+90 555 123 4567", "over-address@example.com", address));
+
+        mockMvc.perform(post("/api/owners")
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("address"))
+                .andExpect(jsonPath("$.message").value(not(containsStringIgnoringCase("sql"))));
+    }
+
+    @Test
+    void updateOwnerWithAddressAtMaxLengthIsAccepted() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long ownerId = createOwner(receptionistToken, "update-max-address@example.com");
+        String address = "D".repeat(500);
+
+        String updateBody = objectMapper.writeValueAsString(
+                new OwnerPayload("Mehmet", "Demir", "+90 555 123 4567", "update-max-address@example.com", address));
+
+        mockMvc.perform(put("/api/owners/" + ownerId)
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.address").value(address));
+    }
+
+    @Test
+    void updateOwnerWithAddressOverMaxLengthReturnsBadRequest() throws Exception {
+        String receptionistToken = loginAndGetToken(SEED_RECEPTIONIST_EMAIL, SEED_RECEPTIONIST_PASSWORD);
+        long ownerId = createOwner(receptionistToken, "update-over-address@example.com");
+        String address = "D".repeat(501);
+
+        String updateBody = objectMapper.writeValueAsString(
+                new OwnerPayload("Mehmet", "Demir", "+90 555 123 4567", "update-over-address@example.com", address));
+
+        mockMvc.perform(put("/api/owners/" + ownerId)
+                        .header("Authorization", "Bearer " + receptionistToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("address"))
+                .andExpect(jsonPath("$.message").value(not(containsStringIgnoringCase("sql"))));
     }
 
     @Test
