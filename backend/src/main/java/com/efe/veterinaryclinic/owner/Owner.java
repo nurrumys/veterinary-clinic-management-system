@@ -21,19 +21,19 @@ public class Owner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String firstName;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String lastName;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private String phone;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 254)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String address;
 
     @Column(nullable = false, updatable = false)
