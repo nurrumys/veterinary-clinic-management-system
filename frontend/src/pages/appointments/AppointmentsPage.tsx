@@ -210,11 +210,17 @@ function AppointmentsPage() {
 } catch (error: any) {
   console.error(error);
 
-  const message =
-    error?.response?.data?.message ??
-    "Failed to save appointment.";
+  if (error.response?.status === 409) {
+    toast.error(
+      "Cannot create appointment. Another appointment exists for this veterinarian."
+    );
+  } else {
+    const message =
+      error?.response?.data?.message ??
+      "Failed to save appointment.";
 
-  toast.error(message);
+    toast.error(message);
+  }
 }
   };
 
