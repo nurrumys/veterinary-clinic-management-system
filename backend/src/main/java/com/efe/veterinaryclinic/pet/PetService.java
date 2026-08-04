@@ -40,6 +40,7 @@ public class PetService {
     public PetResponse create(PetRequest request) {
         validateSpeciesBreedRule(request.species(), request.speciesNote());
         Owner owner = findOwnerOrThrow(request.ownerId());
+        reactivateOwnerIfArchived(owner);
 
         Pet pet = new Pet(owner, request.name(), request.species(), request.breed(), request.speciesNote(),
                 request.birthDate(), request.sex(), request.weightKg(), request.allergies(), request.chronicConditions());
@@ -100,6 +101,7 @@ public class PetService {
         Pet pet = findPetOrThrow(id);
         pet.activate();
         Pet saved = petRepository.save(pet);
+        reactivateOwnerIfArchived(saved.getOwner());
 
         return PetResponse.from(saved, isInactive(saved));
     }
@@ -122,6 +124,13 @@ public class PetService {
                 .orElse(pet.getCreatedAt());
 
         return lastSeenAt.isBefore(LocalDateTime.now().minusYears(INACTIVE_YEARS_THRESHOLD));
+    }
+
+    private void reactivateOwnerIfArchived(Owner owner) {
+        if (owner.isArchived()) {
+            owner.activate();
+            ownerRepository.save(owner);
+        }
     }
 
     private void validateSpeciesBreedRule(String species, String speciesNote) {

@@ -14,6 +14,7 @@ import static org.hamcrest.Matchers.containsStringIgnoringCase;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -348,9 +349,25 @@ class OwnerControllerTest {
     }
 
     @Test
-    void adminDeletesOwnerWithNoPets() throws Exception {
+    void deleteOwnerNotArchivedReturnsConflict() throws Exception {
+        String adminToken = loginAndGetToken(SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD);
+        long ownerId = createOwner(adminToken, "not-archived-owner@example.com");
+
+        mockMvc.perform(delete("/api/owners/" + ownerId)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Owner must be archived before it can be deleted"));
+    }
+
+    @Test
+    void adminDeletesArchivedOwnerWithNoPets() throws Exception {
         String adminToken = loginAndGetToken(SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD);
         long ownerId = createOwner(adminToken, "no-pets-owner@example.com");
+
+        mockMvc.perform(patch("/api/owners/" + ownerId + "/archive")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.archived").value(true));
 
         mockMvc.perform(delete("/api/owners/" + ownerId)
                         .header("Authorization", "Bearer " + adminToken))
@@ -358,9 +375,64 @@ class OwnerControllerTest {
     }
 
     @Test
-    void deleteOwnerWithPetsReturnsConflict() throws Exception {
+    void deleteArchivedOwnerWithPetsReturnsConflict() throws Exception {
         String adminToken = loginAndGetToken(SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD);
         long ownerId = createOwner(adminToken, "owner-with-pet@example.com");
+
+        String petBody = objectMapper.writeValueAsString(
+                new PetPayload(ownerId, "Boncuk", "DOG", "Golden Retriever", null,
+                        "2022-03-15", "FEMALE", 24.5, null, null));
+        String petResponse = mockMvc.perform(post("/api/pets")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(petBody))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long petId = objectMapper.readTree(petResponse).get("id").asLong();
+
+        mockMvc.perform(patch("/api/pets/" + petId + "/archive")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(patch("/api/owners/" + ownerId + "/archive")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.archived").value(true));
+
+        mockMvc.perform(delete("/api/owners/" + ownerId)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Owner has 1 pet(s) and cannot be deleted"));
+    }
+
+    @Test
+    void archiveThenActivateOwnerTogglesArchivedFlag() throws Exception {
+        String adminToken = loginAndGetToken(SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD);
+        long ownerId = createOwner(adminToken, "toggle-owner@example.com");
+
+        mockMvc.perform(patch("/api/owners/" + ownerId + "/archive")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.archived").value(true));
+
+        mockMvc.perform(get("/api/owners/" + ownerId).header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.archived").value(true));
+
+        mockMvc.perform(patch("/api/owners/" + ownerId + "/activate")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.archived").value(false));
+
+        mockMvc.perform(get("/api/owners/" + ownerId).header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.archived").value(false));
+    }
+
+    @Test
+    void archiveOwnerWithActivePetReturnsConflict() throws Exception {
+        String adminToken = loginAndGetToken(SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD);
+        long ownerId = createOwner(adminToken, "active-pet-owner@example.com");
 
         String petBody = objectMapper.writeValueAsString(
                 new PetPayload(ownerId, "Boncuk", "DOG", "Golden Retriever", null,
@@ -371,10 +443,122 @@ class OwnerControllerTest {
                         .content(petBody))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(delete("/api/owners/" + ownerId)
+        mockMvc.perform(patch("/api/owners/" + ownerId + "/archive")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").value("Owner has 1 pet(s) and cannot be deleted"));
+                .andExpect(jsonPath("$.message").value("Owner has active pet(s) and cannot be archived"));
+    }
+
+    @Test
+    void archiveOwnerByVetIsForbidden() throws Exception {
+        String adminToken = loginAndGetToken(SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD);
+        String vetToken = loginAndGetToken(SEED_VET1_EMAIL, SEED_VET1_PASSWORD);
+        long ownerId = createOwner(adminToken, "vet-archive-owner@example.com");
+
+        mockMvc.perform(patch("/api/owners/" + ownerId + "/archive")
+                        .header("Authorization", "Bearer " + vetToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void archiveUnknownOwnerReturnsNotFound() throws Exception {
+        String adminToken = loginAndGetToken(SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD);
+
+        mockMvc.perform(patch("/api/owners/999999/archive")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void activatingPetAutoActivatesArchivedOwner() throws Exception {
+        String adminToken = loginAndGetToken(SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD);
+        long ownerId = createOwner(adminToken, "auto-activate-owner@example.com");
+
+        String petBody = objectMapper.writeValueAsString(
+                new PetPayload(ownerId, "Boncuk", "DOG", "Golden Retriever", null,
+                        "2022-03-15", "FEMALE", 24.5, null, null));
+        String petResponse = mockMvc.perform(post("/api/pets")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(petBody))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long petId = objectMapper.readTree(petResponse).get("id").asLong();
+
+        mockMvc.perform(patch("/api/pets/" + petId + "/archive")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk());
+        mockMvc.perform(patch("/api/owners/" + ownerId + "/archive")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.archived").value(true));
+
+        mockMvc.perform(patch("/api/pets/" + petId + "/activate")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/owners/" + ownerId).header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.archived").value(false));
+    }
+
+    @Test
+    void creatingPetForArchivedOwnerAutoActivatesOwner() throws Exception {
+        String adminToken = loginAndGetToken(SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD);
+        long ownerId = createOwner(adminToken, "auto-activate-on-create@example.com");
+
+        mockMvc.perform(patch("/api/owners/" + ownerId + "/archive")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.archived").value(true));
+
+        String petBody = objectMapper.writeValueAsString(
+                new PetPayload(ownerId, "Pamuk", "CAT", "Persian", null,
+                        "2023-01-10", "MALE", 4.2, null, null));
+        mockMvc.perform(post("/api/pets")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(petBody))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/owners/" + ownerId).header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.archived").value(false));
+    }
+
+    @Test
+    void listOwnersFilteredByActiveExcludesArchivedOwners() throws Exception {
+        String adminToken = loginAndGetToken(SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD);
+        String uniqueLastName = "Arsivli" + System.nanoTime();
+        String createBody = objectMapper.writeValueAsString(
+                new OwnerPayload("Kemal", uniqueLastName, "+90 555 444 5566",
+                        "list-filter-" + System.nanoTime() + "@example.com", "Bursa, Turkey"));
+        String createResponse = mockMvc.perform(post("/api/owners")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long ownerId = objectMapper.readTree(createResponse).get("id").asLong();
+
+        mockMvc.perform(patch("/api/owners/" + ownerId + "/archive")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/owners")
+                        .param("active", "true")
+                        .param("search", uniqueLastName)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(0));
+
+        mockMvc.perform(get("/api/owners")
+                        .param("active", "false")
+                        .param("search", uniqueLastName)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.content[0].id").value(ownerId));
     }
 
     @Test

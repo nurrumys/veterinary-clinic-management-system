@@ -39,11 +39,14 @@ public class OwnerService {
         return toResponse(saved);
     }
 
-    public PageResponse<OwnerResponse> list(String search, Pageable pageable) {
+    public PageResponse<OwnerResponse> list(String search, Boolean active, Pageable pageable) {
         Specification<Owner> spec = (root, query, cb) -> cb.conjunction();
 
         if (search != null && !search.isBlank()) {
             spec = spec.and(OwnerSpecifications.nameContains(search));
+        }
+        if (active != null) {
+            spec = spec.and(OwnerSpecifications.isArchived(!active));
         }
 
         return PageResponse.from(ownerRepository.findAll(spec, pageable).map(this::toResponse));
@@ -79,8 +82,28 @@ public class OwnerService {
         return new OwnerStatsResponse(totalOwners, totalPets, newOwnersThisMonth);
     }
 
+    public OwnerResponse archive(Long id) {
+        Owner owner = findOrThrow(id);
+        if (petRepository.existsByOwnerIdAndArchivedFalse(id)) {
+            throw new ConflictException("Owner has active pet(s) and cannot be archived");
+        }
+
+        owner.archive();
+        return toResponse(ownerRepository.save(owner));
+    }
+
+    public OwnerResponse activate(Long id) {
+        Owner owner = findOrThrow(id);
+        owner.activate();
+        return toResponse(ownerRepository.save(owner));
+    }
+
     public void delete(Long id) {
         Owner owner = findOrThrow(id);
+        if (!owner.isArchived()) {
+            throw new ConflictException("Owner must be archived before it can be deleted");
+        }
+
         long petCount = petRepository.countByOwnerId(owner.getId());
         if (petCount > 0) {
             throw new ConflictException("Owner has " + petCount + " pet(s) and cannot be deleted");

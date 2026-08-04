@@ -36,6 +36,9 @@ public class Owner {
     @Column(nullable = false, length = 500)
     private String address;
 
+    @Column(nullable = false)
+    private boolean archived;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -51,6 +54,7 @@ public class Owner {
         this.phone = phone;
         this.email = email;
         this.address = address;
+        this.archived = false;
     }
 
     public void update(String firstName, String lastName, String phone, String email, String address) {
@@ -59,6 +63,14 @@ public class Owner {
         this.phone = phone;
         this.email = email;
         this.address = address;
+    }
+
+    public void archive() {
+        this.archived = true;
+    }
+
+    public void activate() {
+        this.archived = false;
     }
 
     @PrePersist

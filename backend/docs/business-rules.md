@@ -21,7 +21,8 @@ This document details every backend business rule. Each rule states what must ha
 - `PATCH /api/pets/{id}/activate` sets `archived = false`.
 - Listing endpoints filter by `archived` via an explicit `active`/`archived` query parameter; default listing behavior should be documented and consistent (do not silently hide archived pets without a filter option).
 - No `DELETE /api/pets/{id}` endpoint exists.
-- See also Rule 12 (Owner Deletion Rule) — deleting an `Owner` never cascades to its `Pet`s and never auto-archives them.
+- Reactivating a pet (`PATCH /api/pets/{id}/activate`) or creating a new pet for an archived owner automatically reactivates the owner (`Owner.archived = false`) as a side effect — see Rule 12 (Owner Archive & Deletion Rule).
+- See also Rule 12 — owner archive/deletion is a separate lifecycle from pet archive/deletion, but the two are linked in this one direction.
 
 ## 3. Vaccination Next Due Date Calculation
 
@@ -95,15 +96,20 @@ This document details every backend business rule. Each rule states what must ha
 - Role-based rules (treatment notes, invoice actions, etc.) are enforced with Spring Security annotations **and** a service-layer check, so the rule survives changes to route configuration.
 - Calculated fields (invoice totals, vaccination due dates) are always recomputed server-side and never trust client-submitted values for the same field.
 
-## 12. Owner Deletion Rule
+## 12. Owner Archive & Deletion Rule
 
-**Rule**: `DELETE /api/owners/{id}` is only allowed when the owner has no pets.
+**Rule**: An `Owner` has its own soft-delete lifecycle (`Owner.archived`, mirroring Rule 2 for pets), and hard deletion (`DELETE /api/owners/{id}`) is only ever allowed on an owner that is already archived and has no pets at all.
 
-- If the `Owner` has one or more `Pet`s (regardless of `archived` status), the backend rejects the request with `409 Conflict` and a clear message (e.g. `"Owner has 2 pet(s) and cannot be deleted"`).
-- If the `Owner` has no `Pet`s, deletion proceeds normally and returns `204 No Content`.
+- `Owner.archived` (boolean, default `false`) is the source of truth.
+- `PATCH /api/owners/{id}/archive` sets `archived = true`, but only if the owner has **no active (non-archived) pets** — i.e. every `Pet` belonging to the owner must already be archived (an owner with zero pets trivially satisfies this). Otherwise the backend rejects the request with `409 Conflict` (e.g. `"Owner has active pet(s) and cannot be archived"`).
+- `PATCH /api/owners/{id}/activate` sets `archived = false` unconditionally (no precondition, mirrors Pet activate).
+- Reactivating a pet or creating a new pet for an archived owner automatically reactivates the owner as a side effect (see Rule 2) — this keeps `Owner.archived` consistent with "does this owner have any active pet."
+- `DELETE /api/owners/{id}` (hard delete) requires **both**: the owner is already `archived`, **and** the owner has zero `Pet` records at all (regardless of `archived` status on those pets). If the owner is not archived, the backend rejects with `409 Conflict` (`"Owner must be archived before it can be deleted"`). If the owner is archived but still has one or more pet records, the backend rejects with `409 Conflict` (e.g. `"Owner has 2 pet(s) and cannot be deleted"`).
+  - In practice, an owner that has ever had a pet can never satisfy the `petCount == 0` condition again, since pets are never hard-deleted (Rule 2) — so hard delete is only reachable for owners that never had any pets. Owners with a pet history can be archived but not hard-deleted; this is intentional, not a bug.
 - Deleting an owner never cascades to delete its pets, and never auto-archives them — pet lifecycle is managed independently via archive/activate (Rule 2).
-- Owner list/detail responses include `petCount` so the frontend can proactively disable the delete action or show a confirmation/error message before the request is even sent.
+- Owner list/detail responses include `petCount` and `archived` so the frontend can proactively disable/enable the archive, activate, and delete actions or show a confirmation/error message before the request is even sent.
 - Enforced in `OwnerService`, not in the controller or repository.
+- Roles: `PATCH /api/owners/{id}/archive` and `/activate` are `ADMIN`, `RECEPTIONIST` (same as owner create/update). `DELETE /api/owners/{id}` remains `ADMIN` only.
 
 ## 13. Role Permission Clarifications
 

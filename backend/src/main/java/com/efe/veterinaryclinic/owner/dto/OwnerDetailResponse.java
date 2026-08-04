@@ -15,6 +15,7 @@ public record OwnerDetailResponse(
         String address,
         long petCount,
         List<PetResponse> pets,
+        boolean archived,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
@@ -29,6 +30,7 @@ public record OwnerDetailResponse(
                 owner.getAddress(),
                 pets.size(),
                 pets,
+                owner.isArchived(),
                 owner.getCreatedAt(),
                 owner.getUpdatedAt()
         );
