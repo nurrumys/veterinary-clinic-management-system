@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-public class PetService {
+public class  PetService {
 
     private static final Set<String> SPECIES_WITH_BREED = Set.of("CAT", "DOG");
     private static final int INACTIVE_YEARS_THRESHOLD = 2;
@@ -81,6 +81,7 @@ public class PetService {
         validateSpeciesBreedRule(request.species(), request.speciesNote());
         Pet pet = findPetOrThrow(id);
         Owner owner = findOwnerOrThrow(request.ownerId());
+        reactivateOwnerIfArchived(owner);
 
         pet.update(owner, request.name(), request.species(), request.breed(), request.speciesNote(),
                 request.birthDate(), request.sex(), request.weightKg(), request.allergies(), request.chronicConditions());
