@@ -55,6 +55,8 @@ public class Visit {
 
     private LocalDate followUpDate;
 
+    private LocalDateTime reminderSentAt;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -87,6 +89,10 @@ public class Visit {
         this.diagnosis = diagnosis;
         this.treatmentNotes = treatmentNotes;
         this.followUpDate = followUpDate;
+    }
+
+    public void markReminderSent() {
+        this.reminderSentAt = LocalDateTime.now();
     }
 
     @PrePersist
